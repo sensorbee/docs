@@ -2,8 +2,9 @@
 
 When defining a (sub)section, use the follow markers for each level:
 
-1. ======
-2. ------
-3. ~~~~~~
-4. ^^^^^^
-5. ******
+* # with overline, for parts
+* * with overline, for chapters
+* =, for sections
+* -, for subsections
+* ^, for subsubsections
+* ", for paragraphs
