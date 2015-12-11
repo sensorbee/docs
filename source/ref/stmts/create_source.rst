@@ -13,7 +13,7 @@ Synopsis
 Description
 -----------
 
-CREATE SOURCE creates a new source in a topology.
+``CREATE SOURCE`` creates a new source in a topology.
 
 Parameters
 ----------
