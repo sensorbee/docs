@@ -11,6 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   bql.rst
+   ref.rst
 
 
 Indices and tables
