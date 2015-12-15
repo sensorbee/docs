@@ -18,13 +18,7 @@ Synopsis
 
     where emitter is:
 
-        {ISTREAM | DSTREAM | RSTREAM}
-            ["[" {
-                LIMIT emitter_limit |
-                EVERY sample_count-{ST | ND | RD | TH} TUPLE} |
-                EVERY sample_time {SECONDS | MILLISECONDS} |
-                SAMPLE sampling_rate %
-            } "]"]
+        {RSTREAM | ISTREAM | DSTREAM}
 
 Description
 -----------
@@ -49,6 +43,38 @@ Parameters
 emitter
 ^^^^^^^
 
+**emitter** controls how a ``SELECT`` emits resulting tuples.
+
+``RSTREAM``
+    When ``RSTREAM`` is specified, all tuples in a relation as a result of
+    processing a newly coming tuple are output. See :ref:`Relation-to-Stream operators`
+    for more details.
+
+``ISTREAM``
+    When  ``ISTREAM`` is specified, tuples contained in the current relation
+    but not in the previously computed relation are emitted. In other words,
+    tuples that are newly inserted or updated since the previous computation
+    are output. See :ref:`Relation-to-Stream operators` for more details.
+
+``DSTREAM``
+    When ``DSTREAM`` is specified, tuples contained in the previously computed
+    relation but not in the current relation are emitted. In other words,
+    tuples in the previous relation that are deleted or updated in the current
+    relation are output. Note that output tuples are from the previous
+    relation so that they have old values. See :ref:`Relation-to-Stream operators`
+    for more details.
+
+..
+    The following parameters are intentionally undocumented at the moment
+    because their specification related to computational model would likely
+    be changed soon.
+    ["[" {
+        LIMIT emitter_limit |
+        EVERY sample_count-{ST | ND | RD | TH} TUPLE} |
+        EVERY sample_time {SECONDS | MILLISECONDS} |
+        SAMPLE sampling_rate %
+    } "]"]
+
 ``FROM`` Clause
 ^^^^^^^^^^^^^^^
 
@@ -64,6 +90,26 @@ emitter
 
 Notes
 -----
+
+An emitter and its performance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There're some use case specific optimizations and this subsection describes
+each optimization and its limitation.
+
+Simple transformation and filtering
+"""""""""""""""""""""""""""""""""""
+
+Performing a simple per-tuple transformation or filtering over an input
+stream is a very common task. Therefore, BQL optimizes statements having the
+following form::
+
+    SELECT RSTREAM projection FROM input [RANGE 1 TUPLES] WHERE conditions;
+
+Limitations of this optimization are:
+
+* There can only be one input stream and its range is ``[RANGE 1 TUPLES]``.
+* The emitter must be ``RSTREAM``.
 
 Evaluation in ``WHERE`` clause
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
