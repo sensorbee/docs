@@ -166,8 +166,8 @@ Notes
 An emitter and its performance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-There're some use case specific optimizations and this subsection describes
-each optimization and its limitation.
+There're some use case specific optimizations of the evaluation of the
+``SELECT`` and this subsection describes each optimization and its limitation.
 
 Simple transformation and filtering
 """""""""""""""""""""""""""""""""""
