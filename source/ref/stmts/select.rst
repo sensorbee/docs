@@ -9,7 +9,7 @@ Synopsis
 ::
 
     SELECT emitter {* | expression [AS output_name]} [, ...]
-        FROM from_item "[" RANGE range_number {TUPLES | SECONDS | MILLISECONDS} "]"
+        FROM from_item stream_to_relation_operator
             [AS stream_alias] [, ...]
         [WHERE condition [, ...]]
         [GROUP BY expression [, ...]]
@@ -20,18 +20,26 @@ Synopsis
 
         {RSTREAM | ISTREAM | DSTREAM}
 
+    where stream_to_relation_operator is:
+
+        "[" RANGE range_number {TUPLES | SECONDS | MILLISECONDS}
+            [, BUFFER SIZE buffer_size]
+            [, drop_mode IF FULL]
+        "]"
+
 Description
 -----------
 
 ``SELECT`` retrieves tuples from one or more streams. The general processing of
 ``SELECT`` is as follows:
 
-#. Each tuple emitted from a **from_item** is computed. If more than one element
-   is specified in the ``FROM`` clause, they are cross-joined.
+#. Each **from_item** is converted into a relation (i.e. a window) from a
+   stream. Then, each tuple emitted from a **from_item** is computed within
+   the window. If more than one element is specified in the ``FROM`` clause,
+   they are cross-joined.
 #. When the `WHERE` clause is specified, **condition** is evaluated for each set
    of tuples cross-joined in the ``FROM`` clause. Sets which do not satisfy the
    condition are eliminated from the output.
-#. TODO: window
 #. TODO: ``GROUP BY`` and ``HAVING``
 #. TODO: projection
 #. TODO: emitter (ISTREAM/DSTREAM/RSTREAM)
@@ -77,6 +85,70 @@ emitter
 
 ``FROM`` Clause
 ^^^^^^^^^^^^^^^
+
+The ``FROM`` clause specifies one or more source streams for the ``SELECT``
+and converts those streams into relations using stream to relation operators.
+
+The ``FROM`` clause contains following parameters:
+
+from_item
+    **from_item** is a source stream which can be either a source, a stream,
+    or a UDSF.
+
+range_number
+    **range_number** is a numeric value which specifies how many tuples are in the
+    window. **range_number** is followed by one of interval types:
+    ``TUPLES``, ``SECONDS``, or ``MILLISECONDS``.
+
+    When ``TUPLES`` is given, the window can contain at most **range_number**
+    tuples. If a new tuple is inserted into the window having **range_number**
+    tuples, the oldest tuple is removed. "The oldest tuple" is the tuple that
+    was inserted into the window before any other tuples, not the tuple having
+    the oldest timestamp.
+
+    When ``SECONDS`` or ``MILLISECONDS`` is specified, the difference of the
+    minimum and maximum timestamps of tuples in the window can be at most
+    **range_number** seconds or milliseconds. If a new tuple is inserted into
+    the window, tuples whose timestamp is **range_number** seconds or
+    milliseconds earlier than the new tuple's timestamp are removed.
+
+buffer_size
+    **buffer_size** specifies the size of buffer, or a queue, located between
+    **from_item** and the ``SELECT``. **buffer_size** must be an integer and
+    greater than 0.
+
+    .. todo:: define the maximum buffer size
+
+drop_mode
+    **drop_mode** controls how a new tuple is inserted into the buffer located
+    between **from_item** and the ``SELECT`` when the buffer is full.
+    **drop_mode** can be one of the followings:
+
+    * ``WAIT``
+
+        * A new tuple emitted from **from_item** is blocked until the
+          ``SELECT`` consumes at least one tuple.
+
+    * ``DROP OLDEST``
+
+        * The oldest tuple in the buffer is removed and a new tuple is
+          inserted into the buffer. "The oldest tuple" is the tuple that was
+          inserted into the buffer before any other tuples, not the tuple
+          having the oldest timestamp.
+
+    * ``DROP NEWEST``
+
+        * The oldest tuple in the buffer is removed and a new tuple is
+          inserted into the buffer. "The newest tuple" is the tuple that was
+          inserted into the buffer after any other tuples, not the tuple
+          having the newest timestamp.
+
+    .. todo:: describe the difference between a buffer and a window.
+
+**stream_alias**
+    **stream_alias** provides an alias of **from_item** and it can be referred
+    by the alias in other parts of the ``SELECT``. If the alias is given, the
+    original name is hidden and cannot be used to refer **from_item**.
 
 ``WHERE`` Clause
 ^^^^^^^^^^^^^^^^
