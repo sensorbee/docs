@@ -107,17 +107,19 @@ range_number
     window. **range_number** is followed by one of interval types:
     ``TUPLES``, ``SECONDS``, or ``MILLISECONDS``.
 
-    When ``TUPLES`` is given, the window can contain at most **range_number**
-    tuples. If a new tuple is inserted into the window having **range_number**
-    tuples, the oldest tuple is removed. "The oldest tuple" is the tuple that
-    was inserted into the window before any other tuples, not the tuple having
+    When ``TUPLES`` is given, **range_number** must be an positive integer
+    and the window can contain at most **range_number** tuples. If a new
+    tuple is inserted into the window having **range_number** tuples, the
+    oldest tuple is removed. "The oldest tuple" is the tuple that was
+    inserted into the window before any other tuples, not the tuple having
     the oldest timestamp.
 
-    When ``SECONDS`` or ``MILLISECONDS`` is specified, the difference of the
-    minimum and maximum timestamps of tuples in the window can be at most
-    **range_number** seconds or milliseconds. If a new tuple is inserted into
-    the window, tuples whose timestamp is **range_number** seconds or
-    milliseconds earlier than the new tuple's timestamp are removed.
+    When ``SECONDS`` or ``MILLISECONDS`` is specified, **range_number** can
+    be a positive number and the difference of the minimum and maximum
+    timestamps of tuples in the window can be at most **range_number**
+    seconds or milliseconds. If a new tuple is inserted into the window,
+    tuples whose timestamp is **range_number** seconds or milliseconds
+    earlier than the new tuple's timestamp are removed.
 
 buffer_size
     **buffer_size** specifies the size of buffer, or a queue, located between
