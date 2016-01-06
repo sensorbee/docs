@@ -55,22 +55,22 @@ emitter
 
 ``RSTREAM``
     When ``RSTREAM`` is specified, all tuples in a relation as a result of
-    processing a newly coming tuple are output. See :ref:`Relation-to-Stream operators`
-    for more details.
+    processing a newly coming tuple are output. See
+    :ref:`bql_queries_relation_to_stream_operators` for more details.
 
 ``ISTREAM``
     When  ``ISTREAM`` is specified, tuples contained in the current relation
     but not in the previously computed relation are emitted. In other words,
     tuples that are newly inserted or updated since the previous computation
-    are output. See :ref:`Relation-to-Stream operators` for more details.
+    are output. See :ref:`bql_queries_relation_to_stream_operators` for more details.
 
 ``DSTREAM``
     When ``DSTREAM`` is specified, tuples contained in the previously computed
     relation but not in the current relation are emitted. In other words,
     tuples in the previous relation that are deleted or updated in the current
     relation are output. Note that output tuples are from the previous
-    relation so that they have old values. See :ref:`Relation-to-Stream operators`
-    for more details.
+    relation so that they have old values. See
+    :ref:`bql_queries_relation_to_stream_operators` for more details.
 
 ..
     The following parameters are intentionally undocumented at the moment
@@ -152,6 +152,14 @@ drop_mode
 
 ``WHERE`` Clause
 ^^^^^^^^^^^^^^^^
+
+The ``SELECT`` can optionally have a ``WHERE`` clause. The ``WHERE`` clause
+have a condition. The condition can be any expression that evaluates to a
+result of type ``bool``. Any tuple that does not satisfy the condition
+(i.e. the result of the expression is ``false``) will be eliminated from the
+output.
+
+:ref:`bql_operators` describes operators that can be used in the condition.
 
 ``GROUP BY`` Clause
 ^^^^^^^^^^^^^^^^^^^

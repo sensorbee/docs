@@ -24,6 +24,8 @@ resulting relation for a ``SELECT`` statement is computed as follows:
    from each input stream are cross-joined.
 3. TODO: WHEN, GROUP BY, HAVING
 
+.. _bql_queries_relation_to_stream_operators:
+
 Relation-to-Stream operators
 ============================
 
