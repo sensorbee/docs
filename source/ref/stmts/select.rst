@@ -40,10 +40,17 @@ Description
 #. When the `WHERE` clause is specified, **condition** is evaluated for each set
    of tuples cross-joined in the ``FROM`` clause. Sets which do not satisfy the
    condition are eliminated from the output.
-#. TODO: ``GROUP BY`` and ``HAVING``
-#. TODO: projection
-#. TODO: emitter (ISTREAM/DSTREAM/RSTREAM)
-#. TODO: ``UNION ALL``
+#. If the ``GROUP BY`` clause is specified, tuples satisfied the condition in
+   the ``WHERE`` clause are combined into groups based on the result of expressions. Then, aggregate functions are performed on each group. When
+   the ``HAVING`` clause is given, it eliminates groups that do not satisfy
+   the given condition.
+#. The output tuples are computed using the ``SELECT`` output expressions for
+   each tuple or group.
+#. Computed output tuples are converted into a stream using
+   :ref:`bql_queries_relation_to_stream_operators` and emitted from the
+   ``SELECT``.
+#. ``UNION ALL``, if present, combines outputs from multiple ``SELECT``. It
+   simply emits all tuples from all ``SELECT`` without considering duplicates.
 
 Parameters
 ----------
@@ -83,7 +90,7 @@ emitter
         SAMPLE sampling_rate %
     } "]"]
 
-``FROM`` Clause
+``FROM`` clause
 ^^^^^^^^^^^^^^^
 
 The ``FROM`` clause specifies one or more source streams for the ``SELECT``
@@ -150,7 +157,7 @@ drop_mode
     by the alias in other parts of the ``SELECT``. If the alias is given, the
     original name is hidden and cannot be used to refer **from_item**.
 
-``WHERE`` Clause
+``WHERE`` clause
 ^^^^^^^^^^^^^^^^
 
 The ``SELECT`` can optionally have a ``WHERE`` clause. The ``WHERE`` clause
@@ -161,12 +168,64 @@ output.
 
 :ref:`bql_operators` describes operators that can be used in the condition.
 
-``GROUP BY`` Clause
+``GROUP BY`` clause
 ^^^^^^^^^^^^^^^^^^^
 
-``HAVING`` Clause
+The ``GROUP BY`` clause is an optional clause and condenses into a single
+tuple all selected tuples whose expressions specified in ``GROUP BY`` clause
+result in the same value.
+
+**expression** can be any expression using fields of an input tuple. When
+there're multiple expressions in the clause, tuples having the same set of
+values computed from those expressions are grouped into a single tuple.
+
+When the ``GROUP BY`` clause is present, any ungrouped field cannot be used
+as an output field without aggregate functions. For example, when tuples have
+4 fields ``a``, ``b``, ``c``, and ``d``, and the ``GROUP BY`` clause has
+following expressions::
+
+    GROUP BY a, b + c
+
+``a`` can only be used as an output field::
+
+    SELECT a FROM stream [RANGE 1 TUPLES]
+    GROUP BY a, b + c;
+
+Other fields need to be specified in aggregate functions::
+
+    SELECT a, max(b), min(b + c), avg(c * d) FROM stream [RANGE 1 TUPLES]
+    GROUP BY a, b + c;
+
+Aggregate functions are evaluated for each group using all tuples in the
+group.
+
+
+.. note::
+
+    The ``GROUP BY`` clause performs grouping within a window::
+
+        SELECT a FROM stream [RANGE 10 TUPLES]
+        GROUP BY a;
+
+    This ``SELECT`` computes at most 10 groups of tuples because there're only
+    10 tuples in the window.
+
+``HAVING`` clause
 ^^^^^^^^^^^^^^^^^
 
+The ``HAVING`` clause is an optional clause and placed after the ``GROUP BY``
+clause. The ``HAVING`` clause has an condition and evaluate it for each group,
+instead of each tuple. When ungrouped fields are used in the condition, they
+need to be in aggregate functions::
+
+    SELECT a, max(b), min(b + c), avg(c * d) FROM stream [RANGE 1 TUPLES]
+    GROUP BY a, b + c HAVING min(b + c) > 1 AND avg(c * d) < 10;
+
+In this example, ``b``, ``c``, and ``d`` are ungrouped fields and cannot
+directly specified in the condition.
+
+``SELECT`` list
+^^^^^^^^^^^^^^^
 
 Notes
 -----
