@@ -7,4 +7,5 @@ BQL Statements
 .. include:: /ref/stmts/create_stream.rst
 .. include:: /ref/stmts/pause_source.rst
 .. include:: /ref/stmts/resume_source.rst
+.. include:: /ref/stmts/rewind_source.rst
 .. include:: /ref/stmts/select.rst
