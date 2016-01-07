@@ -4,6 +4,7 @@ BQL Statements
 
 .. include:: /ref/stmts/create_sink.rst
 .. include:: /ref/stmts/create_source.rst
+.. include:: /ref/stmts/create_state.rst
 .. include:: /ref/stmts/create_stream.rst
 .. include:: /ref/stmts/drop_sink.rst
 .. include:: /ref/stmts/drop_source.rst
