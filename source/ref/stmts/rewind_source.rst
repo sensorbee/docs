@@ -23,3 +23,10 @@ Parameters
 
 name
     The name of the source to be rewound.
+
+Examples
+--------
+
+To rewind a source named "src"::
+
+    REWIND SOURCE src;
