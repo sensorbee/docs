@@ -16,6 +16,8 @@ Description
 ``RESUME SOURCE`` resumes a paused source so that the source can start to emit
 tuples again. Executing ``RESUME SOURCE`` on a running source doesn't affect anything.
 
+``RESUME SOURCE`` fails if the source doesn't support the statement.
+
 Parameters
 ----------
 
