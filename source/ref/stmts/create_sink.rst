@@ -8,7 +8,7 @@ Synopsis
 
 ::
 
-    CREATE SINK name TYPE type_name [WITH parameter_name = parameter value [, ...]]
+    CREATE SINK name TYPE type_name [WITH parameter_name = parameter_value [, ...]]
 
 Description
 -----------
@@ -31,7 +31,7 @@ parameter_value
     The value for a sink-specific parameter.
 
 Sink Parameters
------------------
+---------------
 
 The optional ``WITH`` clause specifies parameters specific to the sink.
 See each sink's documentation to find out parameters it provides.
