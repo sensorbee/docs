@@ -37,9 +37,9 @@ Description
    stream. Then, each tuple emitted from a **from_item** is computed within
    the window. If more than one element is specified in the ``FROM`` clause,
    they are cross-joined.
-#. When the `WHERE` clause is specified, **condition** is evaluated for each set
-   of tuples cross-joined in the ``FROM`` clause. Sets which do not satisfy the
-   condition are eliminated from the output.
+#. When the ``WHERE`` clause is specified, **condition** is evaluated for each set
+   of tuples cross-joined in the ``FROM`` clause. Tuples which do not satisfy
+   the condition are eliminated from the output.
 #. If the ``GROUP BY`` clause is specified, tuples satisfied the condition in
    the ``WHERE`` clause are combined into groups based on the result of expressions. Then, aggregate functions are performed on each group. When
    the ``HAVING`` clause is given, it eliminates groups that do not satisfy
@@ -159,6 +159,15 @@ drop_mode
     by the alias in other parts of the ``SELECT``. If the alias is given, the
     original name is hidden and cannot be used to refer **from_item**.
 
+Fields of tuples can be referred by ``<field_name>`` or
+``<stream>:<field_name>`` in other clauses and the ``SELECT`` list. For
+example, when the ``SELECT`` has ``FROM strm [RANGE 1 TUPLES]`` and ``strm``
+emits ``{"a":<some value>}``, the field ``a`` can be referred by ``a`` or
+``strm:a``. These two forms cannot be mixed in a ``SELECT`` statement.
+
+The form ``<stream>:<field_name>`` is required when the ``FROM`` clause has
+multiple input streams.
+
 ``WHERE`` clause
 ^^^^^^^^^^^^^^^^
 
@@ -229,6 +238,54 @@ directly specified in the condition.
 ``SELECT`` list
 ^^^^^^^^^^^^^^^
 
+The ``SELECT`` list, placed between the **emitter** and the ``FROM`` clause, 
+defines the form of the output tuples emitted from the ``SELECT`` statement.
+
+Each item in the list can be any expression. Each item (i.e. output field)
+will have a name. When an expression only consists of a field name, the output
+name of the expression will be the field name. For example, the output name
+of ``strm:price`` in ``SELECT RSTREAM strm:price FROM ...`` will be ``price``,
+not ``strm:price``. If an expression is other than a field name, the output
+name will be ``col_n`` where ``n`` is replaced with the number corresponding
+to n-th expression. The output field name can manually be specified by
+``AS output_name``.
+
+.. todo:: Write the spec of the output field when the expression is a UD(A)F call.
+
+When the expression is ``*``, all fields which have not been specified in the
+``SELECT`` list yet will be included. Output names of those fields will be
+identical to the original field names.
+
+If an expression results in a map, its output name can be ``AS *``. In such
+case, all fields of the map is extended to the top level fields. For example,
+in ``SELECT RSTREAM a, b AS *, c FROM strm ...``, when strm emits tuples
+having
+
+::
+
+    {
+        "a": v1,
+        "b": {
+            "d": v3,
+            "e": v4
+        },
+        "c": v2,
+    }
+
+to the ``SELECT``, its output will be
+
+::
+
+    {
+        "a": v1,
+        "c": v2,
+        "d": v3,
+        "e": v4
+    }
+
+.. todo:: Describe the spec of how fields having the same name will be merged
+          into the output. In other words, how conflicts are resolved.
+
 Notes
 -----
 
@@ -245,7 +302,7 @@ Performing a simple per-tuple transformation or filtering over an input
 stream is a very common task. Therefore, BQL optimizes statements having the
 following form::
 
-    SELECT RSTREAM projection FROM input [RANGE 1 TUPLES] WHERE conditions;
+    SELECT RSTREAM projection FROM input [RANGE 1 TUPLES] WHERE condition;
 
 Limitations of this optimization are:
 
