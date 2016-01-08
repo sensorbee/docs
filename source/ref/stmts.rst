@@ -14,4 +14,5 @@ BQL Statements
 .. include:: /ref/stmts/pause_source.rst
 .. include:: /ref/stmts/resume_source.rst
 .. include:: /ref/stmts/rewind_source.rst
+.. include:: /ref/stmts/save_state.rst
 .. include:: /ref/stmts/select.rst
