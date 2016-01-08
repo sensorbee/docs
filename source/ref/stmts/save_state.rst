@@ -26,11 +26,8 @@ name
     The name of the UDS to be saved.
 
 tag
-    The name of the user defined tag.
-
-``SAVE STATE`` can optionally associate a tag to support versioning of saved
-UDS data. When ``TAG tag`` is omitted, "default" is used as a default tag
-name.
+    The name of the user defined tag for versioning of the saved UDS data.
+    When **tag** is omitted, "default" is used as the default tag name.
 
 Examples
 --------
