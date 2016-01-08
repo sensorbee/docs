@@ -10,6 +10,7 @@ BQL Statements
 .. include:: /ref/stmts/drop_source.rst
 .. include:: /ref/stmts/drop_state.rst
 .. include:: /ref/stmts/drop_stream.rst
+.. include:: /ref/stmts/insert_into.rst
 .. include:: /ref/stmts/pause_source.rst
 .. include:: /ref/stmts/resume_source.rst
 .. include:: /ref/stmts/rewind_source.rst
