@@ -7,6 +7,7 @@ Synopsis
 --------
 
 ::
+
     CREATE STATE name TYPE type_name [WITH parameter_name = parameter_value [, ...]]
 
 Description
