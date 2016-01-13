@@ -4,15 +4,16 @@ Queries
 
 This chapter describes how to retrieve streaming data using BQL.
 
+Processing Model
+================
+
 Overview
-========
+--------
 
-TODO: refine following sections later
-
-TODO: Create a section "Converting relation<->stream" and put Stream-To-Relation operators and Relation-to-Stream operators into it.
+TODO: describe general processing model
 
 Stream-to-Relation operators
-============================
+----------------------------
 
 TODO: describe how Stream-to-Relation operators work
 
@@ -27,7 +28,7 @@ resulting relation for a ``SELECT`` statement is computed as follows:
 .. _bql_queries_relation_to_stream_operators:
 
 Relation-to-Stream operators
-============================
+----------------------------
 
 Once a resulting relation is computed, tuples in the relation needs to be
 output as a stream again so that it can be referred by other ``SELECT``
@@ -41,7 +42,7 @@ following three relation-to-stream operators:
 The following subsections describe how each operator works.
 
 ``RSTREAM`` operator
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 When ``RSTREAM`` is specified, ``SELECT`` statements emits all tuples in
 its relation. For example,
@@ -67,14 +68,44 @@ This statement emits 200 tuples everytime it gets a new tuple from ``src1`` or
 are cross-joined and the resulting relation has 200 tuples in total.
 
 ``ISTREAM`` operator
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 TODO: description
 
 
 ``DSTREAM`` operator
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 TODO: description
 
 
+The SELECT Clause
+=================
+
+TODO: description
+
+
+Data Transformation
+===================
+
+TODO:
+
+- CREATE STREAM
+- DROP STREAM
+
+
+Data Output
+===========
+
+TODO:
+
+- INSERT INTO ... SELECT
+- INSERT INTO ... FROM
+
+
+Expression Evaluation
+=====================
+
+TODO:
+
+- EVAL
