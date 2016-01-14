@@ -16,12 +16,8 @@ In this model, each tuple in a stream has the shape :math:`(t, d)`, where :math:
 
 In order to execute SQL-like queries, we need to obtain a finite set of tuples from the possibly unbounded stream, a *relation*.
 In the processing step at time :math:`t^*`, we use a *stream-to-relation* operator :math:`R` that converts a certain set of tuples in the stream to a relation :math:`R(t^*)`.
-This relation is then processed with a *relation-to-relation* operator :math:`O` that is expressed in a form very closely related to SQL.
+This relation is then processed with a *relation-to-relation* operator :math:`O` that is expressed in a form very closely related to an SQL ``SELECT`` statement.
 Finally, a *relation-to-stream* operator :math:`S` will emit certain rows from the output relation :math:`O(R(t^*))` into the output stream, possibly taking into account the results of the previous execution step :math:`O(R(t^*_{\text{prev}}))`.
-
-.. [cql] Arasu et al., "The CQL Continuous Query Language: Semantic Foundations and Query Execution", http://ilpubs.stanford.edu:8090/758/1/2003-67.pdf
-
-.. [streamsql] Jain et al., "Towards a Streaming SQL Standard", http://cs.brown.edu/~ugur/streamsql.pdf
 
 This three-step pipeline is executed for each tuple, but only for one tuple at a time.
 Therefore, during execution there is a well-defined "current tuple".
@@ -35,7 +31,7 @@ Stream-to-Relation Operators
 
 In BQL, there are two different stream-to-relation operators, a time-based one and a tuple-based one.
 We also call them "window operators", since they define a sliding window on the input stream.
-In terms of BQL, the window operator is given after a stream name in the ``FROM`` clause within brackets and using the ``RANGE`` keyword, for example::
+In terms of BQL syntax, the window operator is given after a stream name in the ``FROM`` clause within brackets and using the ``RANGE`` keyword, for example::
 
     ... FROM events [RANGE 5 SECONDS] ...
     ... FROM data [RANGE 10 TUPLES] ...
@@ -68,60 +64,77 @@ Notes:
 - The timestamps of tuples do not have any effect with this operator, they can also be out of order.
   Only the order in which the tuples arrived is important.
   (Note that for highly concurrent systems, "order" is not always a well-defined term.)
-- At the beginning of stream processing, when less than :math:`k` tuples have arrived, the size of the relation will be less than :math:`k`.
+- At the beginning of stream processing, when less than :math:`k` tuples have arrived, the size of the relation will be less than :math:`k`. [#fn_tuple-window]_
   As soon as :math:`k` tuples have arrived, the relation size will be constant.
 
+.. [#fn_tuple-window] Sometimes this leads to unexpected effects or complicated workarounds, while the cases where this is a useful behavior may be few. Therefore this behavior may change in future version.
 
-Relation-to-Stream operators
+
+Relation-to-Stream Operators
 ----------------------------
 
-Once a resulting relation is computed, tuples in the relation needs to be
-output as a stream again so that it can be referred by other ``SELECT``
-statements as an input stream. To convert a relation to a stream, BQL provides
-following three relation-to-stream operators:
+Once a resulting relation :math:`O(R(t^*))` is computed, tuples in the relation need to be output as a stream again.
+In BQL, there are three different relation-to-stream operators, ``RSTREAM``, ``ISTREAM`` and ``DSTREAM``.
+We also call them "emit operators", since they control how tuples are emitted as output.
+In terms of BQL syntax, the emit operator keyword is given after the ``SELECT`` keyword, for example::
 
-* ``RSTREAM``
-* ``ISTREAM``
-* ``DSTREAM``
+    SELECT ISTREAM uid, msg FROM ...
 
 The following subsections describe how each operator works.
 
 ``RSTREAM`` operator
 ^^^^^^^^^^^^^^^^^^^^
 
-When ``RSTREAM`` is specified, ``SELECT`` statements emits all tuples in
-its relation. For example,
+When ``RSTREAM`` is specified, all tuples in the relation are emitted.
+In particular, a combination of ``RSTREAM`` with a ``RANGE 1 TUPLES`` window operator leads to 1:1 input/output behavior and can be processed by a faster execution plan than general statements.
 
-::
-
-    SELECT RSTREAM * FROM src [RANGE 1 TUPLES];
-
-this statement emits one tuple everytime it gets an input from ``src``.
+In contrast,
 
 ::
 
     SELECT RSTREAM * FROM src [RANGE 100 TUPLES];
 
-The statement above emits at most 100 tuples everytime a new tuples comes from ``src``.
+emits (at most) 100 tuples for every tuple in ``src``.
 
-::
-
-    SELECT RSTREAM * FROM src1 [RANGE 10 TUPLES], src2 [RANGE 20 TUPLES];
-
-This statement emits 200 tuples everytime it gets a new tuple from ``src1`` or
-``src2``. This is because 10 tuples from ``src1`` and 20 tuples from ``src2``
-are cross-joined and the resulting relation has 200 tuples in total.
 
 ``ISTREAM`` operator
 ^^^^^^^^^^^^^^^^^^^^
 
-TODO: description
+When ``ISTREAM`` is specified, all tuples in the relation *that have not been in the previous relation* are emitted.
+(The "I" in ``ISTREAM`` stands for "insert".)
+Here, "previous" refers to the relation that was computed for the tuple just before the current tuple.
+Therefore the current relation can contain at most one row that was not in the previous relation and thus ``ISTREAM`` can emit at most one row in each run.
+
+In section 4.3.2 of [streamsql]_, it is highlighted that for the "is contained in previous relation" check, a notion of equality is required; in particular there are various possibilities how to deal with multiple tuples that have the same value.
+In BQL tuples with the same value are considered equal, so that if the previous relation contains the values :math:`\{a, b\}` and the current relation contains the values :math:`\{b, a\}`, then nothing is emitted.
+However, multiplicities are respected, so that if the previous relation contains the values :math:`\{b, a, b, a\}` and the current relation contains :math:`\{a, b, a, a\}`, then one :math:`a` is emitted.
+
+As an example for a typical use case,
+
+::
+
+     SELECT ISTREAM * FROM src [RANGE 1 TUPLES];
+
+will drop subsequent duplicates, i.e., emit only the first occurence of a series of tuples with identical values.
+
+To illustrate the multiplicity counting,
+
+::
+
+    SELECT ISTREAM 1 FROM src [RANGE 3 TUPLES];
+
+will emit three times :math:`1` and then nothing (because after the first three tuples processed, both the previous and the current relation always look like :math:`\{1, 1, 1\}`.)
 
 
 ``DSTREAM`` operator
 ^^^^^^^^^^^^^^^^^^^^
 
 TODO: description
+
+
+.. [cql] Arasu et al., "The CQL Continuous Query Language: Semantic Foundations and Query Execution", http://ilpubs.stanford.edu:8090/758/1/2003-67.pdf
+
+.. [streamsql] Jain et al., "Towards a Streaming SQL Standard", http://cs.brown.edu/~ugur/streamsql.pdf
 
 
 The SELECT Clause
