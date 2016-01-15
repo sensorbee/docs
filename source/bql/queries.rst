@@ -198,14 +198,172 @@ The table below shows the emitted data for each emit operator.
 .. [streamsql] Jain et al., "Towards a Streaming SQL Standard", http://cs.brown.edu/~ugur/streamsql.pdf
 
 
-The SELECT Clause
-=================
+Selecting and Transforming Data
+===============================
 
-TODO: description
+In the previous section, it was explained how BQL converts stream data into relations and back.
+This section is about how this relational data can be selected and transformed.
+This functionality is exactly what SQL's ``SELECT`` statement was designed to do, and so in BQL we try to mimic the ``SELECT`` syntax as much as possible.
+(Some basic knowledge of what the SQL ``SELECT`` statement does is assumed.)
+However, as opposed to the SQL data model, BQL's input data is assumed to be JSON-like, i.e., with varying shapes, nesting levels, and data types;
+therefore the BQL ``SELECT`` statement has a number of small difference to SQL ``SELECT``.
 
 
-Data Transformation
-===================
+Overview
+--------
+
+The general syntax of the ``SELECT`` command is
+
+::
+
+    SELECT emit_operator select_list FROM table_expression
+
+The ``emit_operator`` is one of the operators described in `Relation-to-Stream Operators`_.
+The following subsections describe the details of ``select_list`` and ``table_expression``.
+
+
+Table Expressions
+-----------------
+
+A *table expression* computes a table.
+The table expression contains a ``FROM`` clause that is optionally followed by ``WHERE``, ``GROUP BY``, and ``HAVING`` clauses::
+
+    ... FROM table_list [WHERE filter_expression]
+        [GROUP BY group_list] [HAVING having_expression]
+
+
+The ``FROM`` Clause
+^^^^^^^^^^^^^^^^^^^
+
+The ``FROM`` clause derives a table from one or more other tables given in a comma-separated table reference list.
+
+::
+
+    FROM table_reference [, table_reference [, ...]]
+
+In SQL, each ``table_reference`` is (in the simplest possible case) an identifier that refers to a pre-defined table, e.g., ``FROM users`` or ``FROM names, addresses, cities`` are valid SQL ``FROM`` clauses.
+
+In BQL, only streams have identifiers, so in order to get a well-defined relation, a window specifier as explained in `Stream-to-Relation Operators`_ must be added.
+In particular, the examples just given for SQL ``FROM`` clauses are all *not* valid in BQL, but the following are::
+
+    FROM users [RANGE 10 TUPLES]
+
+    FROM names [RANGE 2 TUPLES], addresses [RANGE 1.5 SECONDS], cities [RANGE 200 MILLISECONDS]
+
+
+Using Stream Functions
+""""""""""""""""""""""
+
+BQL also knows "user-defined stream functions" (UDSF) that transform a stream into another stream and can be used, for example, to output multiple output rows per input row; something that is not possible with standard ``SELECT`` features.
+(These are similar to "Table Functions" in PostgreSQL.)
+Such UDSFs can also be used in the ``FROM`` clause:
+Instead of using a stream's identifier, use the function call syntax ``function(param, param, ...)`` with the UDSF name as the function name and the base stream's identifier as its first parameter (as a string, i.e., in single quotes), possibly followed by other parameters.
+For example, if there is a UDSF called ``duplicate`` that takes the input stream's name as first parameter (as all UDSFs do) and the number of copies of each input tuple that we want to obtain as the second, this would look as follows::
+
+    FROM duplicate('products', 3) [RANGE 10 SECONDS]
+
+
+Table Joins
+"""""""""""
+
+If more than one table reference is listed in the ``FROM`` clause, the tables are cross-joined (that is, the Cartesian product of their rows is formed).
+The syntax ``table1 JOIN table2 ON (...)`` is not supported in BQL.
+The result of the ``FROM`` list is an intermediate virtual table that can then be subject to transformations by the ``WHERE``, ``GROUP BY``, and ``HAVING`` clauses and is finally the result of the overall table expression.
+
+
+Table Aliases
+"""""""""""""
+
+A temporary name can be given to tables and complex table references to be used for references to the derived table in the rest of the query.
+This is called a "table alias".
+To create a table alias, write
+
+::
+
+    FROM table_reference AS alias
+
+The use of table aliases is optional, but helps to shorten statements.
+By default, each table can be addressed using the stream name or the UDSF name, respectively.
+Therefore, table aliases only become mandatory if the same stream/UDSF is used multiple times in a join.
+
+
+The ``WHERE`` Clause
+^^^^^^^^^^^^^^^^^^^^
+
+The syntax of the ``WHERE`` clause is
+
+::
+
+    WHERE filter_expression
+
+where ``filter_expression`` is any value expression that can be converted to boolean.
+(That is, `WHERE 6` is also a valid filter.)
+
+After the processing of the ``FROM`` clause is done, each row of the derived virtual table is checked against the search condition.
+If the result of the condition is true, the row is kept in the output table, otherwise (i.e., if the result is false or null) it is discarded.
+The search condition typically references at least one column of the table generated in the ``FROM`` clause; this is not required, but otherwise the ``WHERE`` clause will be fairly useless.
+
+As BQL does not support the ``table1 JOIN table2 ON (condition)`` syntax, the join condition must always be given in the ``WHERE`` clause.
+
+
+The ``GROUP BY`` and ``HAVING`` Clauses
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+After passing the ``WHERE`` filter, the derived input table might be subject to grouping, using the ``GROUP BY`` clause, and elimination of group rows using the ``HAVING`` clause.
+They basically have the same semantics as explained in the `PostgreSQL Documentation, section 7.2.3 <http://www.postgresql.org/docs/9.5/static/queries-table-expressions.html#QUERIES-GROUP>`_
+
+One current limitation of BQL row grouping is that only simple columns can be used in the ``GROUP BY`` list, no complex expressions are allowed.
+For example, ``GROUP BY round(age/10)`` cannot be used in BQL at the moment.
+
+
+Select Lists
+------------
+
+As shown in the previous section, the table expression in the SELECT command constructs an intermediate virtual table by possibly combining tables, views, eliminating rows, grouping, etc.
+This table is finally passed on to processing by the "select list".
+The select list determines which elements of the intermediate table are actually output.
+
+
+Select-List Items
+^^^^^^^^^^^^^^^^^
+
+As in SQL, the select list contains a number of comma-separated expressions::
+
+    SELECT emit_operator expression [, expression] [...] FROM ...
+
+In SQL, tables are strictly organized in "rows" and "columns" and the basic building blocks for non-constant expressions are column names.
+
+In BQL, each input tuple can be considered a "row", but the data can also be unstructured.
+Therefore, BQL uses `JSON Path <http://goessner.net/articles/JsonPath/>`_ to address data in each row.
+If only one table is used in the ``FROM`` clause and only top-level keys of each row are referenced, the BQL statement looks the same as SQL::
+
+    SELECT RSTREAM a, b, c FROM input [RANGE 1 TUPLES];
+
+If the input data has the form ``{"a": 7, "b": "hello", "c": false}``, then the output will look exactly the same.
+However, JSON Path allows to access nested elements as well::
+
+    SELECT RSTREAM a.foo.bar FROM input [RANGE 1 TUPLES];
+
+If the input data has the form ``{"a": {"foo": {"bar": 7}}}``, then the output will be ``{"col_1": 7}``.
+By adding a column alias as in ``SELECT RSTREAM a.foo.bar AS x``, the output key can be set to ``"x"`` instead of ``"col_1"``.
+
+
+Table Prefixes
+""""""""""""""
+
+Where SQL uses the dot in ``SELECT left.a, right.b`` to specify the table from which to use a column, JSON Path uses the dot to describe a child relation in a single JSON element as shown above.
+Therefore to avoid ambiguity, BQL uses the colon (``:``) character to separate table and JSON path::
+
+    SELECT RSTREAM left:foo.bar, right:hoge FROM ...
+
+If there is just one table to select from, the table prefix can be omitted, but then it must be omitted in *all* expressions of the statement.
+
+
+Column Aliases
+""""""""""""""
+
+TODO: JSON Path reference in a different section
+TODO: value expression reference in a different section
 
 TODO:
 
