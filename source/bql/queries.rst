@@ -81,6 +81,7 @@ In terms of BQL syntax, the emit operator keyword is given after the ``SELECT`` 
     SELECT ISTREAM uid, msg FROM ...
 
 The following subsections describe how each operator works.
+To illustrate the effects of each operator, a visual example is provided afterwards.
 
 ``RSTREAM`` operator
 ^^^^^^^^^^^^^^^^^^^^
@@ -129,7 +130,67 @@ will emit three times :math:`1` and then nothing (because after the first three 
 ``DSTREAM`` operator
 ^^^^^^^^^^^^^^^^^^^^
 
-TODO: description
+The ``DSTREAM`` operator is very similar to ``ISTREAM``, except that it emits all tuples in the *previous* relation that are not also contained in the current relation.
+(The "D" in ``DSTREAM`` stands for "delete".)
+Just as ``ISTREAM``, equality is computed using value comparison and multiplicity counting is used:
+If the previous relation contains the values :math:`\{a, a, b, a\}` and the current relation contains :math:`\{b, b, a, a\}`, then one :math:`a` is emitted.
+
+As an example for a typical use case,
+
+::
+
+     SELECT DSTREAM * FROM src [RANGE 1 TUPLES];
+
+will emit only the last occurence of a series of tuples with identical values.
+
+To illustrate the multiplicity counting,
+
+::
+
+    SELECT DSTREAM 1 FROM src [RANGE 3 TUPLES];
+
+will never emit anything.
+
+
+Examples
+^^^^^^^^
+
+To illustrate the difference between the three emit operators, a concrete example shall be presented.
+The leftmost column shows the data of the tuple in the stream, next to that is the contents of the current window :math:`R(t^*)`, then the results of the relation-to-relation operator :math:`O(R(t^*))`, and finally a list of items that would be output by the respective emit operator.
+
+Consider the following statement (where ``*STREAM`` is a placeholder for one of the emit operators)::
+
+    SELECT *STREAM id, price FROM stream [RANGE 3 TUPLES] WHERE cat = 'toy';
+
+This statement just takes the ``id`` and ``price`` key-value pairs of every tuple and outputs them untransformed.
+The table below shows the emitted data for each emit operator.
+
+.. |br| raw:: html
+
+   <br />
+
++-------------------------------------------+------------------------------------------------+----------------------------------+----------------------------------+-----------------------------+-----------------------------+
+| Current Tuple's Data                      | Current Window                                 | Output Relation                  | Emit Operator                                                                                |
++-------------------------------------------+------------------------------------------------+----------------------------------+----------------------------------+-----------------------------+-----------------------------+
+|                                           | (last three tuples)                            |                                  | RSTREAM                          | ISTREAM                     | DSTREAM                     |
++===========================================+================================================+==================================+==================================+=============================+=============================+
+| ``{"id": 1, "price": 3.5, "cat": "toy"}`` | ``{"id": 1, "price": 3.5, "cat": "toy"}``      | ``{"id": 1, "price": 3.5}``      | ``{"id": 1, "price": 3.5}``      | ``{"id": 1, "price": 3.5}`` |                             |
++-------------------------------------------+------------------------------------------------+----------------------------------+----------------------------------+-----------------------------+-----------------------------+
+| ``{"id": 2, "price": 4.5, "cat": "toy"}`` | ``{"id": 1, "price": 3.5, "cat": "toy"}`` |br| | ``{"id": 1, "price": 3.5}`` |br| | ``{"id": 1, "price": 3.5}`` |br| |                             |                             |
+|                                           | ``{"id": 2, "price": 4.5, "cat": "toy"}``      | ``{"id": 2, "price": 4.5}``      | ``{"id": 2, "price": 4.5}``      | ``{"id": 2, "price": 4.5}`` |                             |
++-------------------------------------------+------------------------------------------------+----------------------------------+----------------------------------+-----------------------------+-----------------------------+
+| ``{"id": 3, "price": 10.5, "cat": "cd"}`` | ``{"id": 1, "price": 3.5, "cat": "toy"}`` |br| | ``{"id": 1, "price": 3.5}`` |br| | ``{"id": 1, "price": 3.5}`` |br| |                             |                             |
+|                                           | ``{"id": 2, "price": 4.5, "cat": "toy"}`` |br| | ``{"id": 2, "price": 4.5}``      | ``{"id": 2, "price": 4.5}``      |                             |                             |
+|                                           | ``{"id": 3, "price": 10.5, "cat": "cd"}``      |                                  |                                  |                             |                             |
++-------------------------------------------+------------------------------------------------+----------------------------------+----------------------------------+-----------------------------+-----------------------------+
+| ``{"id": 4, "price": 8.5, "cat": "dvd"}`` | ``{"id": 2, "price": 4.5, "cat": "toy"}`` |br| | ``{"id": 2, "price": 4.5}``      | ``{"id": 2, "price": 4.5}``      |                             | ``{"id": 1, "price": 3.5}`` |
+|                                           | ``{"id": 3, "price": 10.5, "cat": "cd"}`` |br| |                                  |                                  |                             |                             |
+|                                           | ``{"id": 4, "price": 8.5, "cat": "dvd"}``      |                                  |                                  |                             |                             |
++-------------------------------------------+------------------------------------------------+----------------------------------+----------------------------------+-----------------------------+-----------------------------+
+| ``{"id": 5, "price": 6.5, "cat": "toy"}`` | ``{"id": 3, "price": 10.5, "cat": "cd"}`` |br| |                                  |                                  |                             | ``{"id": 2, "price": 4.5}`` |
+|                                           | ``{"id": 4, "price": 8.5, "cat": "dvd"}`` |br| |                                  |                                  |                             |                             |
+|                                           | ``{"id": 5, "price": 6.5, "cat": "toy"}``      | ``{"id": 5, "price": 6.5}``      | ``{"id": 5, "price": 6.5}``      | ``{"id": 5, "price": 6.5}`` |                             |
++-------------------------------------------+------------------------------------------------+----------------------------------+----------------------------------+-----------------------------+-----------------------------+
 
 
 .. [cql] Arasu et al., "The CQL Continuous Query Language: Semantic Foundations and Query Execution", http://ilpubs.stanford.edu:8090/758/1/2003-67.pdf
