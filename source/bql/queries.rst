@@ -284,7 +284,8 @@ To create a table alias, write
 
 The use of table aliases is optional, but helps to shorten statements.
 By default, each table can be addressed using the stream name or the UDSF name, respectively.
-Therefore, table aliases only become mandatory if the same stream/UDSF is used multiple times in a join.
+Therefore, table aliases are only mandatory if the same stream/UDSF is used multiple times in a join.
+Taking aliases into account, each name must uniquely refer to one table. ``FROM stream [RANGE 1 TUPLES], stream [RANGE 2 TUPLES]`` or ``FROM streamA [RANGE 1 TUPLES], streamB [RANGE 2 TUPLES] AS streamA`` are not valid, but ``FROM stream [RANGE 1 TUPLES] AS streamA, stream [RANGE 2 TUPLES] AS streamB`` and also ``FROM stream [RANGE 1 TUPLES], stream [RANGE 2 TUPLES] AS other`` are.
 
 
 The ``WHERE`` Clause
@@ -297,7 +298,7 @@ The syntax of the ``WHERE`` clause is
     WHERE filter_expression
 
 where ``filter_expression`` is any value expression that can be converted to boolean.
-(That is, `WHERE 6` is also a valid filter.)
+(That is, ``WHERE 6`` is also a valid filter.)
 
 After the processing of the ``FROM`` clause is done, each row of the derived virtual table is checked against the search condition.
 If the result of the condition is true, the row is kept in the output table, otherwise (i.e., if the result is false or null) it is discarded.
@@ -335,7 +336,7 @@ In SQL, tables are strictly organized in "rows" and "columns" and the basic buil
 
 In BQL, each input tuple can be considered a "row", but the data can also be unstructured.
 Therefore, BQL uses `JSON Path <http://goessner.net/articles/JsonPath/>`_ to address data in each row.
-If only one table is used in the ``FROM`` clause and only top-level keys of each row are referenced, the BQL statement looks the same as SQL::
+If only one table is used in the ``FROM`` clause and only top-level keys of each JSON-like row are referenced, the BQL select list looks the same as in SQL::
 
     SELECT RSTREAM a, b, c FROM input [RANGE 1 TUPLES];
 
@@ -345,7 +346,9 @@ However, JSON Path allows to access nested elements as well::
     SELECT RSTREAM a.foo.bar FROM input [RANGE 1 TUPLES];
 
 If the input data has the form ``{"a": {"foo": {"bar": 7}}}``, then the output will be ``{"col_1": 7}``.
-By adding a column alias as in ``SELECT RSTREAM a.foo.bar AS x``, the output key can be set to ``"x"`` instead of ``"col_1"``.
+(See paragraph `Column Labels`_ below for details on output key naming, and the section `TODO: JSON Path in BQL`_ for details about the available syntax for JSON Path expressions.)
+
+In general, items of a select list can be arbitrary `TODO: BQL Value Expressions`_.
 
 
 Table Prefixes
@@ -359,11 +362,99 @@ Therefore to avoid ambiguity, BQL uses the colon (``:``) character to separate t
 If there is just one table to select from, the table prefix can be omitted, but then it must be omitted in *all* expressions of the statement.
 
 
-Column Aliases
-""""""""""""""
+Column Labels
+^^^^^^^^^^^^^
 
-TODO: JSON Path reference in a different section
-TODO: value expression reference in a different section
+The result value of every expression in the select list will be assigned to a key in the output row.
+If not explicitly specified, these output keys will be ``"col_1"``, ``"col_2"``, etc. in the order the expressions were specified in the select list.
+However, in some cases a more meaningful output key is chosen by default, as already shown above:
+
+- If the expression is a single top-level key (like ``a``), then the output key will be the same.
+- If the expression is a simple function call (like ``f(a)``), then the output key will be the function name.
+- If the expression refers the timestamp of a tuple in a stream (using the ``stream:ts()`` syntax), then the output key will be ``ts``.
+- If the expression is the wildcard (``*``), then the input will be copied, i.e., all keys from the input document will be present in the output document.
+
+The output key can be overridden by specifying an ``... AS output_key`` clause after an expression.
+For the example above,
+
+::
+
+    SELECT RSTREAM a.foo.bar AS x FROM input [RANGE 1 TUPLES];
+
+will result in an output document that has the shape ``{"x": 7}`` instead of ``{"col_1": 7}``.
+Note that it is possible to use the same column alias multiple times, but in this case it is undefined which of the values with the same alias will end up in that output key.
+
+
+Notes on Wildcards
+^^^^^^^^^^^^^^^^^^
+
+In SQL, the wildcard (``*``) can be used as a shorthand expression for all columns of an input table.
+However, due to the strong typing in SQL's data model, name and type conflicts can still be checked at the time the statement is analyzed.
+In BQL's data model, there is no strong typing, therefore the wildcard operator must be used with a bit of caution.
+For example, in
+
+::
+
+    SELECT RSTREAM * FROM left [RANGE 1 TUPLES], right [RANGE 1 TUPLES];
+
+if the data in the ``left`` stream looks like ``{"a": 1, "b": 2}`` and the data in the ``right`` stream looks like ``{"b": 3, "c": 4}``, then the output document will have the keys ``a``, ``b``, and ``c``, but the value of the ``b`` key is undefined.
+
+To select all keys from only one stream, the colon notation (``stream:*``) as introduced above can be used.
+
+The wildcard can be used with a column alias as well.
+The expression ``* AS foo`` will nest the input document under the given key ``foo``, i.e., input ``{"a": 1, "b": 2}`` is transformed to ``{"foo": {"a": 1, "b": 2}}``.
+
+On the other hand, it is also possible to use the wildcard as an alias, as in ``foo AS *``.
+This will have the opposite effect, i.e., it takes the contents of the ``foo`` key (which *must* be a map itself) and pulls them up to top level, i.e., ``{"foo": {"a": 1, "b": 2}}`` is transformed to ``{"a": 1, "b": 2}``.
+
+Note that any name conflicts that arise due to the use of the wildcard operator (e.g., in ``*``, ``a:*, b:*``, ``foo AS *, bar AS *``) lead to undefined values in the column with the conflicting name.
+However, if there is an explicitly specified output key, this will always be prioritized over a key originating from a wildcard expression.
+
+
+Examples
+^^^^^^^^
+
+Single Input Stream
+"""""""""""""""""""
+
++-------------------+-----------------------+--------------------------+
+| Select List       | Input Row             | Output Row               |
++===================+=======================+==========================+
+| ``a``             | ``{"a": 1, "b": 2}``  | ``{"a": 1}``             |
++-------------------+-----------------------+--------------------------+
+| ``a, b``          | ``{"a": 1, "b": 2}``  | ``{"a": 1, "b": 2}``     |
++-------------------+-----------------------+--------------------------+
+| ``a + b``         | ``{"a": 1, "b": 2}``  | ``{"col_1": 3}``         |
++-------------------+-----------------------+--------------------------+
+| ``a, a + b``      | ``{"a": 1, "b": 2}``  | ``{"a": 1, "col_2": 3}`` |
++-------------------+-----------------------+--------------------------+
+| ``*``             | ``{"a": 1, "b": 2}``  | ``{"a": 1, "b": 2}``     |
++-------------------+-----------------------+--------------------------+
+
+
+Join on Two Streams ``l`` and ``r``
+"""""""""""""""""""""""""""""""""""
+
++-------------------+-----------------------+-----------------------+--------------------------------------+
+| Select List       | Input Row (``l``)     | Input Row (``r``)     | Output Row                           |
++===================+=======================+=======================+======================================+
+| ``l:a``           | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"a": 1}``                         |
++-------------------+-----------------------+-----------------------+--------------------------------------+
+| ``l:a, r:c``      | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"a": 1, "c": 3}``                 |
++-------------------+-----------------------+-----------------------+--------------------------------------+
+| ``l:a + r:c``     | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"col_1": 4}``                     |
++-------------------+-----------------------+-----------------------+--------------------------------------+
+| ``l:*``           | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"a": 1, "b": 2}``                 |
++-------------------+-----------------------+-----------------------+--------------------------------------+
+| ``l:*, r:c AS b`` | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"a": 1, "b": 3}``                 |
++-------------------+-----------------------+-----------------------+--------------------------------------+
+| ``l:*, r:*``      | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"a": 1, "b": 2, "c": 3, "d": 4}`` |
++-------------------+-----------------------+-----------------------+--------------------------------------+
+| ``*``             | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"a": 1, "b": 2, "c": 3, "d": 4}`` |
++-------------------+-----------------------+-----------------------+--------------------------------------+
+| ``*``             | ``{"a": 1, "b": 2}``  | ``{"b": 3, "d": 4}``  | ``{"a": 1, "b": (undef.), "d": 4}``  |
++-------------------+-----------------------+-----------------------+--------------------------------------+
+
 
 TODO:
 
