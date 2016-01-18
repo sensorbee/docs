@@ -3,7 +3,7 @@ Queries
 *******
 
 The previous chapters described how to define data sources and sinks to communicate with the outside world.
-Now we discuss how to transform the data stream from those sources and write it to the defined sinks.
+Now it is discussed how to transform the data stream from those sources and write it to the defined sinks.
 
 Processing Model
 ================
@@ -14,8 +14,8 @@ Overview
 The processing model in BQL is similar to what is explained in [cql]_.
 In this model, each tuple in a stream has the shape :math:`(t, d)`, where :math:`t` is the original timestamp and :math:`d` the data contained.
 
-In order to execute SQL-like queries, we need to obtain a finite set of tuples from the possibly unbounded stream, a *relation*.
-In the processing step at time :math:`t^*`, we use a *stream-to-relation* operator :math:`R` that converts a certain set of tuples in the stream to a relation :math:`R(t^*)`.
+In order to execute SQL-like queries, a finite set of tuples from the possibly unbounded stream, a *relation*, is required.
+In the processing step at time :math:`t^*`, a *stream-to-relation* operator :math:`R` that converts a certain set of tuples in the stream to a relation :math:`R(t^*)` is used.
 This relation is then processed with a *relation-to-relation* operator :math:`O` that is expressed in a form very closely related to an SQL ``SELECT`` statement.
 Finally, a *relation-to-stream* operator :math:`S` will emit certain rows from the output relation :math:`O(R(t^*))` into the output stream, possibly taking into account the results of the previous execution step :math:`O(R(t^*_{\text{prev}}))`.
 
@@ -23,14 +23,14 @@ This three-step pipeline is executed for each tuple, but only for one tuple at a
 Therefore, during execution there is a well-defined "current tuple".
 This also means that if there is no tuple in the input stream for a long time, transformation functions will not be called.
 
-We will now explain the kind of stream-to-relation and relation-to-stream operators that can be used.
+Now the kind of stream-to-relation and relation-to-stream operators that can be used in BQL is explained.
 
 
 Stream-to-Relation Operators
 ----------------------------
 
 In BQL, there are two different stream-to-relation operators, a time-based one and a tuple-based one.
-We also call them "window operators", since they define a sliding window on the input stream.
+They are also called "window operators", since they define a sliding window on the input stream.
 In terms of BQL syntax, the window operator is given after a stream name in the ``FROM`` clause within brackets and using the ``RANGE`` keyword, for example::
 
     ... FROM events [RANGE 5 SECONDS] ...
@@ -75,7 +75,7 @@ Relation-to-Stream Operators
 
 Once a resulting relation :math:`O(R(t^*))` is computed, tuples in the relation need to be output as a stream again.
 In BQL, there are three different relation-to-stream operators, ``RSTREAM``, ``ISTREAM`` and ``DSTREAM``.
-We also call them "emit operators", since they control how tuples are emitted as output.
+They are also called "emit operators", since they control how tuples are emitted as output.
 In terms of BQL syntax, the emit operator keyword is given after the ``SELECT`` keyword, for example::
 
     SELECT ISTREAM uid, msg FROM ...
@@ -203,7 +203,7 @@ Selecting and Transforming Data
 
 In the previous section, it was explained how BQL converts stream data into relations and back.
 This section is about how this relational data can be selected and transformed.
-This functionality is exactly what SQL's ``SELECT`` statement was designed to do, and so in BQL we try to mimic the ``SELECT`` syntax as much as possible.
+This functionality is exactly what SQL's ``SELECT`` statement was designed to do, and so in BQL the ``SELECT`` syntax is mimicked as much as possible.
 (Some basic knowledge of what the SQL ``SELECT`` statement does is assumed.)
 However, as opposed to the SQL data model, BQL's input data is assumed to be JSON-like, i.e., with varying shapes, nesting levels, and data types;
 therefore the BQL ``SELECT`` statement has a number of small difference to SQL ``SELECT``.
@@ -258,7 +258,7 @@ BQL also knows "user-defined stream functions" (UDSF) that transform a stream in
 (These are similar to "Table Functions" in PostgreSQL.)
 Such UDSFs can also be used in the ``FROM`` clause:
 Instead of using a stream's identifier, use the function call syntax ``function(param, param, ...)`` with the UDSF name as the function name and the base stream's identifier as its first parameter (as a string, i.e., in single quotes), possibly followed by other parameters.
-For example, if there is a UDSF called ``duplicate`` that takes the input stream's name as first parameter (as all UDSFs do) and the number of copies of each input tuple that we want to obtain as the second, this would look as follows::
+For example, if there is a UDSF called ``duplicate`` that takes the input stream's name as first parameter (as all UDSFs do) and the number of copies of each input tuple as the second, this would look as follows::
 
     FROM duplicate('products', 3) [RANGE 10 SECONDS]
 
