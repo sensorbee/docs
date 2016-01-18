@@ -131,16 +131,18 @@ A ``blob`` value is converted to a base64-encoded string in JSON.
 ``timestamp``
 -------------
 
-The type ``timestamp`` has date and time information in UTC. There's no way to
-write a value directly in BQL yet, but there're some ways to use ``blob`` in
-BQL:
+The type ``timestamp`` has date and time information in UTC. ``timestamp`` only
+guarantees precision in microseconds. There's no way to write a value directly
+in BQL yet, but there're some ways to use ``blob`` in BQL:
 
 * Emitting a tuple containing a ``timestamp`` value from a source
 * Casting a value of a type that is convertible to ``timestamp``
 * Calling a function returning a ``timestamp`` value
 
 A ``timestamp`` value is converted to a string in RFC3339 format with nanosecond
-precision in JSON: ``'2006-01-02T15:04:05.999999999Z07:00'``.
+precision in JSON: ``'2006-01-02T15:04:05.999999999Z07:00'``. Although the
+format can express nanoseconds, ``timestamp`` in BQL only guarantees microsecond
+precision as described above.
 
 ``array``
 ---------
@@ -447,3 +449,45 @@ From ``map``
 A ``map`` value is formatted as a JSON object::
 
     {'a': 1, 'b': '2', 'c': 3.4}::string -- => '{"a":1,"b":"2","c":3.4}'
+
+To ``timestamp``
+----------------
+
+Following types can be converted to ``timestamp``:
+
+* ``int``
+* ``float``
+* ``string``
+
+From ``int``
+^^^^^^^^^^^^
+
+An ``int`` value to be converted to a ``timestamp`` value is assumed to have
+the number of microseconds elapsed since January 1, 1970 UTC::
+
+    0::timestamp                -- => 1970-01-01T00:00:00Z
+    1::timestamp                -- => 1970-01-01T00:00:00.000001Z
+    1453108960123456::timestamp -- => 2016-01-18T09:22:40.123456Z
+
+From ``float``
+^^^^^^^^^^^^^^
+
+An ``float`` value to be converted to a ``timestamp`` value is assumed to have
+the number of microseconds elapsed since January 1, 1970 UTC. Its integral
+part should have seconds and decimal part should have microseconds::
+
+    0.0::timestamp -- => 1970-01-01T00:00:00Z
+    0.000001::timestamp -- => 1970-01-01T00:00:00.000001Z
+    86400.000001::timestamp -- => 1970-01-02T00:00:00.000001Z
+
+From ``string``
+^^^^^^^^^^^^^^^
+
+A ``string`` value is parsed in RFC3339 format, or RFC3339 with nanosecond
+precision format::
+
+    '1970-01-01T00:00:00Z'::timestamp        -- => 1970-01-01T00:00:00Z
+    '1970-01-01T00:00:00.000001Z'::timestamp -- => 1970-01-01T00:00:00.000001Z
+    '1970-01-02T00:00:00.000001Z'::timestamp -- => 1970-01-02T00:00:00.000001Z
+
+Converting ill-formed ``string`` values to ``timestamp`` results in an error.
