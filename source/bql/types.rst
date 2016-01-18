@@ -182,6 +182,9 @@ A key needs to be a ``string`` value and a value can be of any type::
         'c': 3.4
     }
 
+Because this is a ``map`` in BQL, not a JSON object, keys need to be enclosed
+with single quotes rather than double quotes.
+
 A ``map`` value can contain another ``map`` or ``array`` as its value::
 
     {
@@ -363,7 +366,7 @@ From ``int``
 ``int`` values are converted to the nearest ``float`` values::
 
     1::float -- => 1.0
-    (9000000000000012345::float)::int)::string -- => 9000000000000012288
+    (9000000000000012345::float)::int)::string -- => '9000000000000012288'
 
 From ``string``
 ^^^^^^^^^^^^^^^
@@ -384,3 +387,63 @@ contains seconds and the decimal part contains microseconds::
     ('1970-01-01T00:00:00Z'::timestamp)::float        -- => 0.0
     ('1970-01-01T00:00:00.000001Z'::timestamp)::float -- => 0.000001
     ('1970-01-02T00:00:00.000001Z'::timestamp)::float -- => 86400.000001
+
+To ``string``
+-------------
+
+Following types can be converted to ``string``:
+
+* ``bool``
+* ``int``
+* ``float``
+* ``blob``
+* ``timestamp``
+* ``array``
+* ``map``
+
+From ``bool``
+^^^^^^^^^^^^^
+
+``true::string`` results in ``'true'``, ``false::string`` results in ``'false'``.
+
+From ``int``
+^^^^^^^^^^^^
+
+A ``int`` value is formatted as a signed decimal integer::
+
+    1::string     -- => '1'
+    (-24)::string -- => '-24'
+
+From ``float``
+^^^^^^^^^^^^^^
+
+A ``float`` value is formatted as a signed decimal floating point. Scientific
+notation is used when necessary::
+
+    1.2::string           -- => '1.2'
+    10000000000.0::string -- => '1e+10'
+
+From ``blob``
+^^^^^^^^^^^^^
+
+A ``blob`` value is converted to a ``string`` value encoded in base64.
+
+From ``timestamp``
+^^^^^^^^^^^^^^^^^^
+
+A ``timestamp`` value is formatted in RFC3339 format with nanosecond precision:
+'2006-01-02T15:04:05.999999999Z07:00'.
+
+From ``array``
+^^^^^^^^^^^^^^
+
+An ``array`` value is formatted as a JSON array::
+
+    [1, '2', 3.4]::string -- => '[1,"2",3.4]'
+
+From ``map``
+^^^^^^^^^^^^
+
+A ``map`` value is formatted as a JSON object::
+
+    {'a': 1, 'b': '2', 'c': 3.4}::string -- => '{"a":1,"b":"2","c":3.4}'
