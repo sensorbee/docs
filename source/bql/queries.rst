@@ -456,24 +456,63 @@ Join on Two Streams ``l`` and ``r``
 +-------------------+-----------------------+-----------------------+--------------------------------------+
 
 
-TODO:
+Building Processing Pipelines
+=============================
 
-- CREATE STREAM
-- DROP STREAM
+The ``SELECT`` statement as described above returns a data stream (where the transport mechanism depends on the client in use), but often an unattended processing pipeline (i.e., running on the server without client interaction) needs to set up.
+In order to do so, a stream can be created from the results of a ``SELECT`` query and then used afterwards like an input stream.
+(The concept is equivalent to that of an SQL ``VIEW``.)
+
+The statement used to create a stream from an SELECT statement is::
+
+    CREATE STREAM stream_name AS select_statement;
+
+For example::
+
+    CREATE STREAM odds AS SELECT RSTREAM * FROM numbers [RANGE 1 TUPLES] WHERE id % 2 = 1;
+
+If that statement is issued correctly, subsequent statements can refer to ``stream_name`` in their ``FROM`` clauses.
+
+If a stream thus created is no longer needed, it can be dropped using the ``DROP STREAM`` command::
+
+    DROP STREAM stream_name;
 
 
 Data Output
 ===========
 
-TODO:
+To write data to a sink, there are two different statements.
+If *all* data from a stream is to be written to a sink unaltered, the
 
-- INSERT INTO ... SELECT
-- INSERT INTO ... FROM
+::
+
+    INSERT INTO sink_name FROM stream_name;
+
+statement can be used.
+
+If the stream that is used to insert into the sink was created only for that purpose, the ``CREATE STREAM`` and ``INSERT INTO`` statements can be merged to one::
+
+    INSERT INTO sink_name select_statement;
+
+For example::
+
+    INSERT INTO notifier SELECT RSTREAM * FROM events [RANGE 1 TUPLES] WHERE importance > 5;
 
 
 Expression Evaluation
 =====================
 
-TODO:
+To evaluate expressions outside the context of a stream, the ``EVAL`` command can be used.
+The general syntax is
 
-- EVAL
+::
+
+    EVAL expression;
+
+and ``expression`` can generally be any expression, but it cannot contain references to any columns, aggregate functions or anything that only makes sense in a stream processing context.
+
+For example, in the SensorBee Shell, the following can be done::
+
+    >>> EVAL 'foo' || 'bar';
+    foobar
+
