@@ -384,6 +384,8 @@ For the example above,
 will result in an output document that has the shape ``{"x": 7}`` instead of ``{"col_1": 7}``.
 Note that it is possible to use the same column alias multiple times, but in this case it is undefined which of the values with the same alias will end up in that output key.
 
+TODO: Explain `... AS foo.bar[4]` syntax.
+
 
 Notes on Wildcards
 ^^^^^^^^^^^^^^^^^^
