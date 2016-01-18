@@ -229,6 +229,58 @@ This section describes how type conversions work in BQL.
     Converting a ``NULL`` value into any type results in ``NULL`` and it isn't
     explicitly described in the subsections.
 
+To ``bool``
+-----------
+
+Following types can be converted to ``bool``:
+
+* ``int``
+* ``float``
+* ``string``
+* ``blob``
+* ``timestamp``
+* ``array``
+* ``map``
+
+From ``int``
+^^^^^^^^^^^^
+
+``0`` is converted to ``false``. Other values are converted to ``true``.
+
+From ``float``
+^^^^^^^^^^^^^^
+
+``0.0``, ``-0.0``, and NaN are converted to ``false``. Other values including
+infinity result in ``true``.
+
+From ``string``
+^^^^^^^^^^^^^^^
+
+An empty ``string`` value (i.e. ``''``) is converted to ``false``. Other values
+are evaluated as ``true``.
+
+From ``blob``
+^^^^^^^^^^^^^
+
+An empty ``blob`` value is converted to ``false``. Other values are converted
+to ``true``.
+
+From ``timestamp``
+^^^^^^^^^^^^^^^^^^
+
+January 1, year 1, 00:00:00 UTC is converted to ``false``. Other values are
+converted to ``true``.
+
+From ``array``
+^^^^^^^^^^^^^^
+
+An empty ``array`` is converted to ``false``. Other values result in ``true``.
+
+From ``map``
+^^^^^^^^^^^^
+
+An empty ``map`` is converted to ``false``. Other values result in ``true``.
+
 To ``int``
 ----------
 
