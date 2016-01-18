@@ -332,9 +332,10 @@ As in SQL, the select list contains a number of comma-separated expressions::
 
     SELECT emit_operator expression [, expression] [...] FROM ...
 
-In SQL, tables are strictly organized in "rows" and "columns" and the basic building blocks for non-constant expressions are column names.
+In general, items of a select list can be arbitrary `Value Expressions`_.
+In SQL, tables are strictly organized in "rows" and "columns" and the most important elements in such expressions are therefore column references.
 
-In BQL, each input tuple can be considered a "row", but the data can also be unstructured.
+In BQL, each input tuple can be considered a "row", but the data can also be unstructured and the notion of a "column" is not sufficient.
 Therefore, BQL uses `JSON Path <http://goessner.net/articles/JsonPath/>`_ to address data in each row.
 If only one table is used in the ``FROM`` clause and only top-level keys of each JSON-like row are referenced, the BQL select list looks the same as in SQL::
 
@@ -346,9 +347,7 @@ However, JSON Path allows to access nested elements as well::
     SELECT RSTREAM a.foo.bar FROM input [RANGE 1 TUPLES];
 
 If the input data has the form ``{"a": {"foo": {"bar": 7}}}``, then the output will be ``{"col_1": 7}``.
-(See paragraph `Column Labels`_ below for details on output key naming, and the section `TODO: JSON Path in BQL`_ for details about the available syntax for JSON Path expressions.)
-
-In general, items of a select list can be arbitrary `TODO: BQL Value Expressions`_.
+(See paragraph `Column Labels`_ below for details on output key naming, and the section `Field Selectors`_ for details about the available syntax for JSON Path expressions.)
 
 
 Table Prefixes
