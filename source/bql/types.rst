@@ -342,3 +342,45 @@ microseconds elapsed since January 1, 1970 UTC::
 The maximum ``timestamp`` that can be converted to ``int`` is
 294247-01-10T04:00:54.775807Z. The minimum is -290308-12-21T19:59:05.224192Z.
 
+To ``float``
+------------
+
+Following types can be converted to ``float``:
+
+* ``bool``
+* ``int``
+* ``string``
+* ``timestamp``
+
+From ``bool``
+^^^^^^^^^^^^^
+
+``true::float`` results in 1.0 and ``false::float`` results in 0.0.
+
+From ``int``
+^^^^^^^^^^^^
+
+``int`` values are converted to the nearest ``float`` values::
+
+    1::float -- => 1.0
+    (9000000000000012345::float)::int)::string -- => 9000000000000012288
+
+From ``string``
+^^^^^^^^^^^^^^^
+
+A ``string`` value is parsed and converted to the nearest ``float`` value::
+
+    '1.1'::float   -- => 1.1
+    '1e-1'::float  -- => 0.1
+    '-1e+1'::float -- => -10.0
+
+From ``timestamp``
+^^^^^^^^^^^^^^^^^^
+
+A ``timestamp`` value is converted to a ``float`` value as the number of
+microseconds elapsed since January 1, 1970 UTC. The integral part of the result
+contains seconds and the decimal part contains microseconds::
+
+    ('1970-01-01T00:00:00Z'::timestamp)::float        -- => 0.0
+    ('1970-01-01T00:00:00.000001Z'::timestamp)::float -- => 0.000001
+    ('1970-01-02T00:00:00.000001Z'::timestamp)::float -- => 86400.000001
