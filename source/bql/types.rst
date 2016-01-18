@@ -203,4 +203,90 @@ A ``map`` is converted to an object in JSON.
 Conversions
 ===========
 
-TODO
+BQL provides ``CAST(value AS type)`` operator, or ``value::type`` as a syntactic
+suger, that converts the given value to a corresponding value in the given type,
+if those types are convertible. For example, ``CAST(1 AS string)``, or
+``1::string``, converts an ``int`` value ``1`` to a ``string`` value and
+results in ``'1'``. Converting to the same type as the value's type is valid.
+For instance, ``'str'::string`` doesn't do anything and results in ``'str'``.
+
+The following types are valid for the target type of ``CAST`` operator:
+
+* ``bool``
+* ``int``
+* ``float``
+* ``string``
+* ``blob``
+* ``timestamp``
+
+Specifying ``null``, ``array``, or ``map`` as the target type results in an
+error.
+
+This section describes how type conversions work in BQL.
+
+.. note::
+
+    Converting a ``NULL`` value into any type results in ``NULL`` and it isn't
+    explicitly described in the subsections.
+
+To ``int``
+----------
+
+Following types can be converted to ``int``:
+
+* ``bool``
+* ``float``
+* ``string``
+* ``timestamp``
+
+From ``bool``
+^^^^^^^^^^^^^
+
+``true::int`` results in 1 and ``false::int`` results in 0.
+
+From ``float``
+^^^^^^^^^^^^^^
+
+Converting a ``float`` value into a ``int`` value results in the greatest
+``int`` value less than or equal to the ``float`` value::
+
+    1.0::int  -- => 1
+    1.4::int  -- => 1
+    1.5::int  -- => 1
+    2.01::int -- => 2
+
+The conversion results in an error when the ``float`` value is out of the valid
+range of ``int`` values.
+
+From ``string``
+^^^^^^^^^^^^^^^
+
+When converting a ``string`` value into an ``int`` value, ``CAST`` operator
+first tries to parse it as an integer to guarantee better precision. If the
+parsing fails, it tries to parse the ``string`` value as a ``float`` value and
+then converts the result to an ``int`` value.
+
+::
+
+    '1'::int   -- => 1
+    '2.5'::int -- => 2
+
+The conversion results in an error when the ``string`` value contains the
+number that is out of the valid range of ``int`` values, or the value isn't a
+number. For example, ``'1a'::string`` results in an error even though the value
+starts with a number.
+
+From ``timestamp``
+^^^^^^^^^^^^^^^^^^
+
+A ``timestamp`` value is converted to an ``int`` value as the number of
+microseconds elapsed since January 1, 1970 UTC::
+
+    ('1970-01-01T00:00:00Z'::timestamp)::int        -- => 0
+    ('1970-01-01T00:00:00.123456Z'::timestamp)::int -- => 123456
+    ('1970-01-02T00:00:00Z'::timestamp)::int        -- => 86400000000
+    ('2016-01-18T09:22:40.123456Z'::timestamp)::int -- => 1453108960123456
+
+The maximum ``timestamp`` that can be converted to ``int`` is
+294247-01-10T04:00:54.775807Z. The minimum is -290308-12-21T19:59:05.224192Z.
+
