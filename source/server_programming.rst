@@ -2,9 +2,6 @@
 Server Programming
 ##################
 
-.. sectnum::
-    :depth: 4
-
 This part describes the extensibility of the SensorBee server. Topics covered
 in this part are advanced and should be read after understanding basics of
 SensorBee and BQL.

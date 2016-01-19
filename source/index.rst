@@ -6,16 +6,19 @@
 Welcome to SensorBee's documentation!
 =====================================
 
-.. sectnum::
-   :depth: 4
-
 Contents:
 
 .. toctree::
    :maxdepth: 2
+   :numbered: 4
 
    bql.rst
    server_programming.rst
+
+.. toctree::
+   :maxdepth: 1
+   :numbered: -1
+
    ref.rst
 
 

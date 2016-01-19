@@ -2,9 +2,6 @@
 The BQL Language
 ################
 
-.. sectnum::
-   :depth: 4
-
 This part describes the use of the BQL language in SensorBee.
 We start with describing the general syntax of BQL, then explain how to create the structures for data in-/output and stateful operations.
 After that, the general processing model and the remaining BQL query types are explained.
