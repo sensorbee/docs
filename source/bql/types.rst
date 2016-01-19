@@ -1,3 +1,5 @@
+.. _bql_types:
+
 **************************
 Data Types and Conversions
 **************************
@@ -29,6 +31,8 @@ from JSON with some restrictions.
 .. note::
 
     User defined types are not availble at the moment.
+
+.. _bql_types_types:
 
 Types
 =====

@@ -70,6 +70,8 @@ Valid ranges are positive integral values, followed by the ``TUPLES`` keyword, f
 .. [#fn_tuple-window] Sometimes this leads to unexpected effects or complicated workarounds, while the cases where this is a useful behavior may be few. Therefore this behavior may change in future version.
 
 
+.. _bql_queries_relation_to_stream_operators:
+
 Relation-to-Stream Operators
 ----------------------------
 
@@ -251,14 +253,16 @@ In particular, the examples just given for SQL ``FROM`` clauses are all *not* va
     FROM names [RANGE 2 TUPLES], addresses [RANGE 1.5 SECONDS], cities [RANGE 200 MILLISECONDS]
 
 
-Using Stream Functions
-""""""""""""""""""""""
+.. _bql_stream_generating_functions:
 
-BQL also knows "user-defined stream functions" (UDSF) that transform a stream into another stream and can be used, for example, to output multiple output rows per input row; something that is not possible with standard ``SELECT`` features.
+Using Stream-Generating Functions
+"""""""""""""""""""""""""""""""""
+
+BQL also knows "user-defined stream-generating functions" (UDSFs) that transform a stream into another stream and can be used, for example, to output multiple output rows per input row; something that is not possible with standard ``SELECT`` features.
 (These are similar to "Table Functions" in PostgreSQL.)
 Such UDSFs can also be used in the ``FROM`` clause:
-Instead of using a stream's identifier, use the function call syntax ``function(param, param, ...)`` with the UDSF name as the function name and the base stream's identifier as its first parameter (as a string, i.e., in single quotes), possibly followed by other parameters.
-For example, if there is a UDSF called ``duplicate`` that takes the input stream's name as first parameter (as all UDSFs do) and the number of copies of each input tuple as the second, this would look as follows::
+Instead of using a stream's identifier, use the function call syntax ``function(param, param, ...)`` with the UDSF name as the function name and the base stream's identifiers as parameters (as a string, i.e., in single quotes), possibly with other parameters.
+For example, if there is a UDSF called ``duplicate`` that takes the input stream's name as the first parameter and the number of copies of each input tuple as the second, this would look as follows::
 
     FROM duplicate('products', 3) [RANGE 10 SECONDS]
 
