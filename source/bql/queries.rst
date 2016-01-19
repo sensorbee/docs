@@ -44,28 +44,28 @@ The **time-based operator** is used with a certain time span :math:`I` (such as 
 
 Valid time spans are positive integer or float values, followed by the ``SECONDS`` or ``MILLISECONDS`` keyword, for example ``[RANGE 3.5 SECONDS]`` or ``[RANGE 200 MILLISECONDS]`` are valid specifications.
 
-Notes:
+.. note::
 
-- The point in time :math:`t^*` is *not* the "current time" (however that would be defined), but it is equal to the timestamp of the current tuple.
-  This approach means that a stream can be reprocessed with identical results independent of the system clock of some server.
-  Also it is not necessary to worry about a delay until a tuple arrives in the system and is processed there.
-- It is assumed that the tuples in the input stream arrive in the order of their timestamps.
-  If timestamps are out of order, the window contents are not well-defined.
-- The sizes of relations :math:`R(t^*_1)` and :math:`R(t^*_2)` can be different, since there may be more or less tuples in the given time span.
-  However, there is always at least one tuple in the relation (the current one).
+  - The point in time :math:`t^*` is *not* the "current time" (however that would be defined), but it is equal to the timestamp of the current tuple.
+    This approach means that a stream can be reprocessed with identical results independent of the system clock of some server.
+    Also it is not necessary to worry about a delay until a tuple arrives in the system and is processed there.
+  - It is assumed that the tuples in the input stream arrive in the order of their timestamps.
+    If timestamps are out of order, the window contents are not well-defined.
+  - The sizes of relations :math:`R(t^*_1)` and :math:`R(t^*_2)` can be different, since there may be more or less tuples in the given time span.
+    However, there is always at least one tuple in the relation (the current one).
 
 
 The **tuple-based operator** is used with a number :math:`k` and uses the last :math:`k` tuples that have arrived (or *all* tuples that have arrived when this number is less than :math:`k`) to create the relation :math:`R(t^*)`.
 
 Valid ranges are positive integral values, followed by the ``TUPLES`` keyword, for example ``[RANGE 10 TUPLES]`` is a valid specification.
 
-Notes:
+.. note::
 
-- The timestamps of tuples do not have any effect with this operator, they can also be out of order.
-  Only the order in which the tuples arrived is important.
-  (Note that for highly concurrent systems, "order" is not always a well-defined term.)
-- At the beginning of stream processing, when less than :math:`k` tuples have arrived, the size of the relation will be less than :math:`k`. [#fn_tuple-window]_
-  As soon as :math:`k` tuples have arrived, the relation size will be constant.
+  - The timestamps of tuples do not have any effect with this operator, they can also be out of order.
+    Only the order in which the tuples arrived is important.
+    (Note that for highly concurrent systems, "order" is not always a well-defined term.)
+  - At the beginning of stream processing, when less than :math:`k` tuples have arrived, the size of the relation will be less than :math:`k`. [#fn_tuple-window]_
+    As soon as :math:`k` tuples have arrived, the relation size will be constant.
 
 .. [#fn_tuple-window] Sometimes this leads to unexpected effects or complicated workarounds, while the cases where this is a useful behavior may be few. Therefore this behavior may change in future version.
 
@@ -332,9 +332,10 @@ As in SQL, the select list contains a number of comma-separated expressions::
 
     SELECT emit_operator expression [, expression] [...] FROM ...
 
-In SQL, tables are strictly organized in "rows" and "columns" and the basic building blocks for non-constant expressions are column names.
+In general, items of a select list can be arbitrary `Value Expressions`_.
+In SQL, tables are strictly organized in "rows" and "columns" and the most important elements in such expressions are therefore column references.
 
-In BQL, each input tuple can be considered a "row", but the data can also be unstructured.
+In BQL, each input tuple can be considered a "row", but the data can also be unstructured and the notion of a "column" is not sufficient.
 Therefore, BQL uses `JSON Path <http://goessner.net/articles/JsonPath/>`_ to address data in each row.
 If only one table is used in the ``FROM`` clause and only top-level keys of each JSON-like row are referenced, the BQL select list looks the same as in SQL::
 
@@ -346,9 +347,7 @@ However, JSON Path allows to access nested elements as well::
     SELECT RSTREAM a.foo.bar FROM input [RANGE 1 TUPLES];
 
 If the input data has the form ``{"a": {"foo": {"bar": 7}}}``, then the output will be ``{"col_1": 7}``.
-(See paragraph `Column Labels`_ below for details on output key naming, and the section `TODO: JSON Path in BQL`_ for details about the available syntax for JSON Path expressions.)
-
-In general, items of a select list can be arbitrary `TODO: BQL Value Expressions`_.
+(See paragraph `Column Labels`_ below for details on output key naming, and the section `Field Selectors`_ for details about the available syntax for JSON Path expressions.)
 
 
 Table Prefixes
@@ -383,6 +382,8 @@ For the example above,
 
 will result in an output document that has the shape ``{"x": 7}`` instead of ``{"col_1": 7}``.
 Note that it is possible to use the same column alias multiple times, but in this case it is undefined which of the values with the same alias will end up in that output key.
+
+TODO: Explain `... AS foo.bar[4]` syntax.
 
 
 Notes on Wildcards
