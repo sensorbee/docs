@@ -22,3 +22,20 @@ TODO:
     - DROP STATE
     - LOAD STATE
     - SAVE STATE
+
+.. _bql_io_data_input:
+
+Data Input
+==========
+
+TODO
+
+.. _bql_io_data_output:
+
+Data Output
+===========
+
+.. _bql_io_state:
+
+Stateful Data Processing
+========================

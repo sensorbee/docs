@@ -32,8 +32,8 @@ values are required, a UDF can return the value as an ``array``.
 User-Defined Aggregate Functions
 ================================
 
-A user-defined aggregate function is a function similar to a UDF but can take
-aggregation parameters (see :ref:`bql_syntax_aggregates`) as an argument in
+A user-defined aggregate function (UDAF) is a function similar to a UDF but can
+take aggregation parameters (see :ref:`bql_syntax_aggregates`) as an argument in
 addition to regular arguments.
 
 User-Defined Stream-Generating Functions
@@ -63,14 +63,32 @@ even need to be located at the beginning of arguments:
 User-Defined States
 ===================
 
-TODO
+A user-defined state (UDS) can be provided to support stateful data processing
+(see :ref:`bql_io_state`). A UDS is usually provided with a set of UDFs that
+manipulate the state. Those UDFs take the name of the UDS as an ``string``
+argument::
+
+    CREATE STATE event_id_seq TYPE snowflake_id WITH machine_id = 1;
+    CREATE STREAM events_with_id AS
+        SELECT snowflake_id('event_id_seq'), * FROM events [RANGE 1 TUPLES];
+
+In the example above, a UDS ``event_id_seq`` is created with the type
+``snowflake_id``. Then, the UDS is passed to the UDF ``snowflake_id``, which
+happens to have the same name as the type name of the UDS. The UDF looks up
+the UDS ``event_id_seq`` and returns a value computed based on the state.
 
 Source Plugins
 ==============
 
-TODO
+A source developed by a user can be added to the SensorBee server as a plugin
+so that it can be used in ``CREATE SOURCE`` statement. A source can have any
+number of required and optional parameters. Each parameter can have any of
+:ref:`built-in types <bql_types_types>`.
 
 Sink Plugins
 ============
 
-TODO
+A sink developed by a user can be added to the SensorBee server as a plugin
+so that it can be used in ``CREATE SINK`` statement. A sink can have any
+number of required and optional parameters. Each parameter can have any of
+:ref:`built-in types <bql_types_types>`.
