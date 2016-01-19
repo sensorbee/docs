@@ -212,6 +212,7 @@ For example, the following computes the square root of 2::
 
 The list of built-in functions is described in section `Functions`_.
 
+.. _bql_syntax_aggregates:
 
 Aggregate Expressions
 ---------------------
