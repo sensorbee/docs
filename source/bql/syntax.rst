@@ -31,7 +31,7 @@ A value expression is one of the following:
 Literals
 --------
 
-TODO
+TODO: reference either the previous subsection or the Types section
 
 
 Field Selectors
@@ -175,7 +175,7 @@ the following table is supposed to illustrate the effect of various JSON Path ex
 Row Metadata References
 -----------------------
 
-Metadata is the data that is attached to a tuple, but which cannot be accessed as part of the normal row data.
+Metadata is the data that is attached to a tuple but which cannot be accessed as part of the normal row data.
 At the moment, the only metadata that can be accessed from within BQL is a tuple's system timestamp (the time that was set by the source that created it).
 This timestamp can be accessed using the ``ts()`` function.
 If multiple streams are joined, a stream prefix is required to identify the input tuple that is referred to, i.e.,
@@ -233,11 +233,11 @@ For example, the ``string_agg`` function can be called like
     string_agg(name, ', ')
 
 to return a comma-separated list of all names in the respective group.
-However, the second parameter is not an aggregation parameter, so for a call like
+However, the second parameter is not an aggregation parameter, so for a statement like
 
 ::
 
-    string_agg(name, sep)
+    SELECT RSTREAM string_agg(name, sep) FROM ...
 
 ``sep`` must be mentioned in the ``GROUP BY`` clause.
 
@@ -265,25 +265,63 @@ See `TODO: Aggregate Functions`_ for a list of built-in aggregate functions.
 Type Casts
 ----------
 
-TODO
+A type cast specifies a conversion from one data type to another.
+BQL accepts two equivalent syntaxes for type casts::
+
+    CAST(expression AS type)
+    expression::type
+
+When a cast is applied to a value expression, it represents a run-time type conversion.
+The cast will succeed only if a suitable type conversion operation has been defined, see `Conversions`_.
+
 
 
 Array Constructors
 ------------------
 
-TODO
+An array constructor is an expression that builds an array value using values for its member elements.
+A simple array constructor consists of a left square bracket ``[``, a list of expressions (separated by commas) for the array element values, and finally a right square bracket ``]``.
+For example::
+
+    SELECT RSTREAM [7, 2 * stream:a, true, 'blue'] FROM ...
+
+Each element of the array can have a different type.
+In particular, the wildcard is also allowed as an expression and will include the whole current row as an array element.
+
+.. note::
+
+   Single-element arrays of strings could also be interpreted as JSON Paths and are therefore required to have a trailing comma after their only element: ``['foo',]``
 
 
 Map Constructors
 ----------------
 
-TODO
+A map constructor is an expression that builds a map value using string keys and arbitrary values for its member elements.
+A simple map constructor consists of a left curly bracket ``{``, a list of ``'key': value`` pairs (separated by commas) for the map elements, and finally a right curly bracket ``}``.
+For example::
+
+    SELECT RSTREAM {'a_const': 7, 'prod': 2 * stream:a} FROM ...
+
+The keys must be string literals (i.e., they can not be computed expressions), but the values can be arbitrary expressions, including wildcard.
 
 
 Expression Evaluation Rules
 ---------------------------
 
-TODO
+The order of evaluation of subexpressions is not defined.
+In particular, the inputs of an operator or function are not necessarily evaluated left-to-right or in any other fixed order.
+
+Furthermore, if the result of an expression can be determined by evaluating only some parts of it, then other subexpressions might not be evaluated at all.
+For instance, if one wrote::
+
+    true OR somefunc()
+
+then ``somefunc()`` would (probably) not be called at all.
+The same would be the case if one wrote::
+
+    somefunc() OR true
+
+Note that this is *not* the same as the left-to-right "short-circuiting" of Boolean operators that is found in some programming languages.
 
 
 Calling Functions
