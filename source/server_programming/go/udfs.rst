@@ -170,7 +170,7 @@ So, a complete example of the UDF implementation and registration is as follows:
 .. note::
 
     A UDF implementation and registration should actually be separated to
-    different packages. See :ref:`server_programming_go_udfs_developing_a_udf`
+    different packages. See :ref:`server_programming_go_development_flow`
     for details.
 
 Although this approach is handy, there could be some overhead compared to a UDF
@@ -277,84 +277,6 @@ Following functions can be converted to UDFs by ``ConvertGeneric`` or
 * ``func join(*core.Context, ...string) string``
 * ``func format(string, ...data.Value) (string, error)``
 * ``func keys(data.Map) []string``
-
-.. _server_programming_go_udfs_developing_a_udf:
-
-Developing a UDF
-----------------
-
-The basic development flow of a UDF is as follows:
-
-#. Create a git repository for a UDF
-#. Implement the UDF
-#. Create a plugin subpackage in the repository
-
-Create a Git Repository for a UDF
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The UDF is written in Go, so it needs to be a valid git repository (or a
-repository of other version control systems). One repository may provide
-multiple UDFs. However, since Go is very well designed to provide packages in
-a fine-grained manner, each repository should only provide a minimum set of
-UDFs that are logically related and make sense to be in the same repository.
-
-Implement the UDF
-^^^^^^^^^^^^^^^^^
-
-The next step is to implement the UDF. There's no restiction on which packages
-to use.
-
-Functions or structs that are registered to the SensorBee server needs to be
-referred by the plugin subpackage, which is described in the next subsection.
-Thus, names of those symbols need to start with a capital letter.
-
-In this step, the UDF shouldn't be registered to the SensorBee server yet.
-
-Create a Plugin Subpackage in the Repository
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-It is highly recommended that the repository have a separate package which only
-registers UDFs to the SensorBee server. There's usually one file named "plugin.go"
-and it only contains a series of ``RegisterGlobalUDF`` calls in ``init``
-function. For instance, if the repository only provides one UDF, the contents of
-"plugin.go" would be something like::
-
-    // in github.com/user/myudf/plugin/plugin.go
-    package plugin
-
-    import (
-        "gopkg.in/sensorbee/sensorbee.v0/bql/udf"
-        "github.com/user/myudf"
-    )
-
-    func init() {
-        udf.MustRegisterGlobalUDF("my_udf", &myudf.MyUDF{})
-    }
-
-There're two reasons to have a plugin subpackage separated from the
-implementation of UDFs. Firstly, by separating them, other Go packages can
-import the UDFs implementation to use the package as a library without
-registering them to SensorBee. Secondly, having a separated plugin package
-allows a user to register a UDF with a different name. This is especially useful
-when names of UDFs conflict each other.
-
-To use the example plugin above, "github.com/user/myudf/plugin" needs to be
-added to the plugin path list of SensorBee.
-
-Repository Organization
-^^^^^^^^^^^^^^^^^^^^^^^
-
-The typical organization of the repository is
-
-* github.com/user/repo
-
-    * README: description and the usage of the UDF
-    * .go files: implementation of the UDF
-    * plugin/: a subpackage for the plugin registration
-
-        * plugin.go
-
-    * othersubpackages/: there can be optional subpackages
 
 An Example
 ----------
