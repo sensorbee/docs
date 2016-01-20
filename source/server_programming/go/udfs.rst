@@ -2,10 +2,16 @@ User-Defined Functions
 ======================
 
 This section describes how to write a UDF in Go. It first shows the basic
-interface of defining UDFs, and then describes utilities among it.
+interface of defining UDFs, and then describes utilities among it, how to
+develop a UDF in a Go manner, and an complete example.
 
-Overview
---------
+Implementing a UDF
+------------------
+
+.. note::
+
+    This is a strict way to implement a UDF in Go. To know a easier way, see
+    :ref:`server_programming_go_udfs_generic_udfs`.
 
 A struct satisfying the following interface can be a UDF::
 
@@ -24,37 +30,83 @@ A struct satisfying the following interface can be a UDF::
         IsAggregationParameter(k int) bool
     }
 
-``Call`` method receives ``*core.Context`` and multiple ``data.Value`` as its
-arguments. ``*core.Context`` contains the information of the current processing
-context. ``data.Value`` represents a value used in BQL and can be any of
-:ref:`built-in types <bql_types_types>`.
-
-``Accept`` method verifies if the UDF accept the specific number of arguments.
-It can return true for multiple arities as long as it can receive the given
-number of arguments.
-
-``IsAggregationParameter`` checks if k-th argument is an aggregation parameter.
+This interface is defined in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
 
 A UDF can be registered by ``RegisterGlobalUDF`` or ``MustRegisterGlobalUDF``
-function defined in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
+function also defined in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
 ``MustRegisterGlobalUDF`` is same as ``RegisterGlobalUDF`` but panics on failure
 instead of returning an error. These functions are usually called from ``init``
-function::
+function. A typical implementation of a UDF looks as follows::
 
     type MyUDF struct {
         ...
     }
 
-    ... implementation of required methods ...
+    func (m *MyUDF) Call(ctx *core.Context, args ...data.Value) (data.Value, error) {
+        ...
+    }
+
+    func (m *MyUDF) Accept(arity int) bool {
+        ...
+    }
+
+    func (m *MyUDF) IsAggregationParameter(k int) bool {
+        ...
+    }
 
     func init() {
+        // MyUDF can be referred as my_udf in BQL statements.
         udf.MustRegisterGlobalUDF("my_udf", &MyUDF{})
     }
 
 As it can be inferred from this example, a UDF itself should be stateless since
 it only registers one instance of a struct as a UDF and it'll globally be shared.
 Stateful data processing can be achieved by the combination of UDFs and UDSs,
-which is described in the following sections.
+which is described in :ref:`server_programming_go_states`.
+
+A UDF needs to implement three methods to satisfy ``udf.UDF`` interface:
+``Call``, ``Accept``, and ``IsAggregationParameter``.
+
+``Call`` method receives ``*core.Context`` and multiple ``data.Value`` as its
+arguments. ``*core.Context`` contains the information of the current processing
+context. ``Call``'s ``...data.Value`` argument has values passed to the UDF.
+``data.Value`` represents a value used in BQL and can be any of :ref:`built-in
+types <bql_types_types>`.
+
+::
+
+    SELECT RSTREAM my_udf(arg1, arg2) FROM stream [RANGE 1 TUPLES];
+
+In this example, ``arg1`` and ``arg2`` are passed to ``Call`` method::
+
+    func (m *MyUDF) Call(ctx *core.Context, args ...data.Value) (data.Value, error) {
+        // When my_udf(arg1, arg2) is called, len(args) is 2.
+        // args[0] is arg1 and args[1] is arg2.
+    }
+
+Because ``data.Value`` is a semi-variant type, ``Call`` method needs to check
+the type of each ``data.Value`` and convert it to a desired type.
+
+``Accept`` method verifies if the UDF accept the specific number of arguments.
+It can return true for multiple arities as long as it can receive the given
+number of arguments. If a UDF only accept 2 arguments, the method is implemented
+as follows::
+
+    func (m *MyUDF) Accept(arity int) bool {
+        return arity == 2
+    }
+
+When a UDF wants to support variadic parameters (a.k.a. variable-length
+arguments) with 2 required arguments (e.g.
+``my_udf(arg1, arg2, optional1, optional2, ...)``), the implementation would be::
+
+    func (m *MyUDF) Accept(arity int) bool {
+        return arity >= 2
+    }
+
+``IsAggregationParameter`` checks if k-th, starting from 0, argument is an
+aggregation parameter. Aggregation parameters are passed as ``data.Array``
+containing all values of a field in each group.
 
 The registered UDF is looked up based on its name and the number of argument
 passed to it.
@@ -64,7 +116,7 @@ passed to it.
     SELECT RSTREAM my_udf(arg1, arg2) FROM stream [RANGE 1 TUPLES];
 
 In this ``SELECT``, a UDF having the name ``my_udf`` is looked up first. After
-that, its ``Accept``method  is called with 2 and ``my_udf`` is actually selected
+that, its ``Accept`` method  is called with 2 and ``my_udf`` is actually selected
 if ``Accept(2)`` returned true. ``IsAggregationParameter`` method is
 additionally called on each argument to see if the argument needs to be an
 aggregation parameter. Then, if there's no mismatch, ``my_udf`` is finally
@@ -75,6 +127,8 @@ called.
     A UDF doesn't have a schema at the moment, so any error regarding types of
     arguments will not be reported until the statement calling the UDF actually
     processes a tuple.
+
+.. _server_programming_go_udfs_generic_udfs:
 
 Generic UDFs
 ------------
@@ -96,6 +150,28 @@ or ``MustConvertGeneric`` function defined in
     func init() {
         udf.MustRegisterGlobalUDF("inc", udf.MustConvertGeneric(Inc))
     }
+
+So, a complete example of the UDF implementation and registration is as follows::
+
+    package inc
+
+    import (
+        "gopkg.in/sensorbee/sensorbee.v0/bql/udf"
+    )
+
+    func Inc(v int) int {
+        return v + 1
+    }
+
+    func init() {
+        udf.MustRegisterGlobalUDF("inc", udf.MustConvertGeneric(Inc))
+    }
+
+.. note::
+
+    A UDF implementation and registration should actually be separated to
+    different packages. See :ref:`server_programming_go_udfs_developing_a_udf`
+    for details.
 
 Although this approach is handy, there could be some overhead compared to a UDF
 implemented in the regular way. Most of such overhead comes from type checking
@@ -202,6 +278,8 @@ Following functions can be converted to UDFs by ``ConvertGeneric`` or
 * ``func format(string, ...data.Value) (string, error)``
 * ``func keys(data.Map) []string``
 
+.. _server_programming_go_udfs_developing_a_udf:
+
 Developing a UDF
 ----------------
 
@@ -280,6 +358,11 @@ The typical organization of the repository is
 
 An Example
 ----------
+
+TODO
+
+User-Defined Aggregates
+-----------------------
 
 TODO
 
