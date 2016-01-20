@@ -37,8 +37,9 @@ number of arguments.
 
 A UDF can be registered by ``RegisterGlobalUDF`` or ``MustRegisterGlobalUDF``
 function defined in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
-``MustRegisterGlobalUDF`` panics on failure instead of returning an error.
-These functions are usually called from ``init`` function::
+``MustRegisterGlobalUDF`` is same as ``RegisterGlobalUDF`` but panics on failure
+instead of returning an error. These functions are usually called from ``init``
+function::
 
     type MyUDF struct {
         ...
@@ -78,9 +79,128 @@ called.
 Generic UDFs
 ------------
 
-SensorBee provides a helper function to register a regular Go function as a UDF.
+SensorBee provides a helper function to register a regular Go function as a UDF
+without implementing ``UDF`` interface explicitly.
 
-.. todo:: describe generic UDFs written in wiki
+::
+
+    func Inc(v int) int {
+        return v + 1
+    }
+
+This function ``Inc`` can be transformed into a UDF by ``ConvertGeneric``
+or ``MustConvertGeneric`` function defined in
+``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package. By combining it with
+``RegisterGlobalUDF``, ``Inc`` function can be registered as a UDF::
+
+    func init() {
+        udf.MustRegisterGlobalUDF("inc", udf.MustConvertGeneric(Inc))
+    }
+
+Although this approach is handy, there could be some overhead compared to a UDF
+implemented in the regular way. Most of such overhead comes from type checking
+and conversions.
+
+Functions passed to ``ConvertGeneric`` need to satisfy some restrictions on
+the form of their argument and return value types. Each restriction is described
+in the following subsections.
+
+Form of Arguments
+^^^^^^^^^^^^^^^^^
+
+In terms of valid argument forms, there're some rules to follow:
+
+#. A Go function can receive ``*core.Context`` as the first argument, or can omit it.
+#. A function can have any number of arguments including 0 argument as long as Go accepts them.
+#. A function can be variadic with or without non-variadic parameters.
+
+There're basically eight (four times two, whether a function has
+``*core.Context`` or not) forms of arguments (return values are
+intentionally omitted for clarity):
+
+* Functions receiving no argument in BQL (e.g. ``my_udf()``)
+
+    1. ``func(*core.Context)``: A function only receiving ``*core.Context``
+    2. ``func()``: A function having no argument and not receiving ``*core.Context``, either
+
+* Functions having non-variadic arguments but no variadic arguments
+
+    3. ``func(*core.Context, T1, T2, ..., Tn)``
+    4. ``func(T1, T2, ..., Tn)``
+
+* Functions having variadic arguments but no non-variadic arguments
+
+    5. ``func(*core.Context, ...T)``
+    6. ``func(...T)``
+
+* Functions having both variadic and non-variadic arguments
+
+    7. ``func(*core.Context, T1, T2, ..., Tn, ...Tn+1)``
+    8. ``func(T1, T2, ..., Tn, ...Tn+1)``
+
+Followings are examples of invalid function signatures:
+
+* ``func(T, *core.Context)``: ``*core.Context`` must be the first argument.
+* ``func(NonSupportedType)``: Only supported types, which will be explained later, can be used.
+
+Although return values are omitted from all the examples above, they're actually
+required. The next subsection explains how to define valid return values.
+
+Form of Return Values
+^^^^^^^^^^^^^^^^^^^^^
+
+All functions need to have return values. There're two forms of return values:
+
+* ``func(...) R``
+* ``func(...) (R, error)``
+
+All other forms are invalid:
+
+* ``func(...)``
+* ``func(...) error``
+* ``func(...) NonSupportedType``
+
+Valid types of return values are same as the valid types of arguments, and
+they'll be listed in the following subsection.
+
+Valid Value Types
+^^^^^^^^^^^^^^^^^
+
+The list of Go types that can be used for arguments and the return value is as
+follows:
+
+* ``bool``
+* signed integers: ``int``, ``int8``, ``int16``, ``int32``, ``int64``
+* unsigned integers: ``uint``, ``uint8``, ``uint16``, ``uint32``, ``uint64``
+* ``float32``, ``float64``
+* ``string``
+* ``time.Time``
+* data: ``data.Bool``, ``data.Int``, ``data.Float``, ``data.String``,
+  ``data.Blob``, ``data.Timestamp``, ``data.Array``, ``data.Map``, ``data.Value``
+* A slice of any type above, including ``data.Value``
+
+``data.Value`` can be used as a semi-variant type, which will receive all types
+above.
+
+When the argument type and the actual value type are different, weak type
+conversion are applied to values. Conversions are basically done by
+``data.ToXXX`` functions (see godoc comments of each function in
+data/type_conversions.go). For example, ``func inc(i int) int`` can be called by
+``inc('3')`` in a BQL statement and it'll return 4. If a strict type checking
+or custom type conversion is required, receive values as ``data.Value`` and
+manually check or convert types, or define the UDF in the regular way.
+
+Examples of Valid Go Functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Following functions can be converted to UDFs by ``ConvertGeneric`` or
+``MustConvertGeneric`` function:
+
+* ``func rand() int``
+* ``func pow(*core.Context, float32, float32) (float32, error)``
+* ``func join(*core.Context, ...string) string``
+* ``func format(string, ...data.Value) (string, error)``
+* ``func keys(data.Map) []string``
 
 Developing a UDF
 ----------------
@@ -161,8 +281,7 @@ The typical organization of the repository is
 An Example
 ----------
 
-.. todo:: twice
-
+TODO
 
 Dynamic Loading
 ---------------
