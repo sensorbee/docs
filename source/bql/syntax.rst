@@ -5,6 +5,47 @@ BQL Syntax
 Lexical Structure
 =================
 
+BQL has been designed to be easy to learn for people who have used SQL before.
+While key words and commands differ in many cases, the basic structure, set of tokens, operators etc. is the same.
+For example, the following is (syntactically) valid BQL input::
+
+    SELECT RSTREAM given_name, last_name FROM persons [RANGE 1 TUPLES] WHERE age > 20;
+
+    CREATE SOURCE s TYPE fluentd WITH host='example.com', port=12345;
+
+    INSERT INTO file FROM data;
+
+This is a sequence of three commands, one per line (although this is not required; more than one command can be on a line, and commands can usefully be split across lines).
+Additionally, comments can occur in BQL input.
+They are effectively equivalent to whitespace.
+
+The type of commands that can be used in BQL is described in `Input/Output/State Definition`_ and `Queries`_.
+
+
+Identifiers and Key Words
+-------------------------
+
+Tokens such as ``SELECT``, ``CREATE``, or ``INTO`` in the example above are examples of *key words*, that is, words that have a fixed meaning in the BQL language.
+The tokens ``persons`` and ``file`` are examples of identifiers.
+They identify names of streams, sources, or other objects, depending on the command they are used in.
+Therefore they are sometimes simply called "names".
+Key words and identifiers have the same lexical structure, meaning that one cannot know whether a token is an identifier or a key word without knowing the language.
+
+BQL identifiers and key words must begin with a letter (``a-z``).
+Subsequent characters can be letters, underscores, or digits (``0-9``).
+Key words and unquoted identifiers are in general case insensitive.
+
+However, there is one important difference between SQL and BQL when it comes to "column identifiers".
+In BQL, there are no "columns" with names that the user can pick herself, but "field selectors" that describe the path to a value in a JSON-like document imported from outside the system.
+Therefore field selectors are case-sensitive (in order to be able to deal with input of the form ``{"a": 1, "A": 2}``) and also there is a form that allows to use special characters; see `Field Selectors`_ for details.
+
+.. note::
+
+   At the moment, there is no restriction on the set of words that can be used as identifiers.
+   However, it is strongly recommended not to use identifiers that are also key words in order to avoid confusion.
+   Also, such restrictions on identifiers are likely to be introduced in future versions.
+
+
 Constants
 ---------
 
