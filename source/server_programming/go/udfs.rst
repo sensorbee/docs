@@ -13,7 +13,7 @@ Implementing a UDF
     This is a strict way to implement a UDF in Go. To know a easier way, see
     :ref:`server_programming_go_udfs_generic_udfs`.
 
-A struct satisfying the following interface can be a UDF::
+A struct implementing the following interface can be a UDF::
 
     type UDF interface {
         // Call calls the UDF.
@@ -107,6 +107,9 @@ arguments) with 2 required arguments (e.g.
 ``IsAggregationParameter`` checks if k-th, starting from 0, argument is an
 aggregation parameter. Aggregation parameters are passed as ``data.Array``
 containing all values of a field in each group.
+
+All of these methods can be called concurrently from multiple goroutines and
+they must be thread-safe.
 
 The registered UDF is looked up based on its name and the number of argument
 passed to it.

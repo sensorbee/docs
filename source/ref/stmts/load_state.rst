@@ -62,7 +62,7 @@ when the UDS hasn't been saved yet. **create_parameters** are exactly same as
 parameters that the UDS defines for :ref:`ref_stmts_create_state`. However,
 **set_parameters** are often completely different from **create_parameters**.
 Because **create_parameters** are often saved as a part of the UDS's
-information by ``SAVE STATE``. **set_parameters** doesn't have to have the same
+information by ``SAVE STATE``, **set_parameters** doesn't have to have the same
 set of parameters defined in **create_parameters**.
 
 There're some use-cases that a UDS uses **set_parameters**:
