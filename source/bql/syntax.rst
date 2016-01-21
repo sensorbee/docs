@@ -5,7 +5,174 @@ BQL Syntax
 Lexical Structure
 =================
 
-TODO
+BQL has been designed to be easy to learn for people who have used SQL before.
+While key words and commands differ in many cases, the basic structure, set of tokens, operators etc. is the same.
+For example, the following is (syntactically) valid BQL input::
+
+    SELECT RSTREAM given_name, last_name FROM persons [RANGE 1 TUPLES] WHERE age > 20;
+
+    CREATE SOURCE s TYPE fluentd WITH host='example.com', port=12345;
+
+    INSERT INTO file FROM data;
+
+This is a sequence of three commands, one per line (although this is not required; more than one command can be on a line, and commands can usefully be split across lines).
+Additionally, comments can occur in BQL input.
+They are effectively equivalent to whitespace.
+
+The type of commands that can be used in BQL is described in `Input/Output/State Definition`_ and `Queries`_.
+
+
+Identifiers and Key Words
+-------------------------
+
+Tokens such as ``SELECT``, ``CREATE``, or ``INTO`` in the example above are examples of *key words*, that is, words that have a fixed meaning in the BQL language.
+The tokens ``persons`` and ``file`` are examples of identifiers.
+They identify names of streams, sources, or other objects, depending on the command they are used in.
+Therefore they are sometimes simply called "names".
+Key words and identifiers have the same lexical structure, meaning that one cannot know whether a token is an identifier or a key word without knowing the language.
+
+BQL identifiers and key words must begin with a letter (``a-z``).
+Subsequent characters can be letters, underscores, or digits (``0-9``).
+Key words and unquoted identifiers are in general case insensitive.
+
+However, there is one important difference between SQL and BQL when it comes to "column identifiers".
+In BQL, there are no "columns" with names that the user can pick herself, but "field selectors" that describe the path to a value in a JSON-like document imported from outside the system.
+Therefore field selectors are case-sensitive (in order to be able to deal with input of the form ``{"a": 1, "A": 2}``) and also there is a form that allows to use special characters; see `Field Selectors`_ for details.
+
+.. note::
+
+   At the moment, there is no restriction on the set of words that can be used as identifiers.
+   However, it is strongly recommended not to use identifiers that are also key words in order to avoid confusion.
+   Also, such restrictions on identifiers are likely to be introduced in future versions.
+
+
+Constants
+---------
+
+There are multiple kinds of implicitly-typed constants in BQL: strings, decimal numbers (with and without fractional part) and booleans.
+Constants can also be specified with explicit types, which can enable more accurate representation and more efficient handling by the system.
+These alternatives are discussed in the following subsections.
+
+
+String Constants
+^^^^^^^^^^^^^^^^
+A string constant in BQL is an arbitrary sequence of characters bounded by single quotes (``'``), for example ``'This is a string'``.
+To include a single-quote character within a string constant, write two adjacent single quotes, e.g., ``'Dianne''s horse'``.
+Note that this is *not* the same as a double-quote character (``"``).
+
+No escaping for special characters is supported at the moment, but any valid UTF-8 encoded byte sequence can be used.
+See :ref:`the string data type reference<type_string>` for details.
+
+
+Numeric Constants
+^^^^^^^^^^^^^^^^^
+
+There are two different numeric data types in BQL, ``int`` and ``float``, representing decimal numbers without and with fractional part, respectively.
+
+An ``int`` constant is written as
+
+::
+
+    [-]digits
+
+A ``float`` constant is written as
+
+::
+
+    [-]digits.digits
+
+Scientific notation (``1e+10``) as well as Infinity and NaN cannot be used in BQL statements.
+
+Some example of valid numerical constants::
+
+    42
+    3.5
+    -36
+
+See the type references for :ref:`type_int` and :ref:`type_float` for details.
+
+.. note::
+
+   For a number of operations/functions it makes a difference whether ``int`` or ``float`` is used (e.g., ``2/3`` is ``0``, but ``2.0/3`` is ``0.666666``).
+   Be aware of that when writing constants in BQL statements.
+
+
+Boolean Constants
+^^^^^^^^^^^^^^^^^
+
+There are two keywords for the two possible boolean values, namely ``true`` and ``false``.
+
+See :ref:`the bool data type reference<type_bool>` for details.
+
+
+Operators
+---------
+
+An operator is a sequence of the items from the following list::
+
+    +
+    -
+    *
+    /
+    <
+    >
+    =
+    !
+    %
+
+See the :ref:`chapter on Operators<bql_operators>` for the complete list of operators in BQL.
+There are no user-defined operators at the moment.
+
+
+Special Characters
+------------------
+
+Some characters that are not alphanumeric have a special meaning that is different from being an operator.
+Details on the usage can be found at the location where the respective syntax element is described.
+This section only exists to advise the existence and summarize the purposes of these characters.
+
+- Parentheses (``()``) have their usual meaning to group expressions and enforce precedence.
+  In some cases parentheses are required as part of the fixed syntax of a particular SQL command.
+- Brackets (``[]``) are used in `Array Constructors`_ and in `Field Selectors`_, as well as in `Stream-to-Relation Operators`_.
+- Curly brackets (``{}``) are used in `Map Constructors`_
+- Commas (``,``) are used in some syntactical constructs to separate the elements of a list.
+- The semicolon (``;``) terminates a BQL command.
+  It cannot appear anywhere within a command, except within a string constant or quoted identifier.
+- The colon (``:``) is used to separate stream names and field selectors, and within field selectors to select array slices (see `Extended Descend Operators`_).
+- The asterisk (``*``) is used in some contexts to denote all the fields of a table row (see `Notes on Wildcards`_).
+  It also has a special meaning when used as the argument of an aggregate function, namely that the aggregate does not require any explicit parameter.
+- The period (``.``) is used in numeric constants and to denote descend in field selectors.
+
+
+Comments
+--------
+
+A comment is a sequence of characters beginning with double dashes and extending to the end of the line, e.g.::
+
+    -- This is a standard BQL comment
+
+C-style comments cannot be used.
+
+
+Operator Precedence
+-------------------
+
+The following table shows the operator precedence in BQL:
+
+=============================================  =========================================
+Operator/Element                               Description
+=============================================  =========================================
+``::``                                         typecast
+``-``                                          unary minus
+``*`` ``/`` ``%``                              multiplication, division, modulo
+``+`` ``-``                                    addition, subtraction
+``IS``                                         ``IS NULL`` etc.
+(any other operator)                           e.g., ``||``
+``=`` ``!=`` ``<>`` ``<=`` ``<`` ``>=`` ``>``  comparison operator
+``NOT``                                        logical negation
+``AND``                                        logical conjunction
+``OR``                                         logical disjunction
+=============================================  =========================================
 
 
 Value Expressions
@@ -27,11 +194,8 @@ A value expression is one of the following:
 - A map constructor
 - Another value expression in parentheses (used to group subexpressions and override precedence)
 
-
-Literals
---------
-
-TODO: reference either the previous subsection or the Types section
+The first option was already discussed in `Constants`_.
+The following sections discuss the remaining options.
 
 
 Field Selectors
@@ -196,7 +360,7 @@ There are three possible syntaxes for an operator invocation::
 
     expression  operator
 
-See the section `Operators`_ for details.
+See the section :ref:`bql_operators` for details.
 
 
 Function Calls
@@ -303,7 +467,8 @@ For example::
 
     SELECT RSTREAM {'a_const': 7, 'prod': 2 * stream:a} FROM ...
 
-The keys must be string literals (i.e., they can not be computed expressions), but the values can be arbitrary expressions, including wildcard.
+The keys must be string literals (i.e., they can not be computed expressions); in particular they must be written using *single* quotes.
+The values can be arbitrary expressions, including a wildcard.
 
 
 Expression Evaluation Rules
@@ -328,4 +493,17 @@ Note that this is *not* the same as the left-to-right "short-circuiting" of Bool
 Calling Functions
 =================
 
-TODO
+BQL allows functions to be called using only the positional notation.
+In positional notation, a function call is written with its argument values in the same order as they are defined in the function declaration.
+Therefore, while some parameters of a function can be optional, these parameters can only be omitted *at the end* of the parameter list.
+
+For example,
+
+::
+
+    log(100)
+    log(100, 2)
+
+are both valid function calls computing the logarithm of a function.
+The first one uses the default value 10 for the logarithm base, the second one uses the given value 2.
+

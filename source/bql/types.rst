@@ -60,6 +60,9 @@ actually exists in the map but the empty map doesn't even have a key.
 
 ``NULL`` is converted to ``null`` in JSON.
 
+
+.. _type_bool:
+
 ``bool``
 --------
 
@@ -68,6 +71,9 @@ three-valued logic, ``NULL`` represents the third state, "unknown".
 
 ``true`` and ``false`` are converted to ``true`` and ``false`` in JSON,
 respectively.
+
+
+.. _type_int:
 
 ``int``
 -------
@@ -84,6 +90,9 @@ An ``int`` value is converted to a number in JSON.
     numerical values. Therefore, they might not be able to handline integers
     greater than or equal to 9007199254740992 (i.e. ``2^53``) accurately.
 
+
+.. _type_float:
+
 ``float``
 ---------
 
@@ -94,30 +103,21 @@ A ``float`` value is converted to a number in JSON.
 
 .. note::
 
-    Following syntaxes and values are not supported in BQL yet:
+    Some expressions and functions may result in an infinity or a NaN.
+    Because JSON doesn't have an infinity or a NaN notation, they will become
+    ``null`` when they're converted to JSON.
 
-    * Scientific notations: ``1e+10``
-    * Infinity
-    * NaN
 
-    However, some expressions and functions may result in an infinity or a NaN.
-    Because JSON doesn't have an infinity or a NaN notation, they'll become
-    ``NULL`` when they're converted to JSON.
+.. _type_string:
 
 ``string``
 ----------
 
 The type ``string`` is similar to SQL's type ``text``. It may contain an
-arbitrary length of characters. The value needs to be enclosed with single
-quotes: ``'string value'``. It may contain any valid UTF character including a
+arbitrary length of characters. It may contain any valid UTF character including a
 null character.
 
 A ``string`` value is converted to a string in JSON.
-
-.. note::
-
-    An escape sequence like ``'\a'`` or ``'\x32'`` isn't supported in BQL's
-    ``string`` yet.
 
 ``blob``
 --------
@@ -151,14 +151,11 @@ precision as described above.
 ``array``
 ---------
 
-The type ``array`` provides a ordered sequence of values of any type. An
-``array`` value is enclosed with brackets (``[`` and ``]``). Each element in an
-``array`` is separated by a comma (``,``). A comma after the last element is
-allowed. An ``array`` value may have values of different types::
+The type ``array`` provides a ordered sequence of values of any type, for example::
 
     [1, '2', 3.4]
 
-An ``array`` value can contain another ``array`` or ``map`` as its value::
+An ``array`` value can also contain another ``array`` or ``map`` as its value::
 
     [
         [1, '2', 3.4],
@@ -174,22 +171,20 @@ An ``array`` value can contain another ``array`` or ``map`` as its value::
 
 An ``array`` value is converted to an array in JSON.
 
+
+.. _type_map:
+
 ``map``
 -------
 
-The type ``map`` represents an unordered set of key-value pairs. A ``map``
-value is enclosed with braces (``{`` and ``}``). Each key-value pair in a ``map``
-is separated by a comma (``,``). A comma after the last element isn't allowed.
-A key needs to be a ``string`` value and a value can be of any type::
+The type ``map`` represents an unordered set of key-value pairs.
+A key needs to be a ``string`` and a value can be of any type::
 
     {
         'a': 1,
         'b': '2',
         'c': 3.4
     }
-
-Because this is a ``map`` in BQL, not a JSON object, keys need to be enclosed
-with single quotes rather than double quotes.
 
 A ``map`` value can contain another ``map`` or ``array`` as its value::
 
