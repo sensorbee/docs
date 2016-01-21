@@ -3,7 +3,7 @@ Functions
 *********
 
 BQL provides a number of built-in functions that are described in this chapter.
-Function names and meaning of parameters has been heavily inspired by `PostgreSQL <http://www.postgresql.org/docs/9.5/static/functions.html>`_.
+Function names and meaning of parameters have been heavily inspired by `PostgreSQL <http://www.postgresql.org/docs/9.5/static/functions.html>`_.
 However, be aware that the accepted and returned types may differ as there is no simple mapping between BQL and SQL data types.
 
 Numeric Functions
@@ -11,6 +11,8 @@ Numeric Functions
 
 General Functions
 -----------------
+
+The table below shows some common mathematical functions that can be used in BQL.
 
 +----------------------------------+------------------------------+---------------+------------------------------------------------------+-------------------------------+---------------+
 | Function                         | Input Type                   | Return Type   | Description                                          | Example                       | Result        |
@@ -76,5 +78,50 @@ General Functions
 
 If a given parameter is outside the mathematically valid range for that function (e.g., ``sqrt(-2)``, ``log(0)``, ``div(2.0, 0.0)``) and the return type is ``float``, then ``NaN`` is returned.
 However, if the return type is ``int`` (e.g., ``div(2, 0)``), there is no ``NaN`` option and an error will occur instead.
+
+
+Pseudo-Random Functions
+-----------------------
+
+The table below shows functions for generating pseudo-random numbers.
+
++----------------+------------+-------------+-----------------------------------------------------------------------+
+| Function       | Input Type | Return Type | Description                                                           |
++================+============+=============+=======================================================================+
+| ``random()``   | none       | ``float``   | random value in the range :math:`0.0 <= x < 1.0`                      |
++----------------+------------+-------------+-----------------------------------------------------------------------+
+| ``setseed(x)`` | ``float``  | ``null``    | set seed (:math:`-1.0 <= x <= 1.0`) for subsequent ``random()`` calls |
++----------------+------------+-------------+-----------------------------------------------------------------------+
+
+The characteristics of the values returned by ``random()`` are equal to those from `the Go rand module <https://golang.org/pkg/math/rand/>`_.
+It is not suitable for cryptographic applications.
+
+
+Trigonometric Functions
+-----------------------
+
+Finally, the table below shows the available trigonometric functions.
+All trigonometric functions take arguments and return values of type ``float``.
+Trigonometric functions arguments are expressed in radians.
+Inverse functions return values are expressed in radians.
+
+
++-------------+-----------------+
+| Function    | Description     |
++=============+=================+
+| ``acos(x)`` | inverse cosine  |
++-------------+-----------------+
+| ``asin(x)`` | inverse sine    |
++-------------+-----------------+
+| ``atan(x)`` | inverse tangent |
++-------------+-----------------+
+| ``cos(x)``  | cosine          |
++-------------+-----------------+
+| ``cot(x)``  | cotangent       |
++-------------+-----------------+
+| ``sin(x)``  | sine            |
++-------------+-----------------+
+| ``tan(x)``  | tangent         |
++-------------+-----------------+
 
 
