@@ -104,7 +104,75 @@ There are two keywords for the two possible boolean values, namely ``true`` and 
 
 See :ref:`the bool data type reference<type_bool>` for details.
 
-TODO
+
+Operators
+---------
+
+An operator is a sequence of the items from the following list::
+
+    +
+    -
+    *
+    /
+    <
+    >
+    =
+    !
+    %
+
+See the :ref:`chapter on Operators<bql_operators>` for the complete list of operators in BQL.
+There are no user-defined operators at the moment.
+
+
+Special Characters
+------------------
+
+Some characters that are not alphanumeric have a special meaning that is different from being an operator.
+Details on the usage can be found at the location where the respective syntax element is described.
+This section only exists to advise the existence and summarize the purposes of these characters.
+
+- Parentheses (``()``) have their usual meaning to group expressions and enforce precedence.
+  In some cases parentheses are required as part of the fixed syntax of a particular SQL command.
+- Brackets (``[]``) are used in `Array Constructors`_ and in `Field Selectors`_, as well as in `Stream-to-Relation Operators`_.
+- Curly brackets (``{}``) are used in `Map Constructors`_
+- Commas (``,``) are used in some syntactical constructs to separate the elements of a list.
+- The semicolon (``;``) terminates a BQL command.
+  It cannot appear anywhere within a command, except within a string constant or quoted identifier.
+- The colon (``:``) is used to separate stream names and field selectors, and within field selectors to select array slices (see `Extended Descend Operators`_).
+- The asterisk (``*``) is used in some contexts to denote all the fields of a table row (see `Notes on Wildcards`_).
+  It also has a special meaning when used as the argument of an aggregate function, namely that the aggregate does not require any explicit parameter.
+- The period (``.``) is used in numeric constants and to denote descend in field selectors.
+
+
+Comments
+--------
+
+A comment is a sequence of characters beginning with double dashes and extending to the end of the line, e.g.::
+
+    -- This is a standard BQL comment
+
+C-style comments cannot be used.
+
+
+Operator Precedence
+-------------------
+
+The following table shows the operator precedence in BQL:
+
+=============================================  =========================================
+Operator/Element                               Description
+=============================================  =========================================
+``::``                                         typecast
+``-``                                          unary minus
+``*`` ``/`` ``%``                              multiplication, division, modulo
+``+`` ``-``                                    addition, subtraction
+``IS``                                         ``IS NULL`` etc.
+(any other operator)                           e.g., ``||``
+``=`` ``!=`` ``<>`` ``<=`` ``<`` ``>=`` ``>``  comparison operator
+``NOT``                                        logical negation
+``AND``                                        logical conjunction
+``OR``                                         logical disjunction
+=============================================  =========================================
 
 
 Value Expressions
@@ -292,7 +360,7 @@ There are three possible syntaxes for an operator invocation::
 
     expression  operator
 
-See the section `Operators`_ for details.
+See the section :ref:`bql_operators` for details.
 
 
 Function Calls
@@ -425,4 +493,17 @@ Note that this is *not* the same as the left-to-right "short-circuiting" of Bool
 Calling Functions
 =================
 
-TODO
+BQL allows functions to be called using only the positional notation.
+In positional notation, a function call is written with its argument values in the same order as they are defined in the function declaration.
+Therefore, while some parameters of a function can be optional, these parameters can only be omitted *at the end* of the parameter list.
+
+For example,
+
+::
+
+    log(100)
+    log(100, 2)
+
+are both valid function calls computing the logarithm of a function.
+The first one uses the default value 10 for the logarithm base, the second one uses the given value 2.
+
