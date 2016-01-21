@@ -339,7 +339,8 @@ As in SQL, the select list contains a number of comma-separated expressions::
 In general, items of a select list can be arbitrary `Value Expressions`_.
 In SQL, tables are strictly organized in "rows" and "columns" and the most important elements in such expressions are therefore column references.
 
-In BQL, each input tuple can be considered a "row", but the data can also be unstructured and the notion of a "column" is not sufficient.
+In BQL, each input tuple can be considered a "row", but the data can also be unstructured  and the notion of a "column" is not sufficient.
+(In fact, each row corresponds to a :ref:`type_map` object.)
 Therefore, BQL uses `JSON Path <http://goessner.net/articles/JsonPath/>`_ to address data in each row.
 If only one table is used in the ``FROM`` clause and only top-level keys of each JSON-like row are referenced, the BQL select list looks the same as in SQL::
 

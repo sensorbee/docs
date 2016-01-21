@@ -5,6 +5,64 @@ BQL Syntax
 Lexical Structure
 =================
 
+Constants
+---------
+
+There are multiple kinds of implicitly-typed constants in BQL: strings, decimal numbers (with and without fractional part) and booleans.
+Constants can also be specified with explicit types, which can enable more accurate representation and more efficient handling by the system.
+These alternatives are discussed in the following subsections.
+
+
+String Constants
+^^^^^^^^^^^^^^^^
+A string constant in BQL is an arbitrary sequence of characters bounded by single quotes (``'``), for example ``'This is a string'``.
+To include a single-quote character within a string constant, write two adjacent single quotes, e.g., ``'Dianne''s horse'``.
+Note that this is *not* the same as a double-quote character (``"``).
+
+No escaping for special characters is supported at the moment, but any valid UTF-8 encoded byte sequence can be used.
+See :ref:`the string data type reference<type_string>` for details.
+
+
+Numeric Constants
+^^^^^^^^^^^^^^^^^
+
+There are two different numeric data types in BQL, ``int`` and ``float``, representing decimal numbers without and with fractional part, respectively.
+
+An ``int`` constant is written as
+
+::
+
+    [-]digits
+
+A ``float`` constant is written as
+
+::
+
+    [-]digits.digits
+
+Scientific notation (``1e+10``) as well as Infinity and NaN cannot be used in BQL statements.
+
+Some example of valid numerical constants::
+
+    42
+    3.5
+    -36
+
+See the type references for :ref:`type_int` and :ref:`type_float` for details.
+
+.. note::
+
+   For a number of operations/functions it makes a difference whether ``int`` or ``float`` is used (e.g., ``2/3`` is ``0``, but ``2.0/3`` is ``0.666666``).
+   Be aware of that when writing constants in BQL statements.
+
+
+Boolean Constants
+^^^^^^^^^^^^^^^^^
+
+There are two keywords for the two possible boolean values, namely ``true`` and ``false``.
+
+See :ref:`the bool data type reference<type_bool>` for details.
+
 TODO
 
 
@@ -27,11 +85,8 @@ A value expression is one of the following:
 - A map constructor
 - Another value expression in parentheses (used to group subexpressions and override precedence)
 
-
-Literals
---------
-
-TODO: reference either the previous subsection or the Types section
+The first option was already discussed in `Constants`_.
+The following sections discuss the remaining options.
 
 
 Field Selectors
@@ -303,7 +358,8 @@ For example::
 
     SELECT RSTREAM {'a_const': 7, 'prod': 2 * stream:a} FROM ...
 
-The keys must be string literals (i.e., they can not be computed expressions), but the values can be arbitrary expressions, including wildcard.
+The keys must be string literals (i.e., they can not be computed expressions); in particular they must be written using *single* quotes.
+The values can be arbitrary expressions, including a wildcard.
 
 
 Expression Evaluation Rules
