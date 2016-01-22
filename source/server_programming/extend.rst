@@ -47,9 +47,11 @@ which isn't connected to any input stream and generates tuples proactively::
 
 ``my_counter`` above may emit tuples having something like ``{'count': 1}``.
 
-The other one behaves like a stream, which receives tuples from one or more
-incoming streams or sources. It receives names of streams or sources as its
-arguments::
+This type of UDSFs are called source-like UDSFs.
+
+The other one is called a stream-like UDSF and behaves just like a stream, which
+receives tuples from one or more incoming streams or sources. It receives names
+of streams or sources as its arguments::
 
     ... FROM my_udsf('another_stream', 'yet_anoter_stream', other_params) [RANGE ...
 
@@ -59,6 +61,9 @@ the use of arguments depend on each UDFSs. For example, a UDFS might take an
 ``my_union(['stream1', 'stream2', 'stream3'])``. Names of input stream doesn't
 even need to be located at the beginning of arguments:
 ``my_udfs2(1, 'another_stream')``.
+
+Usgin UDSFs is a very powerful way to extend BQL since they can potentially do
+anything that the ``SELECT`` cannot do.
 
 User-Defined States
 ===================

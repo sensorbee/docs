@@ -1,3 +1,5 @@
+.. _server_programming_go_udsf:
+
 User-Defined Functions
 ======================
 
@@ -82,6 +84,7 @@ In this example, ``arg1`` and ``arg2`` are passed to ``Call`` method::
     func (m *MyUDF) Call(ctx *core.Context, args ...data.Value) (data.Value, error) {
         // When my_udf(arg1, arg2) is called, len(args) is 2.
         // args[0] is arg1 and args[1] is arg2.
+        // It is guaranteed that m.Accept(len(args)) is always true.
     }
 
 Because ``data.Value`` is a semi-variant type, ``Call`` method needs to check
