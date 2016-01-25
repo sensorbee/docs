@@ -215,3 +215,76 @@ to the SensorBee server.
 
 Registering a UDSF
 ------------------
+
+A UDSF can be used in BQL by registering its ``UDSFCreator`` interface to
+the SensorBee server by ``RegisterGlobalUDSFCreator`` or
+``MustRegisterGlobalUDSFCreator`` function, which is defined in
+``gopkg.in/sensorbee/sensorbee.v0/bql/udf``.
+
+The following example registers ``WordSplitter`` and ``Ticker``::
+
+    func init() {
+        udf.RegisterGlobalUDSFCreator("word_splitter", &WordSplitterCreator{})
+        udf.RegisterGlobalUDSFCreator("ticker", &TickerCreator{})
+    }
+
+Generic UDSFs
+-------------
+
+Like UDFs have ``ConvertGeneric`` function, UDSFs also have
+``ConvertToUDSFCreator`` and ``MustConvertToUDSFCreator`` function. They convert
+a regular function satisfying some restrictions to the ``UDSFCreator`` interface.
+
+The restrictions are the same as
+:ref:`generic UDFs <server_programming_go_udfs_generic_udfs>` except that a
+function converted to the ``UDSFCreator`` interface has an additional argument
+``UDSFDeclarer``. ``UDSFDeclarer`` is located after ``*core.Context`` and before
+other arguments. Examples of valid function signatures are show below:
+
+* ``func(*core.Context, UDSFDeclarer, int)``
+* ``func(UDSFDeclarer, string)``
+* ``func(UDSFDeclarer)``
+* ``func(*core.Context, UDSFDeclarer, ...data.Value)``
+* ``func(UDSFDeclarer, ...float64)``
+* ``func(*core.Context, UDSFDeclarer, int, ...string)``
+* ``func(UDSFDeclarer, int, float64, ...time.Time)``
+
+Unlike ``*core.Context``, ``UDSFDeclarer`` cannot be omitted. The same set of
+types can be used for arguments as types that ``ConvertGeneric`` function
+accepts.
+
+``WordSplitterCreator`` can be rewritten with the ``ConvertToUDSFCreator``
+function as follows::
+
+    func WordSplitterCreator(decl udf.UDSFDeclarer,
+        inputStream, field string) (udf.UDSF, error) {
+        if err := decl.Input(inputStream); err != nil {
+            return err
+        }
+        return &WordSplitter{
+            Field: field,
+        }
+    }
+
+    func init() {
+        udf.RegisterGlobalUDSFCreator("word_splitter",
+            udf.MustConvertToUDSFCreator(WordSplitterCreator))
+    }
+
+``TickerCreator`` can be replaced with ``ConvertToUDSFCreator``, too::
+
+    func TickerCreator(decl udf.UDSFDeclarer, interval float64) (udf.UDSF, error) {
+        return &Ticker{
+            Interval: interval,
+        }
+    }
+
+    func init() {
+        udf.RegisterGlobalUDSFCreator("ticker",
+            udf.MustConvertToUDSFCreator(TickerCreator))
+    }
+
+A Complete Example
+------------------
+
+TODO

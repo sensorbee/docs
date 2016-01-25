@@ -170,8 +170,8 @@ Saving and Loading a UDS
 ------------------------
 
 ``Counter`` implemented so far doesn't support saving and loading its state.
-Thus, the counter will be reset every time the server restarts. To save the
-state and load it later on, the UDF and its creator need to provide some
+Thus, its count will be reset every time the server restarts. To save the
+state and load it later on, the UDS and its creator need to provide some
 methods. After providing those method, the state can be saved by the
 ``SAVE STATE`` statement and loaded by ``LOAD STATE`` statement.
 
