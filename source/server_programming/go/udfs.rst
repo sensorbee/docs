@@ -1,4 +1,4 @@
-.. _server_programming_go_udsf:
+.. _server_programming_go_udfs:
 
 User-Defined Functions
 ======================
