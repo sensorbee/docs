@@ -106,10 +106,6 @@ in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package::
         Accept(arity int) bool
     }
 
-    func (w *WordSplitter) Terminate(ctx *core.Context) error {
-        return nil
-    }
-
 ``UDSFCreator`` interface creates a new instance of a UDSF. The ``CreateUDSF``
 method creates a new instance of a UDSF. The method is called when evaluating
 a UDSF in the ``FROM`` clause of the ``SELECT`` statement. ``ctx`` contains
