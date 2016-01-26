@@ -222,6 +222,12 @@ A rewindable source also needs to implement ``core.Resumable`` to be rewindable.
     error-prone. Therefore, implementing the ``Resumable`` interface is required
     to be rewindable at the moment.
 
+Unlike a regular source, the ``GenerateStream`` method of a rewindable source
+must not return after it emits all tuples. Instead, it needs to wait until the
+``Rewind`` method or the ``Stop`` method is called. Once it returns, the source
+is considered stopped and no further operation including the ``REWIND SOURCE``
+statement woulnd't work on the source.
+
 Due to its nature, a stream isn't often resumable. A resumable source is
 mostly used for relatively static data sources such as relations or files.
 Also, because implementing the ``RewindableSource`` interface is even harder
@@ -343,8 +349,8 @@ source returned by ``core.ImplementSourceStop`` waits until the
 ``core.NewRewindableSource``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``core.NewRewindableSource`` is a function that implements ``Pause``,
-``Resume``, and ``Rewind`` method of the source passed to it::
+``core.NewRewindableSource`` is a function that converts a regular source into
+a rewindable source::
 
     func NewRewindableSource(s Source) RewindableSource
 
@@ -357,8 +363,18 @@ for ``core.NewRewindableSource``:
    returned ``core.ErrSourceRewound``. The method must return exactly the same
    error variable that the writer returned.
 
-A typical implementation is also same as a source for
-``core.ImplementSourceStop``.
+Although the ``GenerateStream`` method of a rewindable source must not return
+after it emits all tuples, a source passed to the ``core.NewRewindableSource``
+function needs to return in that situation. For example, let's assume there's a
+source that generate tuples from each line in a file. To implement the source
+without a help of the utility function, its ``GenerateStream`` must wait for
+the ``Rewind`` method to be called after it processes all lines in the file.
+However, with the utility, its ``GenerateStream`` can just return once it emits
+all tuples. Therefore, a typical implementation of a source passed to the
+utility can be same as a source for ``core.ImplementSourceStop``.
+
+As it will be shown later, a source that infinitely emits tuples can also be
+rewindable in some sense.
 
 The following is an example of ``TickerCreator`` modified from the example for
 ``core.ImplementSourceStop``::
@@ -457,13 +473,15 @@ ticker.go
     }
 
     func (t *Ticker) Stop(ctx *core.Context) error {
+        // This method will be implemented by utility functions.
         return nil
     }
 
     type TickerCreator struct {
     }
 
-    func (t *TickerCreator) CreateSource(ctx *core.Context, ioParams *bql.IOParams, params data.Map) (core.Source, error) {
+    func (t *TickerCreator) CreateSource(ctx *core.Context,
+        ioParams *bql.IOParams, params data.Map) (core.Source, error) {
         interval := 1 * time.Second
         if v, ok := params["interval"]; ok {
             i, err := data.ToDuration(v)
