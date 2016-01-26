@@ -1,3 +1,5 @@
+.. _server_programming_go_sources:
+
 Source Plugins
 ==============
 
@@ -16,7 +18,7 @@ A struct implementing the following interface can be a source::
 This interface is defined in ``gopkg.in/sensorbee/sensorbee.v0/core`` package.
 
 The ``GenerateStream`` methods actually generate tuples for subsequent streams.
-The ``ctx`` argument contains the information of the current processing context.
+The argument ``ctx`` contains the information of the current processing context.
 ``w`` is the destination to where generated tuples are emitted. The ``Stop``
 method stops ``GenerateStream``. It should wait until the ``GenerateStream``
 method call returns, but it isn't mandatory.
@@ -137,7 +139,7 @@ The creator can be registered by ``RegisterGlobalSourceCreator`` or
     }
 
     func init() {
-        bql.RegisterGlobalSourceCreator("ticker", &TickerCreator{})
+        bql.MustRegisterGlobalSourceCreator("ticker", &TickerCreator{})
     }
 
 In this example, the source has a parameter ``interval`` which can be specified
@@ -238,8 +240,8 @@ than implementing the ``Resumable`` interface, utilities are usually used.
 Utilities
 ---------
 
-There're some utilities to support implementing sources. This subsection
-describes each utility.
+There're some utilities to support implementing sources and its creators. This
+subsection describes each utility.
 
 ``core.ImplementSourceStop``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -428,6 +430,38 @@ the value of ``tick`` field::
     {'tick':0}
     {'tick':1}
     ...
+
+``bql.SourceCreatorFunc``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``bql.SourceCreatorFunc`` is a function that converts a function having the
+same signature as ``SourceCreator.CreateSource`` to a ``SourceCreator``::
+
+    func SourceCreatorFunc(f func(*core.Context,
+        *IOParams, data.Map) (core.Source, error)) SourceCreator
+
+For example, ``TickerCreator`` above and its registration can be modified to as
+follows with this utility::
+
+    func CreateTicker(ctx *core.Context,
+        ioParams *bql.IOParams, params data.Map) (core.Source, error) {
+        interval := 1 * time.Second
+        if v, ok := params["interval"]; ok {
+            i, err := data.ToDuration(v)
+            if err != nil {
+                return nil, err
+            }
+            interval = i
+        }
+        return core.ImplementSourceStop(&Ticker{
+            interval: interval,
+        }), nil
+    }
+
+    func init() {
+        bql.MustRegisterGlobalSourceCreator("ticker",
+            bql.SourceCreatorFunc(CreateTicker))
+    }
 
 A Complete Example
 ------------------
