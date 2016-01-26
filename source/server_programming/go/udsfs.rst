@@ -113,7 +113,7 @@ the processing context information. ``decl`` is used to customize the behavior
 of the UDSF, which is explained later. ``args`` has arguments passed in the
 ``SELECT`` statement. The ``Accept`` method verifies if the UDSF accept the
 specific number of arguments. This is same as ``UDF.Arity`` method (see
-:ref:`server_programming_go_udsf`).
+:ref:`server_programming_go_udfs`).
 
 ``UDSFDeclarer`` is used in the ``CreateUDSF`` method to customized the
 behavior of a UDSF::
