@@ -5,8 +5,6 @@ User-Defined States
 
 This section describes how to write a UDS in Go.
 
-.. todo:: write a working example and copy&past a piece of code from it
-
 Implementing a UDS
 ------------------
 
@@ -81,7 +79,7 @@ The following is the implementation and the registration of the creator for
             }
             cnt.c = i - 1
         }
-        return cnt
+        return cnt, nil
     }
 
     func init() {
@@ -105,6 +103,39 @@ executed, there can be multiple instances of a specific UDS type::
 
 Once an instance of the UDS is created by the ``CREATE STATE``, UDFs can refer
 them and manipulate their state.
+
+``udf.UDSCreatorFunc``
+^^^^^^^^^^^^^^^^^^^^^^
+
+A function having the same signature as ``UDSCreator.CreateState`` can be
+converted into ``UDSCreator`` by by ``udf.UDSCreatorFunc`` utility function::
+
+    func UDSCreatorFunc(f func(*core.Context, data.Map) (core.SharedState, error)) UDSCreator
+
+For example, ``CounterCreator`` can be defined as a function and registered as
+follows with this utility::
+
+    func CreateCounter(ctx *core.Context,
+        params data.Map) (core.SharedState, error) {
+        cnt := &Counter{}
+        if v, ok := params["start"]; ok {
+            i, err := data.ToInt(v)
+            if err != nil {
+                return nil, err
+            }
+            cnt.c = i - 1
+        }
+        return cnt, nil
+    }
+
+    func init() {
+        udf.MustRegisterGlobalUDSCreator("my_counter",
+            &udf.UDSCreatorFunc(CreateCounter))
+    }
+
+To support ``SAVE STATE`` and ``LOAD STATE`` statements, however, this utility
+function cannot be used because the creator needs to have the ``LoadState``
+method. How to support saving and loading is described later.
 
 .. _server_programming_go_states_manipulation:
 
@@ -255,7 +286,7 @@ follows::
         params data.Map) (core.SharedState, error) {
         cnt := &Counter{}
         if err := binary.Read(r, binary.LittleEndian, &cnt.c); err != nil {
-            return err
+            return nil, err
         }
         return cnt, nil
     }
@@ -338,10 +369,116 @@ in the following rule:
 A Complete Example
 ------------------
 
-TODO
+A complete example of the state is shown in this subsection. Assume that the
+import path of the example repository is
+``github.com/sensorbee/examples/counter``, which doesn't actually exist. The
+repository has two files:
+
+* counter.go
+* plugin/plugin.go
+
+counter.go
+^^^^^^^^^^
+
+::
+
+    package counter
+
+    import (
+        "encoding/binary"
+        "fmt"
+        "io"
+        "sync/atomic"
+
+        "gopkg.in/sensorbee/sensorbee.v0/core"
+        "gopkg.in/sensorbee/sensorbee.v0/data"
+    )
+
+    type Counter struct {
+        c int64
+    }
+
+    func (c *Counter) Terminate(ctx *core.Context) error {
+        return nil
+    }
+
+    func (c *Counter) Next() int64 {
+        return atomic.AddInt64(&c.c, 1)
+    }
+
+    func (c *Counter) Save(ctx *core.Context, w io.Writer, params data.Map) error {
+        return binary.Write(w, binary.LittleEndian, atomic.LoadInt64(&c.c))
+    }
+
+    func (c *Counter) Load(ctx *core.Context, r io.Reader, params data.Map) error {
+        var cnt int64
+        if err := binary.Read(r, binary.LittleEndian, &cnt); err != nil {
+            return err
+        }
+        atomic.StoreInt64(&c.c, cnt)
+        return nil
+    }
+
+    type CounterCreator struct {
+    }
+
+    func (c *CounterCreator) CreateState(ctx *core.Context,
+        params data.Map) (core.SharedState, error) {
+        cnt := &Counter{}
+        if v, ok := params["start"]; ok {
+            i, err := data.ToInt(v)
+            if err != nil {
+                return nil, err
+            }
+            cnt.c = i - 1
+        }
+        return cnt, nil
+    }
+
+    func (c *CounterCreator) LoadState(ctx *core.Context, r io.Reader,
+        params data.Map) (core.SharedState, error) {
+        cnt := &Counter{}
+        if err := binary.Read(r, binary.LittleEndian, &cnt.c); err != nil {
+            return nil, err
+        }
+        return cnt, nil
+    }
+
+    func Next(ctx *core.Context, uds string) (int64, error) {
+        s, err := ctx.SharedStates.Get(uds)
+        if err != nil {
+            return 0, err
+        }
+
+        c, ok := s.(*Counter)
+        if !ok {
+            return 0, fmt.Errorf("the state isn't a counter: %v", uds)
+        }
+        return c.Next(), nil
+    }
+
+plugin/plugin.go
+^^^^^^^^^^^^^^^^
+
+::
+
+    package plugin
+
+    import (
+        "gopkg.in/sensorbee/sensorbee.v0/bql/udf"
+
+        "github.com/sensorbee/examples/counter"
+    )
+
+    func init() {
+        udf.MustRegisterGlobalUDSCreator("my_counter",
+            &counter.CounterCreator{})
+        udf.MustRegisterGlobalUDF("my_next_count",
+            udf.MustConvertGeneric(counter.Next))
+    }
+
 
 Writing Tuples to a UDS
 -----------------------
 
 TODO
-
