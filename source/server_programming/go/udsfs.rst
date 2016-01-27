@@ -34,23 +34,23 @@ block in the method. A stream-like UDSF is used mostly when multiple tuples
 need to be computed and emitted based on one input tuple::
 
     type WordSplitter struct {
-        Field string
+        field string
     }
 
     func (w *WordSplitter) Process(ctx *core.Context, t *core.Tuple, writer core.Writer) error {
         var kwd []string
-        if v, ok := t.Data[w.Field]; !ok {
-            return fmt.Errorf("the tuple doesn't have the required field: %v", w.Field)
+        if v, ok := t.Data[w.field]; !ok {
+            return fmt.Errorf("the tuple doesn't have the required field: %v", w.field)
         } else if s, err := data.AsString(v); err != nil {
-            return fmt.Errorf("'%v' field must be string: %v", w.Field, err)
+            return fmt.Errorf("'%v' field must be string: %v", w.field, err)
         } else {
             kwd = strings.Split(s, " ")
         }
 
         for _, k := range kwd {
             out := t.Copy()
-            out.Data[w.Field] = data.String(k)
-            if err := writer.Write(out); err != nil {
+            out.Data[w.field] = data.String(k)
+            if err := writer.Write(ctx, out); err != nil {
                 return err
             }
         }
@@ -74,17 +74,18 @@ all tuples, the ``Terminate`` method is called, or a fatal error occurs.
 ::
 
     type Ticker struct {
-        stopped int32
-        Interval float64
+        interval time.Duration
+        stopped  int32
     }
 
-    func (t *Ticker) Process(ctx *core.Context, t *core.Tuple, w core.Writer) error {
+    func (t *Ticker) Process(ctx *core.Context, tuple *core.Tuple, w core.Writer) error {
         var i int64
         for ; atomic.LoadInt32(&t.stopped) == 0; i++ {
-            if err := w.Write(core.NewTuple(data.Map{"tick": data.Int(i)})); err != nil {
+            newTuple := core.NewTuple(data.Map{"tick": data.Int(i)})
+            if err := w.Write(ctx, newTuple); err != nil {
                 return err
             }
-            time.Sleep(t.Interval)
+            time.Sleep(t.interval)
         }
         return nil
     }
@@ -162,19 +163,19 @@ As an example, the ``UDSFCreator`` of ``WordSpliter`` is shown below::
         decl udf.UDSFDeclarer, args ...data.Value) (udf.UDSF, error) {
         input, err := data.AsString(args[0])
         if err != nil {
-            return fmt.Errorf("input stream name must be a string: %v", args[0])
+            return nil, fmt.Errorf("input stream name must be a string: %v", args[0])
         }
         field, err := data.AsString(args[1])
         if err != nil {
-            return fmt.Errorf("target field name must be a string: %v", args[1])
+            return nil, fmt.Errorf("target field name must be a string: %v", args[1])
         }
         // This Input call makes the UDSF a stream-like UDSF.
-        if err := decl.Input(input); err != nil {
-            return err
+        if err := decl.Input(input, nil); err != nil {
+            return nil, err
         }
         return &WordSplitter{
-            Field: field,
-        }
+            field: field,
+        }, nil
     }
 
     func (w *WordSplitterCreator) Accept(arity int) bool {
@@ -192,11 +193,14 @@ For another example, the ``UDSFCreator`` of ``Ticker`` is shown below::
 
     func (t *TickerCreator) CreateUDSF(ctx *core.Context,
         decl udf.UDSFDeclarer, args ...data.Value) (udf.UDSF, error) {
-        interval, err := data.ToFloat(args[0])
+        interval, err := data.ToDuration(args[0])
+        if err != nil {
+            return nil, err
+        }
         // Since this is a source-like UDSF, there's no input.
         return &Ticker{
-            Interval: interval,
-        }
+            interval: interval,
+        }, nil
     }
 
     func (t *TickerCreator) Accept(arity int) bool {
@@ -252,14 +256,14 @@ accepts.
 ``WordSplitterCreator`` can be rewritten with the ``ConvertToUDSFCreator``
 function as follows::
 
-    func WordSplitterCreator(decl udf.UDSFDeclarer,
+    func CreateWordSplitter(decl udf.UDSFDeclarer,
         inputStream, field string) (udf.UDSF, error) {
-        if err := decl.Input(inputStream); err != nil {
-            return err
+        if err := decl.Input(inputStream, nil); err != nil {
+            return nil, err
         }
         return &WordSplitter{
-            Field: field,
-        }
+            field: field,
+        }, nil
     }
 
     func init() {
@@ -269,18 +273,244 @@ function as follows::
 
 ``TickerCreator`` can be replaced with ``ConvertToUDSFCreator``, too::
 
-    func TickerCreator(decl udf.UDSFDeclarer, interval float64) (udf.UDSF, error) {
-        return &Ticker{
-            Interval: interval,
+    func CreateTicker(decl udf.UDSFDeclarer, i data.Value) (udf.UDSF, error) {
+        interval, err := data.ToDuration(i)
+        if err != nil {
+            return nil, err
         }
+        return &Ticker{
+            interval: interval,
+        }, nil
     }
 
     func init() {
-        udf.RegisterGlobalUDSFCreator("ticker",
-            udf.MustConvertToUDSFCreator(TickerCreator))
+        udf.MustRegisterGlobalUDSFCreator("ticker",
+           udf.MustConvertToUDSFCreator(udsfs.CreateTicker))
     }
 
 A Complete Example
 ------------------
 
-TODO
+This subsection provides a complete example of UDSFs described in this section.
+In addition to ``word_splitter`` and ``ticker``, the example also includes the
+``lorem`` source, which periodically emits random texts as
+``{'text': 'lorem ipsum dolor sit amet'}``.
+
+Assume that the import path of the example repository is
+``github.com/sensorbee/examples/udsfs``, which doesn't actually exist. The
+repository has four files:
+
+* lorem.go
+* splitter.go
+* ticker.go
+* plugin/plugin.go
+
+lorem.go
+^^^^^^^^
+
+To learn how to implement a source plugin, see
+:ref:`server_programming_go_sources`.
+
+::
+
+    package udsfs
+
+    import (
+        "math/rand"
+        "strings"
+        "time"
+
+        "gopkg.in/sensorbee/sensorbee.v0/bql"
+        "gopkg.in/sensorbee/sensorbee.v0/core"
+        "gopkg.in/sensorbee/sensorbee.v0/data"
+    )
+
+    var (
+        Lorem = strings.Split(strings.Replace(`lorem ipsum dolor sit amet
+    consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore
+    magna aliqua Ut enim ad minim veniam quis nostrud exercitation ullamco laboris
+    nisi ut aliquip ex ea commodo consequat Duis aute irure dolor in reprehenderit
+    in voluptate velit esse cillum dolore eu fugiat nulla pariatur Excepteur sint
+    occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim
+    id est laborum`, "\n", " ", -1), " ")
+    )
+
+    type LoremSource struct {
+        interval time.Duration
+    }
+
+    func (l *LoremSource) GenerateStream(ctx *core.Context, w core.Writer) error {
+        for {
+            var text []string
+            for l := rand.Intn(5) + 5; l > 0; l-- {
+                text = append(text, Lorem[rand.Intn(len(Lorem))])
+            }
+
+            t := core.NewTuple(data.Map{
+                "text": data.String(strings.Join(text, " ")),
+            })
+            if err := w.Write(ctx, t); err != nil {
+                return err
+            }
+
+            time.Sleep(l.interval)
+        }
+    }
+
+    func (l *LoremSource) Stop(ctx *core.Context) error {
+        return nil
+    }
+
+    func CreateLoremSource(ctx *core.Context,
+        ioParams *bql.IOParams, params data.Map) (core.Source, error) {
+        interval := 1 * time.Second
+        if v, ok := params["interval"]; ok {
+            i, err := data.ToDuration(v)
+            if err != nil {
+                return nil, err
+            }
+            interval = i
+        }
+        return core.ImplementSourceStop(&LoremSource{
+            interval: interval,
+        }), nil
+    }
+
+splitter.go
+^^^^^^^^^^^
+
+::
+
+    package udsfs
+
+    import (
+        "fmt"
+        "strings"
+
+        "gopkg.in/sensorbee/sensorbee.v0/bql/udf"
+        "gopkg.in/sensorbee/sensorbee.v0/core"
+        "gopkg.in/sensorbee/sensorbee.v0/data"
+    )
+
+    type WordSplitter struct {
+        field string
+    }
+
+    func (w *WordSplitter) Process(ctx *core.Context,
+        t *core.Tuple, writer core.Writer) error {
+        var kwd []string
+        if v, ok := t.Data[w.field]; !ok {
+            return fmt.Errorf("the tuple doesn't have the required field: %v", w.field)
+        } else if s, err := data.AsString(v); err != nil {
+            return fmt.Errorf("'%v' field must be string: %v", w.field, err)
+        } else {
+            kwd = strings.Split(s, " ")
+        }
+
+        for _, k := range kwd {
+            out := t.Copy()
+            out.Data[w.field] = data.String(k)
+            if err := writer.Write(ctx, out); err != nil {
+                return err
+            }
+        }
+        return nil
+    }
+
+    func (w *WordSplitter) Terminate(ctx *core.Context) error {
+        return nil
+    }
+
+    func CreateWordSplitter(decl udf.UDSFDeclarer,
+        inputStream, field string) (udf.UDSF, error) {
+        if err := decl.Input(inputStream, nil); err != nil {
+            return nil, err
+        }
+        return &WordSplitter{
+            field: field,
+        }, nil
+    }
+
+ticker.go
+^^^^^^^^^
+
+::
+
+    package udsfs
+
+    import (
+        "sync/atomic"
+        "time"
+
+        "gopkg.in/sensorbee/sensorbee.v0/bql/udf"
+        "gopkg.in/sensorbee/sensorbee.v0/core"
+        "gopkg.in/sensorbee/sensorbee.v0/data"
+    )
+
+    type Ticker struct {
+        interval time.Duration
+        stopped  int32
+    }
+
+    func (t *Ticker) Process(ctx *core.Context, tuple *core.Tuple, w core.Writer) error {
+        var i int64
+        for ; atomic.LoadInt32(&t.stopped) == 0; i++ {
+            newTuple := core.NewTuple(data.Map{"tick": data.Int(i)})
+            if err := w.Write(ctx, newTuple); err != nil {
+                return err
+            }
+            time.Sleep(t.interval)
+        }
+        return nil
+    }
+
+    func (t *Ticker) Terminate(ctx *core.Context) error {
+        atomic.StoreInt32(&t.stopped, 1)
+        return nil
+    }
+
+    func CreateTicker(decl udf.UDSFDeclarer, i data.Value) (udf.UDSF, error) {
+        interval, err := data.ToDuration(i)
+        if err != nil {
+            return nil, err
+        }
+        return &Ticker{
+            interval: interval,
+        }, nil
+    }
+
+plugin/plugin.go
+^^^^^^^^^^^^^^^^
+
+::
+
+    package plugin
+
+    import (
+        "gopkg.in/sensorbee/sensorbee.v0/bql"
+        "gopkg.in/sensorbee/sensorbee.v0/bql/udf"
+
+        "github.com/sensorbee/examples/udsfs"
+    )
+
+    func init() {
+        bql.MustRegisterGlobalSourceCreator("lorem",
+            bql.SourceCreatorFunc(udsfs.CreateLoremSource))
+        udf.MustRegisterGlobalUDSFCreator("word_splitter",
+            udf.MustConvertToUDSFCreator(udsfs.CreateWordSplitter))
+        udf.MustRegisterGlobalUDSFCreator("ticker",
+            udf.MustConvertToUDSFCreator(udsfs.CreateTicker))
+    }
+
+Example BQL Statements
+^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    CREATE SOURCE lorem TYPE lorem;
+    CREATE STREAM lorem_words AS
+        SELECT RSTREAM * FROM word_splitter('lorem', 'text') [RANGE 1 TUPLES];
+
+Results of ``word_splitter`` can be received by the following ``SELECT``::
+
+    SELECT RSTREAM * FROM lorem_words [RANGE 1 TUPLES];
