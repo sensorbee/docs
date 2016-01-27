@@ -26,7 +26,7 @@ The following example sink write a tuple as a JSON to stdout::
     }
 
     func (s *StdoutSink) Write(ctx *core.Context, t *core.Tuple) error {
-        _, err := io.WriteString(os.Stdout, t.Data.String())
+        _, err := fmt.Fprintln(os.Stdout, t.Data)
         return err
     }
 
@@ -74,7 +74,7 @@ The creator can be registered by ``RegisterGlobalSinkCreator`` or
     }
 
     func init() {
-        bql.MustRegisterGlobalSinkCreator("stdout", &StdoutSinkCreator{})
+        bql.MustRegisterGlobalSinkCreator("my_stdout", &StdoutSinkCreator{})
     }
 
 This sink doesn't have parameters specified in the ``WITH`` clause of the
@@ -97,7 +97,7 @@ pacakge. It converts a function having the same signature as
     func CreateStdoutSink(ctx *core.Context,
         ioParams *bql.IOParams, params data.Map) (core.Sink, error) {
         return &StdoutSink{}, nil
-    )
+    }
 
     fucn init() {
         bql.MustRegisterGlobalSinkCreator("stdout",
@@ -107,4 +107,64 @@ pacakge. It converts a function having the same signature as
 A Complete Example
 ------------------
 
-TODO
+A complete example of the sink is shown in this subsection. The package name for
+the sink is ``stdout`` and ``StdoutSink`` is renamed to ``Sink``. Also, this
+example uses ``SinkCreatorFunc`` utility for ``SinkCreator``.
+
+Assume that the import path of the example is
+``github.com/sensorbee/examples/stdout``, which doesn't actually exist. The
+repository has to files:
+
+* stdout.go
+* plugin/plugin.go
+
+stdout.go
+^^^^^^^^^
+
+::
+
+    package stdout
+
+    import (
+        "fmt"
+        "os"
+
+        "gopkg.in/sensorbee/sensorbee.v0/bql"
+        "gopkg.in/sensorbee/sensorbee.v0/core"
+        "gopkg.in/sensorbee/sensorbee.v0/data"
+    )
+
+    type Sink struct {
+    }
+
+    func (s *Sink) Write(ctx *core.Context, t *core.Tuple) error {
+        _, err := fmt.Fprintln(os.Stdout, t.Data)
+        return err
+    }
+
+    func (s *Sink) Close(ctx *core.Context) error {
+        return nil
+    }
+
+    func Create(ctx *core.Context, ioParams *bql.IOParams, params data.Map) (core.Sink, error) {
+        return &Sink{}, nil
+    }
+
+
+plugin/plugin.go
+^^^^^^^^^^^^^^^^
+
+::
+
+    package plugin
+
+    import (
+        "gopkg.in/sensorbee/sensorbee.v0/bql"
+
+        "github.com/sensorbee/examples/stdout"
+    )
+
+    func init() {
+        bql.MustRegisterGlobalSinkCreator("my_stdout",
+            bql.SinkCreatorFunc(stdout.Create))
+    }
