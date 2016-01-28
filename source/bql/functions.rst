@@ -211,3 +211,43 @@ Other Scalar Functions
 |                        |            |               | or NULL if there is no such parameter      |                               |        |
 +------------------------+------------+---------------+--------------------------------------------+-------------------------------+--------+
 
+
+Aggregate Functions
+===================
+
+Aggregate functions compute a single result from a set of input values.
+The built-in normal aggregate functions are listed in the table below.
+The special syntax considerations for aggregate functions are explained in `Aggregate Expressions`_.
+
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| Function                  | Input Type                      | Return Type                       | Description                                                   |
++===========================+=================================+===================================+===============================================================+
+| ``array_agg(x)``          | any                             | ``array``                         | input values, including nulls, concatenated into an array     |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``avg(x)``                | ``int`` or ``float``            | ``float``                         | the average (arithmetic mean) of all input values             |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``bool_and(x)``           | ``bool``                        | ``bool``                          | true if all input values are true, otherwise false            |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``bool_or(x)``            | ``bool``                        | ``bool``                          | true if at least one input value is true, otherwise false     |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``count(x)``              | any                             | ``int``                           | number of input rows for which ``x`` is not null              |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``count(*)``              | none                            | ``int``                           | number of input rows                                          |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``json_object_agg(k, v)`` | ``string``, any                 | ``map``                           | aggregates name/value pairs as a map                          |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``max(x)``                | ``int`` or ``float``            | same as largest input value       | maximum value of ``x`` across all input values                |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``median(x)``             | ``int`` or ``float``            | ``float``                         | the median of all input values                                |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``min(x)``                | ``int`` or ``float``            | same as smallest input value      | minimum value of ``x`` across all input values                |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``string_agg(x, sep)``    | ``string``, ``string`` (scalar) | ``string``                        | input values concatenated into a string, separated by ``sep`` |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+| ``sum(x)``                | ``int`` or ``float``            | ``float`` if the input contains a | sum of ``x`` across all input values                          |
+|                           |                                 | ``float``, ``int`` otherwise      |                                                               |
++---------------------------+---------------------------------+-----------------------------------+---------------------------------------------------------------+
+
+It should be noted that except for ``count``, these functions return a ``NULL`` value when no rows are selected.
+In particular, ``sum`` of no rows returns ``NULL``, not zero as one might expect, and ``array_agg`` returns ``NULL`` rather than an empty array when there are no input rows.
+The ``coalesce`` function can be used to substitute zero or an empty array for ``NULL`` when necessary.
