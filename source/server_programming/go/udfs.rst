@@ -284,10 +284,155 @@ Following functions can be converted to UDFs by ``ConvertGeneric`` or
 * ``func format(string, ...data.Value) (string, error)``
 * ``func keys(data.Map) []string``
 
-An Example
-----------
+Complete Examples
+-----------------
 
-TODO
+This subsection shows three example UDFs:
+
+* ``my_inc``
+* ``my_join``
+* ``my_join2``
+
+Assume that these are in the repository ``github.com/sensorbee/examples/udfs``,
+which doesn't actually exist. The repository has three files:
+
+* inc.go
+* join.go
+* plugin/plugin.go
+
+inc.go
+^^^^^^
+
+In inc.go, the ``Inc`` function is defined as a pure Go function with a standard
+value type.
+
+::
+
+    package udfs
+
+    func Inc(v int) int {
+        return v + 1
+    }
+
+join.go
+^^^^^^^
+
+In join.go, the ``Join`` UDF is defined in a strict way. It also performs
+strict type checking. It's designed to be called with two types of forms:
+``my_join('a', 'b', 'c', 'separator')`` or
+``my_join(['a', 'b', 'c'], 'separator')``. Each argument and values in the array
+must be strings. The UDF receives arbitrary number of arguments.
+
+::
+
+    package udfs
+
+    import (
+        "errors"
+        "strings"
+
+        "pfi/sensorbee/sensorbee/core"
+        "pfi/sensorbee/sensorbee/data"
+    )
+
+    type Join struct {
+    }
+
+    func (j *Join) Call(ctx *core.Context, args ...data.Value) (data.Value, error) {
+        empty := data.String("")
+        if len(args) == 1 {
+            return empty, nil
+        }
+
+        switch args[0].Type() {
+        case data.TypeString: // my_join('a', 'b', 'c', 'sep') form
+            var ss []string
+            for _, v := range args {
+                s, err := data.AsString(v)
+                if err != nil {
+                    return empty, err
+                }
+                ss = append(ss, s)
+            }
+            return data.String(strings.Join(ss[:len(ss)-1], ss[len(ss)-1])), nil
+
+        case data.TypeArray: // my_join(['a', 'b', 'c'], 'sep') form
+            if len(args) != 2 {
+                return empty, errors.New("wrong number of arguments for my_join(array, sep)")
+            }
+            sep, err := data.AsString(args[1])
+            if err != nil {
+                return empty, err
+            }
+
+            a, _ := data.AsArray(args[0])
+            var ss []string
+            for _, v := range a {
+                s, err := data.AsString(v)
+                if err != nil {
+                    return empty, err
+                }
+                ss = append(ss, s)
+            }
+            return data.String(strings.Join(ss, sep)), nil
+
+        default:
+            return empty, errors.New("the first argument must be a string or an array")
+        }
+    }
+
+    func (j *Join) Accept(arity int) bool {
+        return arity >= 1
+    }
+
+    func (j *Join) IsAggregationParameter(k int) bool {
+        return false
+    }
+
+plugin/plugin.go
+^^^^^^^^^^^^^^^^
+
+In addition to ``Inc`` and ``Join``, this file registers the standard Go
+function ``strings.Join`` as ``my_join2``. Because it's converted to a UDF by
+``udf.MustConvertGeneric``, arguments are weakly converted to given types.
+For example, ``my_join([1, 2.3, '4'], '-')`` is valid although ``strings.Join``
+itself is ``func([]string, string) string``.
+
+::
+
+    package plugin
+
+    import (
+        "strings"
+
+        "pfi/sensorbee/sensorbee/bql/udf"
+
+        "pfi/nobu/docexamples/udfs"        
+    )
+
+    func init() {
+        udf.MustRegisterGlobalUDF("my_inc", udf.MustConvertGeneric(udfs.Inc))
+        udf.MustRegisterGlobalUDF("my_join", &udfs.Join{})
+        udf.MustRegisterGlobalUDF("my_join2", udf.MustConvertGeneric(strings.Join))
+    }
+
+Evaluating Examples
+^^^^^^^^^^^^^^^^^^^
+
+Once the ``sensorbee`` command is built with those UDFs and a topology is
+created on the server, the ``EVAL`` statement can be used to test them::
+
+    EVAL my_inc(1); -- => 2
+    EVAL my_inc(1.5); -- => 2
+    EVAL my_inc('10'); -- => 11
+
+    EVAL my_join('a', 'b', 'c', '-'); -- => 'a-b-c'
+    EVAL my_join(['a', 'b', 'c'], ',') -- => 'a,b,c'
+    EVAL my_join(1, 'b', 'c', '-') -- => error
+    EVAL my_join([1, 'b', 'c'], ',') -- => error
+
+    EVAL my_join2(['a', 'b', 'c'], ',') -- => 'a,b,c'
+    EVAL my_join2([1, 'b', 'c'], ',') -- => '1,b,c'
 
 User-Defined Aggregates
 -----------------------
