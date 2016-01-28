@@ -16,10 +16,10 @@ Scalar Functions Reference
 Description
 """""""""""
 
-absolute value
+``abs`` computes the absolute value of a number.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -49,10 +49,10 @@ Examples
 Description
 """""""""""
 
-cube root
+``cbrt`` computes the cube root of a number.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -85,10 +85,10 @@ Examples
 Description
 """""""""""
 
-smallest integer not less than argument
+``ceil`` computes the smallest integer not less than its argument.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -122,10 +122,10 @@ Examples
 Description
 """""""""""
 
-radians to degrees
+``degrees`` computes the smallest integer not less than its argument.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -157,13 +157,17 @@ Examples
 Description
 """""""""""
 
-integer quotient of ``y``/``x``
+``div`` computes the integer quotient ``y``/``x`` of two numbers ``y`` and ``x``.
+If ``x`` is ``0.0`` (float) then ``NaN`` will be returned; it it is ``0`` (integer) then a runtime error will occur.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
+
+``y``
+    ``int`` or ``float``
 
 ``x``
-    2 x ``int`` or 2 x ``float``
+    same as ``y``
 
 Return Type
 """""""""""
@@ -193,10 +197,10 @@ Examples
 Description
 """""""""""
 
-exponential
+``exp`` computes the exponential of a number.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -227,10 +231,10 @@ Examples
 Description
 """""""""""
 
-largest integer not greater than argument
+``floor`` computes the largest integer not greater than its argument.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -263,10 +267,11 @@ Examples
 Description
 """""""""""
 
-natural logarithm
+``ln`` computes the natural logarithm of a number.
+If the parameter is not strictly positive, ``NaN`` is returned.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -293,52 +298,21 @@ Examples
 ::
 
     log(x)
-
-Description
-"""""""""""
-
-base 10 logarithm
-
-Arguments
-"""""""""
-
-``x``
-    ``int`` or ``float``
-
-Return Type
-"""""""""""
-
-``float``
-
-Examples
-""""""""
-
-+----------------+----------+
-| Function Call  | Result   |
-+================+==========+
-| ``log(100)``   | ``2.0``  |
-+----------------+----------+
-
-
-
-
-``log``
-^^^^^^^
-
-::
-
     log(b, x)
 
 Description
 """""""""""
 
-logarithm to base b
+``log`` computes the logarithm of a number ``x`` to base ``b`` (default: 10).
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
-    2 x ``int`` or 2 x ``float``
+    ``int`` or ``float``
+
+``b`` (optional)
+    same as ``x``
 
 Return Type
 """""""""""
@@ -351,10 +325,13 @@ Examples
 +--------------------+----------+
 | Function Call      | Result   |
 +====================+==========+
+| ``log(100)``       | ``2.0``  |
++--------------------+----------+
 | ``log(2.5, 6.25)`` | ``2.0``  |
 +--------------------+----------+
 | ``log(2, 8)``      | ``3.0``  |
 +--------------------+----------+
+
 
 
 
@@ -368,13 +345,17 @@ Examples
 Description
 """""""""""
 
-remainder of ``y``/``x``
+``mod`` computes the remainder of integer division ``y``/``x`` of two numbers ``y`` and ``x``.
+If ``x`` is ``0.0`` (float) then ``NaN`` will be returned; it it is ``0`` (integer) then a runtime error will occur.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
+
+``y``
+    ``int`` or ``float``
 
 ``x``
-    2 x ``int`` or 2 x ``float``
+    same as ``y``
 
 Return Type
 """""""""""
@@ -404,13 +385,7 @@ Examples
 Description
 """""""""""
 
-"π" constant
-
-Arguments
-"""""""""
-
-``x``
-    none
+``pi`` returns the π constant (more or less 3.14).
 
 Return Type
 """""""""""
@@ -438,13 +413,16 @@ Examples
 Description
 """""""""""
 
-``a`` raised to the power of ``b``
+``power`` computes ``a`` raised to the power of ``b``.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
-``x``
-    2 x ``int`` or 2 x ``float``
+``a``
+    ``int`` or ``float``
+
+``b``
+    same as ``a``
 
 Return Type
 """""""""""
@@ -476,8 +454,8 @@ Description
 
 degrees to radians
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -510,8 +488,8 @@ Description
 
 round to nearest integer
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -546,8 +524,8 @@ Description
 
 square root
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -581,8 +559,8 @@ Description
 
 truncate toward zero
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -619,8 +597,8 @@ return the bucket number to which ``x`` would be
 assigned in a histogram having ``count`` equal-width
 buckets spanning the range ``l`` to ``r``; returns
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``x``, ``l``, ``r``: ``int`` or ``float``
@@ -657,8 +635,8 @@ Description
 
 random value in the range :math:`0.0 <= x < 1.0`
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     none
@@ -682,8 +660,8 @@ Description
 
 set seed (:math:`-1.0 <= x <= 1.0`) for subsequent ``random()`` calls
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``float``
@@ -806,8 +784,8 @@ Description
 
 Number of bits in string
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -840,8 +818,8 @@ Description
 
 Remove whitespace from the start and end of ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -875,8 +853,8 @@ Description
 Remove the longest string consisting only of characters in ``chars``
 from the start and end of ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     2 x ``string``
@@ -909,8 +887,8 @@ Description
 
 Number of characters in ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -944,8 +922,8 @@ Description
 Concatenate the text representations of all the arguments.
 NULL arguments are ignored.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     *n* x ``string``
@@ -979,8 +957,8 @@ Description
 Format arguments according to a format string.
 This function is similar to the Go function ``fmt.Sprintf``.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``, *n* x any
@@ -1013,8 +991,8 @@ Description
 
 Convert ``s`` to lower case
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -1048,8 +1026,8 @@ Description
 
 Remove whitespace from the start of ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -1083,8 +1061,8 @@ Description
 Remove the longest string consisting only of characters in ``chars``
 from the start of ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     2 x ``string``
@@ -1117,8 +1095,8 @@ Description
 
 Calculates the MD5 hash of ``s``, returning the result in hexadecimal
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -1151,8 +1129,8 @@ Description
 
 Number of bytes in ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -1185,8 +1163,8 @@ Description
 
 Replace substring
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     2 x ``string``, ``int``
@@ -1220,8 +1198,8 @@ Description
 
 Replace substring
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     2 x ``string``, 2 x ``int``
@@ -1254,8 +1232,8 @@ Description
 
 Remove whitespace from the end of ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -1289,8 +1267,8 @@ Description
 Remove the longest string consisting only of characters in ``chars``
 from the end of ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     2 x ``string``
@@ -1323,8 +1301,8 @@ Description
 
 Calculates the SHA1 hash of ``s``, returning the result in hexadecimal
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -1357,8 +1335,8 @@ Description
 
 Calculates the SHA256 hash of ``s``, returning the result in hexadecimal
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -1392,8 +1370,8 @@ Description
 
 Location of specified substring ``t`` in ``s``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     2 x ``string``
@@ -1428,8 +1406,8 @@ Description
 Extract substring matching regular expression ``r`` from ``s``.
 See Go ``regexp`` package for details of matching.
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     2 x ``string``
@@ -1462,8 +1440,8 @@ Description
 
 Extract substring
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``, ``int``
@@ -1496,8 +1474,8 @@ Description
 
 Extract substring
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``, 2 x ``int``
@@ -1530,8 +1508,8 @@ Description
 
 Convert ``s`` to upper case
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``
@@ -1564,8 +1542,8 @@ Description
 
 Signed temporal distance from ``u`` to ``v`` in microseconds
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     2 x ``timestamp``
@@ -1589,8 +1567,8 @@ Description
 
 Current date and time (changes during statement execution)
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     none
@@ -1616,8 +1594,8 @@ Description
 Returns the first non-null input parameter
 or NULL if there is no such parameter
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     *n* x any
@@ -1655,8 +1633,8 @@ Description
 
 input values, including nulls, concatenated into an array
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     any
@@ -1680,8 +1658,8 @@ Description
 
 the average (arithmetic mean) of all input values
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -1705,8 +1683,8 @@ Description
 
 true if all input values are true, otherwise false
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``bool``
@@ -1730,8 +1708,8 @@ Description
 
 true if at least one input value is true, otherwise false
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``bool``
@@ -1756,8 +1734,8 @@ Description
 
 number of input rows for which ``x`` is not null
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     any
@@ -1781,8 +1759,8 @@ Description
 
 number of input rows
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     none
@@ -1806,8 +1784,8 @@ Description
 
 aggregates name/value pairs as a map
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``, any
@@ -1832,8 +1810,8 @@ Description
 
 maximum value of ``x`` across all input values
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -1858,8 +1836,8 @@ Description
 
 the median of all input values
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -1883,8 +1861,8 @@ Description
 
 minimum value of ``x`` across all input values
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
@@ -1908,8 +1886,8 @@ Description
 
 input values concatenated into a string, separated by ``sep``
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``string``, ``string`` (scalar)
@@ -1934,8 +1912,8 @@ Description
 
 sum of ``x`` across all input values
 
-Arguments
-"""""""""
+Parameter Types
+"""""""""""""""
 
 ``x``
     ``int`` or ``float``
