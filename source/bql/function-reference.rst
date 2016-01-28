@@ -24,8 +24,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as input
 
@@ -57,8 +57,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -93,8 +93,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as input
 
@@ -130,8 +130,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -165,8 +165,8 @@ Arguments
 ``x``
     2 x ``int`` or 2 x ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as input
 
@@ -201,8 +201,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -235,8 +235,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as input
 
@@ -271,8 +271,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -305,8 +305,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -340,8 +340,8 @@ Arguments
 ``x``
     2 x ``int`` or 2 x ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -376,8 +376,8 @@ Arguments
 ``x``
     2 x ``int`` or 2 x ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as input
 
@@ -412,8 +412,8 @@ Arguments
 ``x``
     none
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -446,8 +446,8 @@ Arguments
 ``x``
     2 x ``int`` or 2 x ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -482,8 +482,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -516,8 +516,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as input
 
@@ -552,8 +552,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -587,8 +587,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as input
 
@@ -628,8 +628,8 @@ Arguments
 ``count``
     ``int``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``int``
 
@@ -663,8 +663,8 @@ Arguments
 ``x``
     none
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -688,8 +688,8 @@ Arguments
 ``x``
     ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``null``
 
@@ -812,8 +812,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``int``
 
@@ -846,8 +846,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -881,8 +881,8 @@ Arguments
 ``x``
     2 x ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -915,8 +915,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``int``
 
@@ -950,8 +950,8 @@ Arguments
 ``x``
     *n* x ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -985,8 +985,8 @@ Arguments
 ``x``
     ``string``, *n* x any
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1019,8 +1019,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1054,8 +1054,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1089,8 +1089,8 @@ Arguments
 ``x``
     2 x ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1123,8 +1123,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1157,8 +1157,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``int``
 
@@ -1191,8 +1191,8 @@ Arguments
 ``x``
     2 x ``string``, ``int``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1226,8 +1226,8 @@ Arguments
 ``x``
     2 x ``string``, 2 x ``int``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1260,8 +1260,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1295,8 +1295,8 @@ Arguments
 ``x``
     2 x ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1329,8 +1329,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1363,8 +1363,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1398,8 +1398,8 @@ Arguments
 ``x``
     2 x ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``int``
 
@@ -1434,8 +1434,8 @@ Arguments
 ``x``
     2 x ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1468,8 +1468,8 @@ Arguments
 ``x``
     ``string``, ``int``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1502,8 +1502,8 @@ Arguments
 ``x``
     ``string``, 2 x ``int``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1536,8 +1536,8 @@ Arguments
 ``x``
     ``string``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1570,8 +1570,8 @@ Arguments
 ``x``
     2 x ``timestamp``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``int``
 
@@ -1595,8 +1595,8 @@ Arguments
 ``x``
     none
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``timestamp``
 
@@ -1622,8 +1622,8 @@ Arguments
 ``x``
     *n* x any
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as input
 
@@ -1661,8 +1661,8 @@ Arguments
 ``x``
     any
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``array``
 
@@ -1686,8 +1686,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -1711,8 +1711,8 @@ Arguments
 ``x``
     ``bool``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``bool``
 
@@ -1736,8 +1736,8 @@ Arguments
 ``x``
     ``bool``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``bool``
 
@@ -1762,8 +1762,8 @@ Arguments
 ``x``
     any
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``int``
 
@@ -1787,8 +1787,8 @@ Arguments
 ``x``
     none
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``int``
 
@@ -1812,8 +1812,8 @@ Arguments
 ``x``
     ``string``, any
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``map``
 
@@ -1838,8 +1838,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as largest input value
 
@@ -1864,8 +1864,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float``
 
@@ -1889,8 +1889,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 same as smallest input value
 
@@ -1914,8 +1914,8 @@ Arguments
 ``x``
     ``string``, ``string`` (scalar)
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``string``
 
@@ -1940,8 +1940,8 @@ Arguments
 ``x``
     ``int`` or ``float``
 
-Return Value
-""""""""""""
+Return Type
+"""""""""""
 
 ``float`` if the input contains a
 ``float``, ``int`` otherwise
