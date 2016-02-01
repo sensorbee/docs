@@ -29,7 +29,7 @@ example, ``3 + 5 * 2.5`` is valid.
 .. note::
 
     Unary minus operators can be applied to a value multiple times. However,
-    each unary minus operators must be seperated by a space like ``- - -3``
+    each unary minus operators must be separated by a space like ``- - -3``
     because ``--`` and succeeding characters are parsed as a comment. For
     example, ``---3`` is parsed as ``--`` and a comment body ``-3``.
 
@@ -106,7 +106,7 @@ There's one exception. When one operand of comparison operators except
 -------------------
 
 In a three-valued logic, comparing any value with ``NULL`` results in ``NULL``.
-For example, all of followwing expressions result in ``NULL``:
+For example, all of following expressions result in ``NULL``:
 
 * ``1 < NULL``
 * ``2 > NULL``

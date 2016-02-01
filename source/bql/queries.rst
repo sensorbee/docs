@@ -120,7 +120,7 @@ As an example for a typical use case,
 
      SELECT ISTREAM * FROM src [RANGE 1 TUPLES];
 
-will drop subsequent duplicates, i.e., emit only the first occurence of a series of tuples with identical values.
+will drop subsequent duplicates, i.e., emit only the first occurrence of a series of tuples with identical values.
 
 To illustrate the multiplicity counting,
 
