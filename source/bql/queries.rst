@@ -1,3 +1,5 @@
+.. _bql_queries:
+
 *******
 Queries
 *******

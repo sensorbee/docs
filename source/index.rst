@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
    :numbered: 4
 
+   tutorial.rst
    bql.rst
    server_programming.rst
 
