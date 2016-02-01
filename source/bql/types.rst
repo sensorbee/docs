@@ -30,14 +30,14 @@ from JSON with some restrictions.
 
 .. note::
 
-    User defined types are not availble at the moment.
+    User defined types are not available at the moment.
 
 .. _bql_types_types:
 
 Types
 =====
 
-This section describes the detailed sepcification of each type.
+This section describes the detailed specification of each type.
 
 ``null``
 --------
@@ -208,7 +208,7 @@ Conversions
 ===========
 
 BQL provides ``CAST(value AS type)`` operator, or ``value::type`` as a syntactic
-suger, that converts the given value to a corresponding value in the given type,
+sugar, that converts the given value to a corresponding value in the given type,
 if those types are convertible. For example, ``CAST(1 AS string)``, or
 ``1::string``, converts an ``int`` value ``1`` to a ``string`` value and
 results in ``'1'``. Converting to the same type as the value's type is valid.
