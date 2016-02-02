@@ -2,18 +2,17 @@
 Getting Started
 ***************
 
-.. todo:: write a better paragraph
+.. todo::
 
-The following topics are covered in this tutorial:
+    Add typical errors on each step and how to handle them
+
+To work with SensorBee, this chapter introduces word counting as the first
+tutorial. It covers the following topics::
 
 * how to install and set up SensorBee
 * how to build a custom ``sensorbee`` command
 * how to use the ``sensorbee`` command
 * how to query the SensorBee server with ``sensorbee shell`` and BQL
-
-.. todo::
-
-    Add typical errors on each step and how to handle them
 
 Prerequisites
 =============
@@ -53,8 +52,9 @@ This command checks out the repository at
 includes configuration files for building and running SensorBee. After
 ``go get`` successfully downloaded the package, copy those configuration files
 in the ``config`` directory under the ``wordcount`` package to another temporary
-directory::
+directory (**replace /path/to/ with an appropriate path**)::
 
+    $ mkdir -p /path/to/wordcount
     $ cp $GOPATH/src/github.com/sensorbee/tutorial/wordcount/config/* \
         /path/to/wordcount/
     $ ls /path/to/wordcount
@@ -183,10 +183,16 @@ statement, which evaluates arbitrary expressions supported by BQL::
     (wordcount)>>> EVAL 'Hello' || ', world!';
     Hello, world!
 
+BQL also supports one line comments::
+
+    (wordcount)>>> -- This is a comment
+    (wordcount)>>>
+
 Finally, create a source, which generates stream data or inputs data from other
 stream data sources::
 
     (wordcount)>>> CREATE SOURCE sentences TYPE wc_sentences;
+    (wordcount)>>>
 
 This ``CREATE SOURCE`` statement creates a source named ``sentences``. Its type
 is ``wc_sentencese`` and it's provided as a plugin in the ``wordcount`` package.
@@ -226,7 +232,7 @@ Stream-Related Operators
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 BQL's ``SELECT`` statement has two concept for stream data processing:
-stream-to-relation operators and relation-to-stream operators.
+**stream-to-relation operators** and **relation-to-stream operators**.
 
 .. note::
 
@@ -346,7 +352,7 @@ Grouping and Aggregates
 The ``GROUP BY`` clause is also available in BQL::
 
     (wordcount)>>> SELECT ISTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
-    ... GROUP BY name;
+    ... GROUP BY name; -- '...' at the begining of this line was inserted by the shell
     {"count":1,"name":"isabella"}
     {"count":1,"name":"emma"}
     {"count":2,"name":"isabella"}
@@ -466,23 +472,147 @@ it emits each tokenized word as a separated tuple.
 
 .. note::
 
-    As shown above, a UDSF is very powerful tool to extend BQL's capability. It can
-    virtually do anything that can be done for stream data. To learn how to develop
-    it, see :ref:`server_programming_go_udsfs`.
-
-.. todo:: counting words
-.. todo:: counting words per user
-.. todo::  we need to have something like a view because above two counting has so many things in common, then next subsection
+    As shown above, a UDSF is one of the most powerful tools to extend BQL's
+    capability. It can virtually do anything that can be done for stream data.
+    To learn how to develop it, see :ref:`server_programming_go_udsfs`.
 
 Creating a Stream
 -----------------
 
-TODO
+Although it's ready to count tokenized words, it's easier to have something like
+a view to avoid writing ``wc_tokenizer('sentences', 'text')`` every time
+issueing a new query. BQL has a **stream** (a.k.a a **continuous view**), which
+just works like a view in RDBMSs. A stream can be created by the
+``CREATE STREAM`` statement::
+
+    (wordcount)>>> CREATE STREAM words AS
+    ... SELECT RSTREAM name, text AS word
+    ... FROM wc_tokenizer('sentences', 'text') [RANGE 1 TUPLES];
+    (wordcount)>>>
+
+This statement creates a new stream called ``words``. The stream renames
+``text`` field to ``word``. The stream can be referred by the ``FROM`` clause
+of the ``SELECT`` statement as follows::
+
+    (wordcount)>>> SELECT RSTREAM * FROM words [RANGE 1 TUPLES];
+    {"name":"isabella","word":"pariatur"}
+    {"name":"isabella","word":"adipiscing"}
+    {"name":"isabella","word":"id"}
+    {"name":"isabella","word":"et"}
+    {"name":"isabella","word":"aute"}
+    ...
+
+A stream can be specified in the ``FROM`` clause of multiple ``SELECT``
+statements so that it can fork as many as required.
+
+Counting Words
+--------------
+
+After creating the ``words`` stream, words can be counted as follows::
+
+    (wordcount)>>> SELECT ISTREAM word, count(*) FROM words [RANGE 60 SECONDS]
+    ... GROUP BY word;
+    {"count":1,"word":"aute"}
+    {"count":1,"word":"eu"}
+    {"count":1,"word":"quis"}
+    {"count":1,"word":"adipiscing"}
+    {"count":1,"word":"ut"}
+    ...
+    {"count":47,"word":"mollit"}
+    {"count":35,"word":"tempor"}
+    {"count":100,"word":"in"}
+    {"count":38,"word":"sint"}
+    {"count":79,"word":"dolor"}
+    ...
+
+This statement counts the number of occurances of each word appeared in past 60
+seconds. By creating another stream based on the ``SELECT`` statement above,
+Furthur statistical information can be obtained::
+
+    (wordcount)>>> CREATE STREAM word_counts AS
+    ... SELECT ISTREAM word, count(*) FROM words [RANGE 60 SECONDS]
+    ... GROUP BY word;
+    (wordcount)>>> (wordcount)>>> SELECT RSTREAM max(count), min(count)
+    ... FROM word_counts [RANGE 60 SECONDS];
+    {"max":52,"min":52}
+    {"max":120,"min":52}
+    {"max":120,"min":50}
+    {"max":165,"min":50}
+    {"max":165,"min":45}
+    ...
+    {"max":204,"min":31}
+    {"max":204,"min":30}
+    {"max":204,"min":29}
+    {"max":204,"min":28}
+    {"max":204,"min":27}
+    ...
+
+The ``CREATE STREAM`` statement above creates a new stream ``word_counts``. The
+next ``SELECT`` statement computes the maximum and minimum counts over words
+observed in past 60 seconds.
 
 Using a BQL File
 ----------------
 
-TODO
+All statements above will be cleared once the SensorBee server is restarted. By
+using a BQL file, a topology can be set up on each startup of the server. A BQL
+file can contain multiple BQL statements. For statements used in this tutorial,
+the file can contain following statements::
+
+    CREATE SOURCE sentences TYPE wc_sentences;
+
+    CREATE STREAM words AS
+        SELECT RSTREAM name, text AS word
+            FROM wc_tokenizer('sentences', 'text') [RANGE 1 TUPLES];
+
+    CREATE STREAM word_counts AS
+        SELECT ISTREAM word, count(*)
+            FROM words [RANGE 60 SECONDS]
+            GROUP BY word;
+
+.. note::
+
+    A BQL file cannot have the ``SELECT`` statement because it doesn't stop
+    until it's manually stopped.
+
+To apply the BQL file to the server, a configuration file for ``sensorbee run``
+needs to be provided in YAML format. The name of the configuration file is often
+``sensorbee.yaml``. For this tutorial, the file has the following content::
+
+    topologies:
+      wordcount:
+        bql_file: wordcount.bql
+
+``topologies`` is one of the top-level parameters related to topologies in
+the server. It has names of topologies to be created on startup. In the file
+above, there's only one topology ``wordcount``. Each topology has ``bql_file``
+parameter to specify which BQL file to be executed. There's ``wordcount.bql``
+in the ``config`` directly and the configuration file above specifies it.
+
+With this configuration file, the SensorBee server can be started as follows::
+
+    /path/to/wordcount$ ./sensorbee run -c sensorbee.yaml
+    INFO[0000] Setting up the server context
+    INFO[0000] Setting up the topology                       topology=wordcount
+    INFO[0000] Starting the server on :15601
+
+As it's written in log messages, the topology ``wordcount`` is created before
+the server actually starts.
+
+Summary
+-------
+
+This tutorial provided a brief overview of SensorBee through word counting.
+First of all, it showed how to build a custom ``sensorbee`` command to work with
+the tutorial. Second of all, running the server and setting up a topology with
+BQL was explained. Then, querying toward streams and how to create a new stream
+from ``SELECT`` was introduced. Finally, word counting was performed over a
+newly created stream and BQL statements that create a source and streams were
+persistent in a BQL file so that the server can re-execute those statements on
+its startup.
+
+This chapter introduced the first tutorial and there're other tutorials and
+samples to learn how to integrate SensorBee with other tools and libraries.
 
 Advanced Examples
 =================
