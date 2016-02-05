@@ -20,7 +20,7 @@ Prerequisites
 SensorBee requires Go 1.4 or later to be installed. Also, its development
 environment needs to be set up correctly.
 
-This tutorial assuems that readers know about basic Linux commands and basics
+This tutorial assumes that readers know about basic Linux commands and basics
 of SQL.
 
 SensorBee itself doesn't have to be installed at this point.
@@ -28,7 +28,7 @@ SensorBee itself doesn't have to be installed at this point.
 .. todo::
 
     Explain more about Go in detail because not all users of SensorBee are
-    faimliar with Go although developers needs to know it.
+    familiar with Go although developers needs to know it.
 
 
 Word Count Example
@@ -148,7 +148,7 @@ with stream data.
 
 Firstly, to allow the server to process some stream data, it needs to have
 a **topology**. A topology is a similar concept to a database in RDBMSs. It has
-processing comopnents such as data sources, continuous views, and so on.
+processing components such as data sources, continuous views, and so on.
 Use ``sensorbee topology create`` commands to create a new topology
 ``wordcount`` for the tutorial::
 
@@ -352,7 +352,7 @@ Grouping and Aggregates
 The ``GROUP BY`` clause is also available in BQL::
 
     (wordcount)>>> SELECT ISTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
-    ... GROUP BY name; -- '...' at the begining of this line was inserted by the shell
+    ... GROUP BY name; -- '...' at the beginning of this line was inserted by the shell
     {"count":1,"name":"isabella"}
     {"count":1,"name":"emma"}
     {"count":2,"name":"isabella"}
@@ -449,7 +449,7 @@ With these results, the statement below can compute a count of each word::
         GROUP BY word;
 
 To create a stream like this from tuples emitted from ``sentences``, BQL
-provieds a **user-defined stream-generating function (UDSF)**. A UDSF is able
+provides a **user-defined stream-generating function (UDSF)**. A UDSF is able
 to emit multiple tuples from one input tuple, that cannot be done with the
 ``SELECT`` statement itself. ``wordcount`` package in this tutorial provides
 a UDSF ``wc_tokenizer(stream, field)``: where ``name`` is the name of the input
@@ -481,7 +481,7 @@ Creating a Stream
 
 Although it's ready to count tokenized words, it's easier to have something like
 a view to avoid writing ``wc_tokenizer('sentences', 'text')`` every time
-issueing a new query. BQL has a **stream** (a.k.a a **continuous view**), which
+issuing a new query. BQL has a **stream** (a.k.a a **continuous view**), which
 just works like a view in RDBMSs. A stream can be created by the
 ``CREATE STREAM`` statement::
 
@@ -525,9 +525,9 @@ After creating the ``words`` stream, words can be counted as follows::
     {"count":79,"word":"dolor"}
     ...
 
-This statement counts the number of occurances of each word appeared in past 60
+This statement counts the number of occurrences of each word appeared in past 60
 seconds. By creating another stream based on the ``SELECT`` statement above,
-Furthur statistical information can be obtained::
+Further statistical information can be obtained::
 
     (wordcount)>>> CREATE STREAM word_counts AS
     ... SELECT ISTREAM word, count(*) FROM words [RANGE 60 SECONDS]
