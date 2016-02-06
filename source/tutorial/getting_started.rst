@@ -7,7 +7,7 @@ Getting Started
     Add typical errors on each step and how to handle them
 
 To work with SensorBee, this chapter introduces word counting as the first
-tutorial. It covers the following topics::
+tutorial. It covers the following topics:
 
 * how to install and set up SensorBee
 * how to build a custom ``sensorbee`` command
