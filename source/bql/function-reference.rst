@@ -65,13 +65,13 @@ Return Type
 Examples
 """"""""
 
-+----------------+---------------+
-| Function Call  | Result        |
-+================+===============+
-| ``cbrt(27.0)`` | ``3.0``       |
-+----------------+---------------+
-| ``cbrt(-3)``   | ``-1.442...`` |
-+----------------+---------------+
++----------------+-------------------------+
+| Function Call  | Result                  |
++================+=========================+
+| ``cbrt(27.0)`` | ``3.0``                 |
++----------------+-------------------------+
+| ``cbrt(-3)``   | ``-1.4422495703074083`` |
++----------------+-------------------------+
 
 
 
@@ -98,6 +98,8 @@ Return Type
 
 same as input
 
+The return type is ``float`` for ``float`` input in order to avoid problems with input values that are too large for the ``int`` data type.
+
 Examples
 """"""""
 
@@ -122,7 +124,7 @@ Examples
 Description
 """""""""""
 
-``degrees`` computes the smallest integer not less than its argument.
+``degrees`` converts radians to degrees.
 
 Parameter Types
 """""""""""""""
@@ -138,11 +140,11 @@ Return Type
 Examples
 """"""""
 
-+-------------------------+-----------+
-| Function Call           | Result    |
-+=========================+===========+
-| ``degrees(3.14159...)`` | ``180.0`` |
-+-------------------------+-----------+
++--------------------------------+-----------+
+| Function Call                  | Result    |
++================================+===========+
+| ``degrees(3.141592653589793)`` | ``180.0`` |
++--------------------------------+-----------+
 
 
 
@@ -213,11 +215,11 @@ Return Type
 Examples
 """"""""
 
-+----------------+---------------+
-| Function Call  | Result        |
-+================+===============+
-| ``exp(1.0)``   | ``2.7182...`` |
-+----------------+---------------+
++----------------+-----------------------+
+| Function Call  | Result                |
++================+=======================+
+| ``exp(1.0)``   | ``2.718281828459045`` |
++----------------+-----------------------+
 
 
 
@@ -243,6 +245,8 @@ Return Type
 """""""""""
 
 same as input
+
+The return type is ``float`` for ``float`` input in order to avoid problems with input values that are too large for the ``int`` data type.
 
 Examples
 """"""""
@@ -284,11 +288,11 @@ Return Type
 Examples
 """"""""
 
-+----------------+---------------+
-| Function Call  | Result        |
-+================+===============+
-| ``ln(2)``      | ``0.6931...`` |
-+----------------+---------------+
++----------------+------------------------+
+| Function Call  | Result                 |
++================+========================+
+| ``ln(2)``      | ``0.6931471805599453`` |
++----------------+------------------------+
 
 
 
@@ -395,11 +399,11 @@ Return Type
 Examples
 """"""""
 
-+----------------+---------------+
-| Function Call  | Result        |
-+================+===============+
-| ``pi()``       | ``3.1415...`` |
-+----------------+---------------+
++----------------+-----------------------+
+| Function Call  | Result                |
++================+=======================+
+| ``pi()``       | ``3.141592653589793`` |
++----------------+-----------------------+
 
 
 
@@ -429,6 +433,8 @@ Return Type
 
 ``float``
 
+The return type is ``float`` even for integer input in order to have a uniform behavior for cases such as ``power(2, -2)``.
+
 Examples
 """"""""
 
@@ -452,7 +458,7 @@ Examples
 Description
 """""""""""
 
-degrees to radians
+``radians`` converts degrees to radians.
 
 Parameter Types
 """""""""""""""
@@ -468,11 +474,11 @@ Return Type
 Examples
 """"""""
 
-+------------------+---------------+
-| Function Call    | Result        |
-+==================+===============+
-| ``radians(180)`` | ``3.1415...`` |
-+------------------+---------------+
++------------------+-----------------------+
+| Function Call    | Result                |
++==================+=======================+
+| ``radians(180)`` | ``3.141592653589793`` |
++------------------+-----------------------+
 
 
 
@@ -486,7 +492,7 @@ Examples
 Description
 """""""""""
 
-round to nearest integer
+``round`` computes the nearest integer of a number.
 
 Parameter Types
 """""""""""""""
@@ -499,6 +505,8 @@ Return Type
 
 same as input
 
+The return type is ``float`` for ``float`` input in order to avoid problems with input values that are too large for the ``int`` data type.
+
 Examples
 """"""""
 
@@ -506,6 +514,8 @@ Examples
 | Function Call   | Result   |
 +=================+==========+
 | ``round(1.3)``  | ``1.0``  |
++-----------------+----------+
+| ``round(0.5)``  | ``1.0``  |
 +-----------------+----------+
 | ``round(-1.7)`` | ``-2.0`` |
 +-----------------+----------+
@@ -522,7 +532,8 @@ Examples
 Description
 """""""""""
 
-square root
+``sqrt`` computes the square root of a number.
+If the parameter is negative, ``NaN`` is returned.
 
 Parameter Types
 """""""""""""""
@@ -538,11 +549,11 @@ Return Type
 Examples
 """"""""
 
-+----------------+---------------+
-| Function Call  | Result        |
-+================+===============+
-| ``sqrt(2)``    | ``1.4142...`` |
-+----------------+---------------+
++----------------+------------------------+
+| Function Call  | Result                 |
++================+========================+
+| ``sqrt(2)``    | ``1.4142135623730951`` |
++----------------+------------------------+
 
 
 
@@ -557,7 +568,7 @@ Examples
 Description
 """""""""""
 
-truncate toward zero
+``trunc`` computes the truncated integer (towards zero) of a number.
 
 Parameter Types
 """""""""""""""
@@ -569,6 +580,8 @@ Return Type
 """""""""""
 
 same as input
+
+The return type is ``float`` for ``float`` input in order to avoid problems with input values that are too large for the ``int`` data type.
 
 Examples
 """"""""
@@ -588,20 +601,26 @@ Examples
 
 ::
 
-    width_bucket(x, l, r, count)
+    width_bucket(x, left, right, count)
 
 Description
 """""""""""
 
-return the bucket number to which ``x`` would be
-assigned in a histogram having ``count`` equal-width
-buckets spanning the range ``l`` to ``r``; returns
+``widthBucketFunc`` computes the bucket to which ``x`` would be assigned in an equidepth histogram with ``count`` buckets in the range :math:`[\text{left},\text{right}[`.
+Points on a bucket border belong to the right bucket.
+Points outside of the :math:`[\text{left},\text{right}[` range have bucket number :math:`0` and :math:`\text{count}+1`, respectively.
 
 Parameter Types
 """""""""""""""
 
 ``x``
-    ``x``, ``l``, ``r``: ``int`` or ``float``
+    ``int`` or ``float``
+
+``left``
+    ``int`` or ``float``
+
+``right``
+    ``int`` or ``float``
 
 ``count``
     ``int``
@@ -633,18 +652,24 @@ Examples
 Description
 """""""""""
 
-random value in the range :math:`0.0 <= x < 1.0`
+``random`` returns a pseudo-random number in the range :math:`0.0 <= x < 1.0`.
 
-Parameter Types
-"""""""""""""""
-
-``x``
-    none
+This function is not safe for use in cryptographic applications.
+See the `Go math/rand package <https://golang.org/pkg/math/rand/>`_ for details.
 
 Return Type
 """""""""""
 
 ``float``
+
+Examples
+""""""""
+
++---------------+--------------------------+
+| Function Call | Result                   |
++===============+==========================+
+| ``random()``  | ``0.6046602879796196``   |
++---------------+--------------------------+
 
 
 
@@ -658,18 +683,17 @@ Return Type
 Description
 """""""""""
 
-set seed (:math:`-1.0 <= x <= 1.0`) for subsequent ``random()`` calls
+``setseed`` initializes the seed for subsequent ``random()`` calls.
+The parameter must be in the range :math:`-1.0 <= x <= 1.0`.
+
+This function is not safe for use in cryptographic applications.
+See the `Go math/rand package <https://golang.org/pkg/math/rand/>`_ for details.
 
 Parameter Types
 """""""""""""""
 
 ``x``
     ``float``
-
-Return Type
-"""""""""""
-
-``null``
 
 
 
@@ -683,7 +707,7 @@ Return Type
 Description
 """""""""""
 
-inverse cosine
+``acos`` computes the inverse cosine of a number.
 
 
 
@@ -697,7 +721,7 @@ inverse cosine
 Description
 """""""""""
 
-inverse sine
+``asin`` computes the inverse sine of a number.
 
 
 
@@ -711,7 +735,7 @@ inverse sine
 Description
 """""""""""
 
-inverse tangent
+``atan`` computes the inverse tangent of a number.
 
 
 
@@ -725,7 +749,7 @@ inverse tangent
 Description
 """""""""""
 
-cosine
+``cos`` computes the cosine of a number.
 
 
 
@@ -739,7 +763,7 @@ cosine
 Description
 """""""""""
 
-cotangent
+``cot`` computes the cotangent of a number.
 
 
 
@@ -753,7 +777,7 @@ cotangent
 Description
 """""""""""
 
-sine
+``sin`` computes the sine of a number.
 
 
 
@@ -768,7 +792,7 @@ sine
 Description
 """""""""""
 
-tangent
+``tan`` computes the tangent of a number.
 
 
 
@@ -782,12 +806,12 @@ tangent
 Description
 """""""""""
 
-Number of bits in string
+``bit_length`` computes the number of bits in a string.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
     ``string``
 
 Return Type
@@ -812,52 +836,21 @@ Examples
 ::
 
     btrim(s)
-
-Description
-"""""""""""
-
-Remove whitespace from the start and end of ``s``
-
-Parameter Types
-"""""""""""""""
-
-``x``
-    ``string``
-
-Return Type
-"""""""""""
-
-``string``
-
-Examples
-""""""""
-
-+-----------------------+------------+
-| Function Call         | Result     |
-+=======================+============+
-| ``btrim('  trim  ')`` | ``'trim'`` |
-+-----------------------+------------+
-
-
-
-``btrim``
-^^^^^^^^^
-
-::
-
     btrim(s, chars)
 
 Description
 """""""""""
 
-Remove the longest string consisting only of characters in ``chars``
-from the start and end of ``s``
+``btrim`` removes the longest string consisting only of characters in ``chars`` (default: whitespace) from the start and end of ``s``.
 
 Parameter Types
 """""""""""""""
 
-``x``
-    2 x ``string``
+``s``
+    ``string``
+
+``chars`` (optional)
+    ``string``
 
 Return Type
 """""""""""
@@ -870,6 +863,8 @@ Examples
 +-------------------------------+------------+
 | Function Call                 | Result     |
 +===============================+============+
+| ``btrim('  trim  ')``         | ``'trim'`` |
++-------------------------------+------------+
 | ``btrim('xyxtrimyyx', 'xy')`` | ``'trim'`` |
 +-------------------------------+------------+
 
@@ -885,12 +880,12 @@ Examples
 Description
 """""""""""
 
-Number of characters in ``s``
+``char_length`` computes the number of characters in a string.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
     ``string``
 
 Return Type
@@ -919,14 +914,14 @@ Examples
 Description
 """""""""""
 
-Concatenate the text representations of all the arguments.
-NULL arguments are ignored.
+``concat`` concatenates all strings given as input arguments.
+``NULL`` values are ignored, i.e., treated like an empty string.
 
 Parameter Types
 """""""""""""""
 
-``x``
-    *n* x ``string``
+``s`` and all subsequent parameters
+    ``string``
 
 Return Type
 """""""""""
@@ -954,14 +949,18 @@ Examples
 Description
 """""""""""
 
-Format arguments according to a format string.
-This function is similar to the Go function ``fmt.Sprintf``.
+``format`` formats a variable number of arguments ``x`` according to a format string ``s``.
+
+See the `Go package fmt <https://golang.org/pkg/fmt/>`_ for details of what formatting codes are allowed.
 
 Parameter Types
 """""""""""""""
 
-``x``
-    ``string``, *n* x any
+``s``
+    ``string``
+
+``x`` and all subsequent parameters (optional)
+    any
 
 Return Type
 """""""""""
@@ -989,12 +988,13 @@ Examples
 Description
 """""""""""
 
-Convert ``s`` to lower case
+``lower`` converts a string ``s`` to lower case.
+Non-ASCII Unicode characters are mapped to their lower case, too.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
     ``string``
 
 Return Type
@@ -1020,16 +1020,20 @@ Examples
 ::
 
     ltrim(s)
+    ltrim(s, chars)
 
 Description
 """""""""""
 
-Remove whitespace from the start of ``s``
+``ltrim`` removes the longest string consisting only of characters in ``chars`` (default: whitespace) from the start of ``s``.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
+    ``string``
+
+``chars`` (optional)
     ``string``
 
 Return Type
@@ -1040,46 +1044,13 @@ Return Type
 Examples
 """"""""
 
-+-----------------------+--------------+
-| Function Call         | Result       |
-+=======================+==============+
-| ``ltrim('  trim  ')`` | ``'trim  '`` |
-+-----------------------+--------------+
-
-
-
-``ltrim``
-^^^^^^^^^
-
-::
-
-    ltrim(s, chars)
-
-Description
-"""""""""""
-
-Remove the longest string consisting only of characters in ``chars``
-from the start of ``s``
-
-Parameter Types
-"""""""""""""""
-
-``x``
-    2 x ``string``
-
-Return Type
-"""""""""""
-
-``string``
-
-Examples
-""""""""
-
-+-------------------------------+-------------+
-| Function Call                 | Result      |
-+===============================+=============+
-| ``ltrim('xyxtrimyyx', 'xy')`` | ``trimyyx`` |
-+-------------------------------+-------------+
++-------------------------------+---------------+
+| Function Call                 | Result        |
++===============================+===============+
+| ``ltrim('  trim  ')``         | ``'trim  '``  |
++-------------------------------+---------------+
+| ``ltrim('xyxtrimyyx', 'xy')`` | ``'trimyyx'`` |
++-------------------------------+---------------+
 
 
 
@@ -1093,12 +1064,12 @@ Examples
 Description
 """""""""""
 
-Calculates the MD5 hash of ``s``, returning the result in hexadecimal
+``md5`` computes the MD5 checksum of a string ``s`` and returns it in hexadecimal format.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
     ``string``
 
 Return Type
@@ -1127,12 +1098,13 @@ Examples
 Description
 """""""""""
 
-Number of bytes in ``s``
+``octet_length`` computes the number of bytes in a string ``s``.
+Note that due to UTF-8 encoding, this may differ from the number returned by ``char_length``.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
     ``string``
 
 Return Type
@@ -1156,18 +1128,29 @@ Examples
 
 ::
 
-    overlay(s, r, from)
+    overlay(s, repl, from)
+    overlay(s, repl, from, for)
 
 Description
 """""""""""
 
-Replace substring
+``overlay`` replaces ``for`` characters in a string ``s`` with the string ``repl``, starting at ``from`` (1-based counting).
+If ``for`` is not given, the length of ``repl`` is used as a default.
 
 Parameter Types
 """""""""""""""
 
-``x``
-    2 x ``string``, ``int``
+``s``
+    ``string``
+
+``repl``
+    ``string``
+
+``from``
+    ``int``
+
+``for`` (optional)
+    ``int``
 
 Return Type
 """""""""""
@@ -1177,46 +1160,14 @@ Return Type
 Examples
 """"""""
 
-+----------------------------------+---------------+
-| Function Call                    | Result        |
-+==================================+===============+
-| ``overlay('Txxxxas', 'hom', 2)`` | ``'Thomxas'`` |
-+----------------------------------+---------------+
++-------------------------------------+---------------+
+| Function Call                       | Result        |
++=====================================+===============+
+| ``overlay('Txxxxas', 'hom', 2)``    | ``'Thomxas'`` |
++-------------------------------------+---------------+
+| ``overlay('Txxxxas', 'hom', 2, 4)`` | ``'Thomas'``  |
++-------------------------------------+---------------+
 
-
-
-
-``overlay``
-^^^^^^^^^^^
-
-::
-
-    overlay(s, r, from, for)
-
-Description
-"""""""""""
-
-Replace substring
-
-Parameter Types
-"""""""""""""""
-
-``x``
-    2 x ``string``, 2 x ``int``
-
-Return Type
-"""""""""""
-
-``string``
-
-Examples
-""""""""
-
-+-------------------------------------+--------------+
-| Function Call                       | Result       |
-+=====================================+==============+
-| ``overlay('Txxxxas', 'hom', 2, 4)`` | ``'Thomas'`` |
-+-------------------------------------+--------------+
 
 
 
@@ -1226,16 +1177,20 @@ Examples
 ::
 
     rtrim(s)
+    rtrim(s, chars)
 
 Description
 """""""""""
 
-Remove whitespace from the end of ``s``
+``rtrim`` removes the longest string consisting only of characters in ``chars`` (default: whitespace) from the end of ``s``.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
+    ``string``
+
+``chars`` (optional)
     ``string``
 
 Return Type
@@ -1246,46 +1201,15 @@ Return Type
 Examples
 """"""""
 
-+-----------------------+--------------+
-| Function Call         | Result       |
-+=======================+==============+
-| ``rtrim('  trim  ')`` | ``'  trim'`` |
-+-----------------------+--------------+
++-------------------------------+---------------+
+| Function Call                 | Result        |
++===============================+===============+
+| ``rtrim('  trim  ')``         | ``'  trim'``  |
++-------------------------------+---------------+
+| ``rtrim('xyxtrimyyx', 'xy')`` | ``'xyxtrim'`` |
++-------------------------------+---------------+
 
 
-
-``rtrim``
-^^^^^^^^^
-
-::
-
-    rtrim(s, chars)
-
-Description
-"""""""""""
-
-Remove the longest string consisting only of characters in ``chars``
-from the end of ``s``
-
-Parameter Types
-"""""""""""""""
-
-``x``
-    2 x ``string``
-
-Return Type
-"""""""""""
-
-``string``
-
-Examples
-""""""""
-
-+-------------------------------+-------------+
-| Function Call                 | Result      |
-+===============================+=============+
-| ``rtrim('xyxtrimyyx', 'xy')`` | ``xyxtrim`` |
-+-------------------------------+-------------+
 
 
 
@@ -1299,12 +1223,12 @@ Examples
 Description
 """""""""""
 
-Calculates the SHA1 hash of ``s``, returning the result in hexadecimal
+``sha1`` computes the SHA1 checksum of a string ``s`` and returns it in hexadecimal format.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
     ``string``
 
 Return Type
@@ -1333,12 +1257,12 @@ Examples
 Description
 """""""""""
 
-Calculates the SHA256 hash of ``s``, returning the result in hexadecimal
+``sha256`` computes the SHA256 checksum of a string ``s`` and returns it in hexadecimal format.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
     ``string``
 
 Return Type
@@ -1368,13 +1292,16 @@ Examples
 Description
 """""""""""
 
-Location of specified substring ``t`` in ``s``
+``strpos`` returns the index of the first occurence of ``t`` in ``s`` (1-based) or 0 if it is not found.
 
 Parameter Types
 """""""""""""""
 
-``x``
-    2 x ``string``
+``s``
+    ``string``
+
+``t``
+    ``string``
 
 Return Type
 """""""""""
@@ -1399,86 +1326,34 @@ Examples
 ::
 
     substring(s, r)
-
-Description
-"""""""""""
-
-Extract substring matching regular expression ``r`` from ``s``.
-See Go ``regexp`` package for details of matching.
-
-Parameter Types
-"""""""""""""""
-
-``x``
-    2 x ``string``
-
-Return Type
-"""""""""""
-
-``string``
-
-Examples
-""""""""
-
-+---------------------------------+-----------+
-| Function Call                   | Result    |
-+=================================+===========+
-| ``substring('Thomas', '...$')`` | ``'mas'`` |
-+---------------------------------+-----------+
-
-
-
-``substring``
-^^^^^^^^^^^^^
-
-::
-
     substring(s, from)
-
-Description
-"""""""""""
-
-Extract substring
-
-Parameter Types
-"""""""""""""""
-
-``x``
-    ``string``, ``int``
-
-Return Type
-"""""""""""
-
-``string``
-
-Examples
-""""""""
-
-+----------------------------+-------------+
-| Function Call              | Result      |
-+============================+=============+
-| ``substring('Thomas', 2)`` | ``'homas'`` |
-+----------------------------+-------------+
-
-
-
-``substring``
-^^^^^^^^^^^^^
-
-::
-
     substring(s, from, for)
 
 Description
 """""""""""
 
-Extract substring
+``substring(s, r)`` extracts the substring matching regular expression ``r`` from ``s``.
+See the `Go regexp package <https://golang.org/pkg/regexp/>`_ for details of matching.
+
+``substring(s, from, for)`` returns the ``for`` characters of ``str`` starting from the ``from`` index (1-based).
+If ``for`` is not given, everything until the end of ``str`` is returned.
+
+Which of those behaviors is used depends on the type of the second parameter (``int`` or ``string``).
 
 Parameter Types
 """""""""""""""
 
-``x``
-    ``string``, 2 x ``int``
+``s``
+    ``string``
+
+``r``
+    ``string``
+
+``from``
+    ``int``
+
+``for`` (optional)
+    ``int``
 
 Return Type
 """""""""""
@@ -1488,11 +1363,17 @@ Return Type
 Examples
 """"""""
 
-+-------------------------------+-----------+
-| Function Call                 | Result    |
-+===============================+===========+
-| ``substring('Thomas', 2, 3)`` | ``'hom'`` |
-+-------------------------------+-----------+
++---------------------------------+-------------+
+| Function Call                   | Result      |
++=================================+=============+
+| ``substring('Thomas', '...$')`` | ``'mas'``   |
++---------------------------------+-------------+
+| ``substring('Thomas', 2)``      | ``'homas'`` |
++---------------------------------+-------------+
+| ``substring('Thomas', 2, 3)``   | ``'hom'``   |
++---------------------------------+-------------+
+
+
 
 
 
@@ -1506,12 +1387,13 @@ Examples
 Description
 """""""""""
 
-Convert ``s`` to upper case
+``upper`` converts a string ``s`` to upper case.
+Non-ASCII Unicode characters are mapped to their upper case, too.
 
 Parameter Types
 """""""""""""""
 
-``x``
+``s``
     ``string``
 
 Return Type
@@ -1540,18 +1422,32 @@ Examples
 Description
 """""""""""
 
-Signed temporal distance from ``u`` to ``v`` in microseconds
+``distance_us`` computes the signed temporal distance from ``u`` to ``v`` in microseconds.
 
 Parameter Types
 """""""""""""""
 
-``x``
-    2 x ``timestamp``
+``u``
+    ``timestamp``
+
+``v``
+    ``timestamp``
 
 Return Type
 """""""""""
 
 ``int``
+
+Examples
+""""""""
+
++-----------------------------------------------------------------------------------------------+--------------+
+| Function Call                                                                                 | Result       |
++===============================================================================================+==============+
+| ``distance_us('2016-02-09T05:40:25.123Z'::timestamp, '2016-02-09T05:41:25.456Z'::timestamp)`` | ``60333000`` |
++-----------------------------------------------------------------------------------------------+--------------+
+| ``distance_us(clock_timestamp(), clock_timestamp())``                                         | ``2``        |
++-----------------------------------------------------------------------------------------------+--------------+
 
 
 
@@ -1560,18 +1456,42 @@ Return Type
 
 ::
 
-    ``clock_timestamp()``
+    clock_timestamp()
 
 Description
 """""""""""
 
-Current date and time (changes during statement execution)
+``clock_timestamp`` returns the current date and time in UTC.
 
-Parameter Types
-"""""""""""""""
+Return Type
+"""""""""""
 
-``x``
-    none
+``timestamp``
+
+
+
+``now``
+^^^^^^^
+
+::
+
+    now()
+
+Description
+"""""""""""
+
+``now`` returns the date and time in UTC of the point in time when processing of the current tuple started.
+In particular and as opposed to ``clock_timestamp``, the timestamp returned by ``now()`` does not change during a processing run triggered by the arrival of a tuple.
+For example, in
+
+::
+
+    SELECT RSTREAM clock_timestamp() AS a, clock_timestamp() AS b,
+        now() AS c, now() AS d FROM ...
+
+the values of ``a`` and ``b`` are most probably different by a very short timespan, but ``c`` and ``d`` are equal by definition of ``now()``.
+
+``now`` cannot be used in an ``EVAL`` statement outside of a stream processing context.
 
 Return Type
 """""""""""
@@ -1581,24 +1501,24 @@ Return Type
 
 
 
+
 ``coalesce``
 ^^^^^^^^^^^^
 
 ::
 
-    coalesce([x, ...])
+    coalesce(x [, ...])
 
 Description
 """""""""""
 
-Returns the first non-null input parameter
-or NULL if there is no such parameter
+``coalesce`` returns the first non-null input parameter or ``NULL`` if there is no such parameter.
 
 Parameter Types
 """""""""""""""
 
-``x``
-    *n* x any
+``x`` and all subsequent
+    any
 
 Return Type
 """""""""""
