@@ -279,16 +279,31 @@ only has one tuple in it.
 
 .. note::
 
-    The difference between using ``RSTREAM`` and ``ISTREAM`` should be described
-    a little here. Considering the following resulting relation::
+    The difference between using ``RSTREAM`` and ``ISTREAM`` should be
+    described a little here. Assume that a source ``s`` emits following 4
+    tuples with timestamps :math:`t_1` to :math:`t_4`::
 
         t1: {'a': 1}
         t2: {'a': 2}
         t3: {'a': 2}
         t4: {'a': 3}
 
-    ``RSTREAM`` emits four tuples as a result. On the other hand, ``ISTREAM``
-    emits only three tuples::
+    When selecting these tuples by
+
+    ::
+
+        SELECT RSTREAM * FROM s [RANGE 1 TUPLES];
+
+    the resulting relation for each timestamp would be::
+
+        t1: {'a': 1}
+        t2: {'a': 2}
+        t3: {'a': 2}
+        t4: {'a': 3}
+
+    These tuples are identical to what the source ``s`` has emitted. On the
+    other hand, when ``ISTREAM`` is used instead of ``RSTREAM`` in the
+    previous ``SELECT`` statement, the statement emits only three tuples::
 
         t1: {'a': 1}
         t2: {'a': 2}
@@ -300,8 +315,8 @@ only has one tuple in it.
 
     In other words, when using ``ISTREAM`` with ``[RANGE 1 TUPLES]``, a
     resulting tuple is emitted only when it's different from the previous
-    resulting tuple. On the other hand, ``RSTREAM`` emits the resulting tuple
-    every time regardless of its value.
+    resulting tuple. In contrast, ``RSTREAM`` emits the resulting tuple every
+    time regardless of its value.
 
     Therefore, when the stream-to-relation operator is ``[RANGE 1 TUPLES]``,
     basically prefer ``RSTREAM`` to ``ISTREAM`` unless there's a strong reason
