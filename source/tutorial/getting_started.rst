@@ -1,3 +1,5 @@
+.. _tutorial_getting_started:
+
 ***************
 Getting Started
 ***************
