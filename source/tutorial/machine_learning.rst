@@ -246,8 +246,27 @@ actual environment. Parameters for the Elasticsearch plugin are described at
 Create Twitter API Key
 ----------------------
 
-TODO: Visit Twitter
-TODO: Create api_key.yaml
+This tutorial requires Twitter's API keys. To create keys, visit
+`Application Management <https://apps.twitter.com/>`_. Once a new application is
+created, click the application and its "Keys and Access Tokens" tab. The page
+should show 4 keys:
+
+* Consumer Key (API Key)
+* Consumer Secret (API Secret)
+* Access Token
+* Access Token Secret
+
+Then, create the ``api_key.yaml`` in the ``/path/to/sbml`` directory and copy
+keys to the file as follows::
+
+    /path/to/sbml$ cat api_key.yaml
+    consumer_key: <Consumer Key (API Key)>
+    consumer_secret: <Consumer Secret (API Secret)>
+    access_token: <Access Token>
+    access_token_secret: <Access Token Secret>
+
+Replace each key's value with the actual values shown in Twitter's application
+management page.
 
 Running SensorBee
 =================
