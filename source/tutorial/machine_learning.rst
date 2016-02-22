@@ -112,8 +112,6 @@ The package contains configuration files that are necessary for the tutorial
 under the ``config`` directory. Create a temporary directory and copy those
 files to the directory (**replace /path/to/ with an appropriate path**)::
 
-::
-
     $ mkdir -p /path/to/sbml
     $ cp $GOPATH/src/github.com/sensorbee/tutorial/ml/config/* /path/to/sbml/
     $ cd /path/to/sbml
@@ -456,7 +454,7 @@ statement applies following methods to ``text`` and ``description`` fields:
 First of all, punctuation marks are removed by the user-defined function (UDF)
 ``filter_puncuation_marks``. It's provided as a plugin of this tutorial in
 ``github.com/sensorbee/tutorial/ml`` package. The UDF removes some punctuation
-marks such ash ",", ".", or "()".
+marks such as ",", ".", or "()".
 
 .. note::
 
@@ -484,7 +482,7 @@ tutorial is done in two steps: tokenization and filtering. To perform a
 dictionary-based stopword filtering, the content of a tweet need to be
 tokenized. Tokenization is a process that converts a sentence into a sequence
 of words. In English, "I like sushi" will be tokenized as
-`['I', 'like', 'sushi']`. Although tokenization isn't as simple as just
+``['I', 'like', 'sushi']``. Although tokenization isn't as simple as just
 splitting words by white spaces, the ``preprocessed_tweets`` stream simply
 does it for simplicity by the UDF ``nlp_split``, which is defined in
 ``github.com/sensorbee/nlp`` package. ``nlp_split`` takes two arguments: a
@@ -585,10 +583,90 @@ it's now ready to apply machine learning to tweets.
 Applying Machine Learning
 -------------------------
 
-TODO:
+The ``fv_tweets`` stream now has all the information required by a machine
+learning algorithm to classify tweets. To apply the algorithm for each tweets,
+pre-trained machine learning models have to be loaded::
 
-* Loading pretrained models
-* Classify tweets
+    LOAD STATE gender_model TYPE jubaclassifier_arow
+        OR CREATE IF NOT SAVED
+        WITH label_field = 'gender', regularization_weight = 0.001;
+    LOAD STATE age_model TYPE jubaclassifier_arow
+        OR CREATE IF NOT SAVED
+        WITH label_field = 'age', regularization_weight = 0.001;
+
+In SensorBee, Machine learning models are expressed as user-defined states
+(UDSs). In the statement above, two models are loaded: ``gender_model`` and
+``age_model``. These models has necessary information to classify gender and
+age of the user of each tweet. They're saved in the ``uds`` directory
+beforehand::
+
+    /path/to/sbml$ ls uds
+    twitter-age_model-default.state
+    twitter-gender_model-default.state
+
+These filenames were automatically assigned by SensorBee server when the
+``SAVE STATE`` statement is issued. It'll be described later.
+
+Both models have the type ``jubaclassifier_arow`` imported from
+Jubatus, which distributed online machine learning server. The UDS type is
+implemented in the `github.com/sensorbee/jubatus/classifier <https://github.com/sensorbee/jubatus/classifier>`_
+package. ``jubaclassifier_arow`` implements AROW online linear classification
+algorithm [Crammer09]_. Parameters specified in the ``WITH`` clause are related
+to training and will be described later.
+
+After loading the models as UDSs, the machine learning algorithm is ready
+to work::
+
+    CREATE STREAM labeled_tweets AS
+        SELECT RSTREAM
+            juba_classified_label(jubaclassify('gender_model', feature_vector)) AS gender,
+            juba_classified_label(jubaclassify('age_model', feature_vector)) AS age,
+            tag, id, screen_name, lang, text, description
+        FROM fv_tweets [RANGE 1 TUPLES];
+
+The ``labeled_tweets`` stream emits tweets with ``gender`` and ``age`` labels.
+The ``jubaclassify`` UDF performs classification based on the given model.
+
+::
+
+    twitter> EVAL jubaclassify("gender_model", {
+        "text": {"i": 1, "wanna": 1, "eat":1, "sushi":1},
+        "description": {"i": 1, "need": 1, "sushi": 1}
+    });
+    {"male":0.021088751032948494,"female":-0.020287269726395607}
+
+``jubaclassify`` returns a map of labels and their scores as shown above. The
+higher the score of a label, the more likely a tweet has the label. To choose
+the label having the highest score, the ``juba_classified_label`` function is
+used::
+
+    twitter> EVAL juba_classified_label({
+        "male":0.021088751032948494,"female":-0.020287269726395607});
+    "male"
+
+``jubaclassify`` and ``juba_classified_label`` functions are also defined in
+the ``github.com/sensorbee/jubatus/classifier`` package.
+
+.. [Crammer09] Koby Crammer, Alex Kulesza and Mark Dredze, Adaptive Regularization Of Weight Vectors, Advances in Neural Information Processing Systems, 2009
+
+Inserting Labeled Tweets Into Elasticsearch via Fluentd
+-------------------------------------------------------
+
+Finally, tweets labeled by machine learning need to be inserted into
+Elasticsearch for visualization. This is done via fluentd which is previously
+set up.
+
+::
+
+    CREATE SINK fluentd TYPE fluentd;
+    INSERT INTO fluentd from labeled_tweets;
+
+SensorBee provides ``fluentd`` plugins in the ``github.com/sensorbee/fluentd``
+package. The ``fluentd`` sink write tuples into fluentd's ``forward`` input
+plugin running on the same host.
+
+After creating the sink, the ``INSERT INTO`` statement starts writing tuples
+from a source or a stream into it.
 
 Training
 ========
