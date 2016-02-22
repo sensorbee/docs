@@ -4,9 +4,9 @@ Using Machine Learning
 
 This chapter describes how to use machine learning on SensorBee.
 
-In this tutorial, SensorBee retrieves tweets from Twitter's public stream using
-sample API. SensorBee adds two labels to each tweet: age and gender. Tweets are
-labeled (*classified*) by machine learning.
+In this tutorial, SensorBee retrieves tweets written in English from
+Twitter's public stream using sample API. SensorBee adds two labels to each
+tweet: age and gender. Tweets are labeled (*classified*) by machine learning.
 
 Following sections shows how to install dependencies, set them up, and apply
 machine learning to tweets using SensorBee.
@@ -308,24 +308,287 @@ When the statement above shows tweets, query another stream::
 
 If the statement doesn't show any tweets, the format of tweets may have been
 changed since the time of this writing. If so, modify BQL statements in
-``twitter.bql`` to support the new format. `How BQL Works`_ describes what
-each statement does.
+``twitter.bql`` to support the new format. `BQL Statements and Plugins`_
+describes what each statement does.
 
 When the statement above prints tweets, fluentd or Elasticsearch may have not
 been staretd yet. Check they're running correctly.
 
 For other errors, report them to `<https://github.com/sensorbee/tutorial>`_.
 
-How BQL Works
-=============
+BQL Statements and Plugins
+==========================
 
-TODO: explain some streams defined in BQL file
-TODO: get some tuples from some streams
+This section describes how SensorBee input tweets from Twitter, preprocesses
+tweets for machine learning, and finally classifies tweets to extract
+demographic information of each tweets. ``twitter.bql`` in the ``config``
+directory contains all BQL statements used in this tutorial.
 
-Open another terminal to launch ``sensorbee shell``::
+Following subsections explains what each statement does. To interact with some
+streams created by ``twitter.bql``,  open another terminal to launch
+``sensorbee shell``::
 
     /path/to/sbml$ ./sensorbee shell -t twitter
-    (twitter)>>>
+    twitter>
+
+Creating a Twitter Source
+-------------------------
+
+This tutorial doesn't work without retrieving the public timeline of Twitter
+using the Sample API. The Sample API is provided for free to retrieve a
+portion of tweets sampled from the public timeline.
+
+`github.com/sensorbee/twitter <https://github.com/sensorbee/twitter/>`_
+package provides a plugin for public time line retrieval. Its type name is
+``twitter_public_stream``. The plugin can be registered to the SensorBee
+server by adding ``github.com/sensorbee/tiwtter/plugin`` to the ``build.yaml``
+configuration file for ``build_sensorbee``.
+
+::
+
+    CREATE SOURCE public_tweets TYPE twitter_public_stream
+        WITH key_file = 'api_key.yaml';
+
+This statement creates a new source ``public_tweets``. To retrieve raw tweets
+from the source run the following ``SELECT`` statement::
+
+    twitter> SELECT RSTREAM * FROM public_tweets [RANGE 1 TUPLES];
+
+.. note::
+
+    For simplicity, a relative path is specified for ``key_file`` parameter.
+    However, it's usually recommended to pass an absolute path for it when
+    running the SensorBee server as a daemon.
+
+Preprocessing Tweets and Extracting Features for Machine Learning
+-----------------------------------------------------------------
+
+Before applying machine learning to tweets, they need to be converted into
+another form of information so that machine learning algorithms can utlize
+them. The conversion consists of two tasks: preprocessing and feature
+extraction. Preprocessing generally involves data cleansing, filtering,
+normalization, and so on. Feature extraction transforms preprocessed data
+into several pieces of information (i.e. features) that machine learning
+algorithms can "understand".
+
+Which preprocessing or feature extraction methods are required for machine
+learning varies depending on the format or data type of input data or machine
+learning algorithms to be used. Therefore, this tutorial only shows one
+example of applying a classification algorithm to English tweets.
+
+Selecting Meaningful Fields of English Tweets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Because this tutorial aims at English tweets, tweets written in other
+languages needs to be removed. This can be done by the ``WHERE``
+clause::
+
+    SELECT RSTREAM * FROM public_tweets [RANGE 1 TUPLES]
+        WHERE lang = 'en';
+
+Tweets have the ``lang`` field and it can be used for the filtering.
+
+In addition to it, not all fields in a raw tweet will be required for machine
+learning. Thus, removing unnecessary fields keeps data simple and clean::
+
+    CREATE STREAM en_tweets AS
+        SELECT RSTREAM
+            'sensorbee.tweets' AS tag, id_str AS id, lang, text,
+            user.screen_name AS screen_name, user.description AS description
+        FROM public_tweets [RANGE 1 TUPLES]
+        WHERE lang = 'en';
+
+This statement creates a new stream ``en_tweets``. The resulting from the
+stream will look like::
+
+    {
+        'tag': 'sensorbee.tweets',
+        'id': 'the string representation of tweet's id',
+        'lang': 'en',
+        'text': 'the contents of the tweet',
+        'screen_name': 'user's @screen_name',
+        'description': 'user's profile description'
+    }
+
+.. note::
+
+    ``AS`` in ``user.screen_name AS screen_name`` is required at the moment.
+    Without it, the field would have the name like ``col_n``. This is because
+    ``user.screen_name`` could be evaluated as a JSON Path and might result in
+    multiple return values so that it cannot properly be named. This
+    specification might be going to be changed in the future version.
+
+Removing Noise
+^^^^^^^^^^^^^^
+
+A noise that is meaningless and could be harmful to machine learning
+algorithms needs to be removed. The field of natural language processing
+(NLP) have developed many methods for this purpose and they can be found in a
+wide variety of articles. However, this tutorial only applies some of the
+most basic operations on each tweets.
+
+::
+
+    CREATE STREAM preprocessed_tweets AS
+        SELECT RSTREAM
+            filter_stop_words(
+                nlp_split(
+                    nlp_to_lower(filter_punctuation_marks(text)),
+                ' ')) AS text_vector,
+            filter_stop_words(
+                nlp_split(
+                    nlp_to_lower(filter_punctuation_marks(description)),
+                ' ')) AS description_vector,
+            *
+        FROM en_tweets [RANGE 1 TUPLES];
+
+The statement above creates a new stream ``preprocessed_tweets`` from
+``en_tweets``. It adds two fields to the tuple emitted from ``en_tweets``:
+``text_vector`` and ``description_vector``. As for preprocessing, the
+statement applies following methods to ``text`` and ``description`` fields:
+
+* Removing punctuation marks
+* Changing uppercase letters to lowercase
+* Removing stopwords
+
+.. todo:: rename "stop word" to "stopword" in both code and BQL
+
+First of all, punctuation marks are removed by the user-defined function (UDF)
+``filter_puncuation_marks``. It's provided as a plugin of this tutorial in
+``github.com/sensorbee/tutorial/ml`` package. The UDF removes some punctuation
+marks such ash ",", ".", or "()".
+
+.. note::
+
+    Emoticons such as ":)" may play a very important role in classification
+    tasks like sentiment estimation. However, ``filter_punctuation_marks``
+    simply removes most of them for simplicity. Develop a better UDF to solve
+    this issue as an exercise.
+
+Second of all, all uppercase letters are converted into lowercase letters by
+the ``nlp_to_lower`` UDF. The UDF is registered in
+``github.com/sensorbee/nlp/plugin``. Because a letter is mere byte code and
+the values of 'a' and 'A' are different, machine learning algorithms consider
+"word" and "Word" have different meanings. To avoid that confusion, all letter
+should be "normalized".
+
+.. note::
+
+    Of course, some words should be distinguished by explicitly starting with
+    an uppercase. For example, "Mike" could be a name of a person, but
+    changing it to "mike" could make the word vague.
+
+Finally, all stopwords are removed. Stopwords are words that appear too often
+and don't provide any insight for classification. Stopword filtering in this
+tutorial is done in two steps: tokenization and filtering. To perform a
+dictionary-based stopword filtering, the content of a tweet need to be
+tokenized. Tokenization is a process that converts a sentence into a sequence
+of words. In English, "I like sushi" will be tokenized as
+`['I', 'like', 'sushi']`. Although tokenization isn't as simple as just
+splitting words by white spaces, the ``preprocessed_tweets`` stream simply
+does it for simplicity by the UDF ``nlp_split``, which is defined in
+``github.com/sensorbee/nlp`` package. ``nlp_split`` takes two arguments: a
+sentence and a splitter. In the statement, contents are split by a white
+space. ``nlp_split`` returns an array of strings. Then, the UDF
+``filter_stop_words`` takes the return value of ``nlp_split`` and remove
+stopword contained in the array. ``filter_stop_word`` is provided as a part
+of this tutorial in ``github.com/sensorbee/tutorial/ml`` package. It's a mere
+example UDF and doesn't provide perfect stopword filtering.
+
+As a result, both ``text_vector`` and ``description_vector`` have an array
+of words like ``['i', 'want', 'eat', 'sushi']`` created from the sentence
+``I want to eat sushi.``.
+
+Preprocessing shown so far is very similar to the preprocessing required for
+full-text search engines. There should be many valuable resources among that
+field including Elasticsearch.
+
+.. note::
+
+    For other preprocessing approaches such as stemming, refer natural
+    language processing textbooks.
+
+Creating Features
+^^^^^^^^^^^^^^^^^
+
+In NLP, a bag-of-words representation is usually used as a feature for
+machine learning algorithms. A bag-of-words consists of pairs of a word and
+its weight. Weight could be any numerical value and usually something related
+to term frequency (TF) is used. A sequence of the pairs is called a feature
+vector.
+
+A feature vector can be expressed as an array of weights. Each word in all
+tweets observed by a machine learning algorithm corresponds to a particular
+position of the array. For example, the weight of the word "want" may be 4th
+element of the array.
+
+A feature vector for NLP data could be very long because tweets contains many
+words. However, each vector would be sparse due to the maximum length of
+tweets. Even if machine learning algorithms observe more than 100,000 words
+and use them as features, each tweet only contains around 30 or 40 words.
+Therefore, each feature vector is very sparse, that is, only a small number
+its elements have non-zero weight. In such cases, a feature vector can
+effectively expressed as a map::
+
+    {
+        'word': weight,
+        'word': weight,
+        ...
+    }
+
+This tutorial uses online classification algorithms that is imported from
+Jubatus. It accepts the following form of data as a feature vector::
+
+    {
+        'word1': 1,
+        'key1': {
+            'word2': 2,
+            'word3': 1.5,
+        },
+        'word4': [1.1, 1.2, 1.3]
+    }
+
+A map can be nested and its value can be an array containing weights. The map
+above is converted to something like::
+
+    {
+        'word1': 1,
+        'key1/word2': 2,
+        'key1/word3': 1.5,
+        'word4[0]': 1.1,
+        'word4[1]': 1.2,
+        'word4[2]': 1.3
+    }
+
+The actual feature vector for the tutorial is created by the ``fv_tweets``
+stream::
+
+    CREATE STREAM fv_tweets AS
+    SELECT RSTREAM
+        {
+            'text': nlp_weight_tf(text_vector),
+            'description': nlp_weight_tf(description_vector)
+        } AS feature_vector,
+        tag, id, screen_name, lang, text, description
+    FROM preprocessed_tweets [RANGE 1 TUPLES];
+
+As described earler, ``text_vector`` and ``description_vector`` are arrays of
+words. ``nlp_weight_tf`` function defined in ``github.com/sensorbee/nlp``
+package computes a feature vector from the array. The weight is term
+frequency (i.e. the number of occurrances of a word). The result is a map
+expressing a sparse vector above. To see how the ``feature_vector`` looks
+like, just issue a ``SELECT`` statement for the ``fv_tweets`` stream.
+
+All required preprocessing and feature extraction have been completed and
+it's now ready to apply machine learning to tweets.
+
+Applying Machine Learning
+-------------------------
+
+TODO:
+
+* Loading pretrained models
+* Classify tweets
 
 Training
 ========
