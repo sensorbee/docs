@@ -415,8 +415,9 @@ learning. Thus, removing unnecessary fields keeps data simple and clean::
         FROM public_tweets [RANGE 1 TUPLES]
         WHERE lang = 'en';
 
-This statement creates a new stream ``en_tweets``. The resulting from the
-stream will look like::
+This statement creates a new stream ``en_tweets``. It only selects English
+tweets by ``WHERE lang = 'en'``. ``'sensorbee.tweets' AS tag`` is used by
+``fluentd`` sink later. The resulting from the stream will look like::
 
     {
         'tag': 'sensorbee.tweets',
@@ -606,16 +607,16 @@ The ``fv_tweets`` stream now has all the information required by a machine
 learning algorithm to classify tweets. To apply the algorithm for each tweets,
 pre-trained machine learning models have to be loaded::
 
-    LOAD STATE gender_model TYPE jubaclassifier_arow
-        OR CREATE IF NOT SAVED
-        WITH label_field = 'gender', regularization_weight = 0.001;
     LOAD STATE age_model TYPE jubaclassifier_arow
         OR CREATE IF NOT SAVED
         WITH label_field = 'age', regularization_weight = 0.001;
+    LOAD STATE gender_model TYPE jubaclassifier_arow
+        OR CREATE IF NOT SAVED
+        WITH label_field = 'gender', regularization_weight = 0.001;
 
 In SensorBee, Machine learning models are expressed as user-defined states
-(UDSs). In the statement above, two models are loaded: ``gender_model`` and
-``age_model``. These models has necessary information to classify gender and
+(UDSs). In the statement above, two models are loaded: ``age_model`` and
+``gender_model``. These models has necessary information to classify gender and
 age of the user of each tweet. They're saved in the ``uds`` directory
 beforehand::
 
@@ -638,12 +639,12 @@ to work::
 
     CREATE STREAM labeled_tweets AS
         SELECT RSTREAM
-            juba_classified_label(jubaclassify('gender_model', feature_vector)) AS gender,
             juba_classified_label(jubaclassify('age_model', feature_vector)) AS age,
+            juba_classified_label(jubaclassify('gender_model', feature_vector)) AS gender,
             tag, id, screen_name, lang, text, description
         FROM fv_tweets [RANGE 1 TUPLES];
 
-The ``labeled_tweets`` stream emits tweets with ``gender`` and ``age`` labels.
+The ``labeled_tweets`` stream emits tweets with ``age`` and ``gender`` labels.
 The ``jubaclassify`` UDF performs classification based on the given model.
 
 ::
@@ -690,11 +691,165 @@ from a source or a stream into it.
 Training
 ========
 
+The previous section used the machine learning models that were already trained
+but didn't describe how to train them. This section explains how machine
+learning models can be trained with BQL and the ``sensorbee`` command.
+
+Preparing Training Data
+-----------------------
+
+Because the machine learning algorithm used in this tutorial is supervised
+learning, it requires a training data set to create models. Training data is a
+pair of original data and its label. There's no common format of a training
+data set and a format can vary depending on use cases. In this tutorial, a
+training data set consists of multiple lines each of which has exactly one
+JSON object.
+
+::
+
+    {"description":"I like sushi.", ...}
+    {"text":"I wanna eat sushi.", ...}
+    ...
+
+In addition, each JSON object needs to have two field: age and gender::
+
+    {"age":"10-19","gender":"male", ...other original fields...}
+    {"age":"20-29","gender":"female", ...other original fields...}
+    ...
+
+In the pretrained model, age and gender have following labels:
+
+* age
+
+    * ``10-19``
+    * ``20-29``
+    * ``30-39``
+    * ``40-49``
+    * ``50<``
+
+* gender
+
+    * ``male``
+    * ``female``
+
+Both age and gender can have additional labels if necessary. Labels can be empty
+if they aren't sure. After annotating each tweets, the training data set needs
+to be saved as ``training_tweets.json`` in the ``/path/to/sbml`` directory.
+
+The training data set used for the pretrained models contains 4974 gender labels
+and 14747 age labels.
+
+Training
+--------
+
+Once the training data set is prepared, the models can be trained by the
+following command.
+
 ::
 
     /path/to/sbml$ ./sensorbee runfile -t twitter -c sensorbee.yaml -s '' train.bql
+
+``sensorbee runfile`` executes BQL statement written in the given file,
+e.g. ``train.bql`` in the command above. ``-t twitter`` means the name of the
+topology is ``twitter``. The name is used for the filenames of saved models
+later. ``-c sensorbee.yaml`` passes the same configuration file as the one
+used previously. ``-s ''`` means ``sensorbee runfile`` saves all UDSs after the
+topology stops.
+
+After running the command above, two models (UDSs) are saved in the ``uds``
+directory. The saved model can be loaded by the ``LOAD STATE`` statement.
+
+BQL Statements
+--------------
+
+All BQL statements for training are written in ``train.bql``. Most statements
+in the file overlap with ``twitter.bql``, so only differences will be explained.
+
+::
+
+    CREATE STATE age_model TYPE jubaclassifier_arow
+        WITH label_field = 'age', regularization_weight = 0.001;
+    CREATE SINK age_model_trainer TYPE uds WITH name = 'age_model';
+    CREATE STATE gender_model TYPE jubaclassifier_arow
+        WITH label_field = 'gender', regularization_weight = 0.001;
+    CREATE SINK gender_model_trainer TYPE uds WITH name = 'gender_model';
+
+These statements create UDSs for machine learning models of age and gender
+classifications. ``CREATE STATE`` statements are same as ones in
+``twitter.bql``. The ``CREATE SINK`` statement above creates a new sink with the
+type ``uds``. The ``uds`` sink writes tuples into the given UDS if the UDS
+supports it. ``jubaclassifier_arow`` supports writing tuples. When a tuple is
+written to it, it trains the model with the tuple having training data. It
+assumes that the tuple has two fields: a feature vector field and a label field.
+By default, a feature vector and a label are obtained by the ``feature_vector``
+field and the ``label`` field in a tuple, respectively. In this tutorial, each
+tuple has two labels: ``age`` and ``gender``. Therefore, the field names of
+those fields need to be customized. The field names can be specified by the
+``label_field`` parameter in the ``WITH`` clause of the ``CREATE STATE``
+statement. In the statements above, ``age_model`` and ``gender_model`` UDSs
+obtain labels from the ``age`` field and the ``gender`` field, respectively.
+
+.. todo:: explain regularization_weight
+
+::
+
+    CREATE PAUSED SOURCE training_data TYPE file WITH path = 'training_tweets.json';
+
+This statement creates a source which inputs tuples from a file.
+``training_tweets.json`` is the file prepared previously and contains training
+data. The source is created with the ``PAUSED`` flag, so it doesn't emit any
+tuple untile all other components in the topology are set up and the
+``RESUME SOURCE`` statement is issued.
+
+``en_tweets``, ``preprocessed_tweets``, and ``fv_tweets`` streams are same as
+ones in ``twitter.bql`` except that the tweets are emitted from ``file`` source
+rather than the ``twitter_public_stream`` source.
+
+::
+
+    CREATE STREAM age_labeled_tweets AS
+        SELECT RSTREAM * FROM fv_tweets [RANGE 1 TUPLES] WHERE age != '';
+    CREATE STREAM gender_labeled_tweets AS
+        SELECT RSTREAM * FROM fv_tweets [RANGE 1 TUPLES] WHERE gender != '';
+
+These statements create new sources that only emit tuples having a label for
+training.
+
+::
+
+    INSERT INTO age_model_trainer FROM age_labeled_tweets;
+    INSERT INTO gender_model_trainer FROM gender_labeled_tweets;
+
+Then, those filtered tuples are written into models (UDSs) via ``uds`` sinks
+created earlier.
+
+::
+
+    RESUME SOURCE training_data;
+
+All streams are set up and the ``training_data`` source is finally resumed.
+With the ``sensorbee runfile`` command, all statements run until all tuples
+emitted from the ``training_data`` source are processed.
+
+When BQL statements are run on the server, the ``SAVE STATE`` statement is
+usually used to save UDSs. However, ``sensorbee runfile`` optionally saves UDSs
+after the topology is stopped. Therefore, ``train.bql`` doesn't issue
+``SAVE STATE`` statements.
 
 Evaluation
 ----------
 
 Evaluation tools are being developed.
+
+Online Training
+---------------
+
+All machine learning algorithms provided by Jubatus are online algorithms, that
+is, models can incrementally be trained every time a new training data is given.
+In contrast to online algorithms, batch algorithms requires all training data
+for each training. Since online machine learning algorithms don't have to store
+training data locally, they can train models from streaming data.
+
+If training data can be obtained by simple rules, training and classification
+can be applied to streaming data concurrently in the same SensorBee server. In
+other words, a UDS can be used for training and classification.
