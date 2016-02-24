@@ -55,7 +55,7 @@ Description
 Parameters
 ----------
 
-emitter
+Emitter
 ^^^^^^^
 
 **emitter** controls how a ``SELECT`` emits resulting tuples.
@@ -90,7 +90,7 @@ emitter
         SAMPLE sampling_rate %
     } "]"]
 
-``FROM`` clause
+``FROM`` Clause
 ^^^^^^^^^^^^^^^
 
 The ``FROM`` clause specifies one or more source streams for the ``SELECT``
@@ -168,7 +168,7 @@ emits ``{"a":<some value>}``, the field ``a`` can be referred by ``a`` or
 The form ``<stream>:<field_name>`` is required when the ``FROM`` clause has
 multiple input streams.
 
-``WHERE`` clause
+``WHERE`` Clause
 ^^^^^^^^^^^^^^^^
 
 The ``SELECT`` can optionally have a ``WHERE`` clause. The ``WHERE`` clause
@@ -179,7 +179,7 @@ output.
 
 :ref:`bql_operators` describes operators that can be used in the condition.
 
-``GROUP BY`` clause
+``GROUP BY`` Clause
 ^^^^^^^^^^^^^^^^^^^
 
 The ``GROUP BY`` clause is an optional clause and condenses into a single
@@ -221,7 +221,7 @@ group.
     This ``SELECT`` computes at most 10 groups of tuples because there're only
     10 tuples in the window.
 
-``HAVING`` clause
+``HAVING`` Clause
 ^^^^^^^^^^^^^^^^^
 
 The ``HAVING`` clause is an optional clause and placed after the ``GROUP BY``
@@ -235,7 +235,7 @@ need to be in aggregate functions::
 In this example, ``b``, ``c``, and ``d`` are ungrouped fields and cannot
 directly specified in the condition.
 
-``SELECT`` list
+``SELECT`` List
 ^^^^^^^^^^^^^^^
 
 The ``SELECT`` list, placed between the **emitter** and the ``FROM`` clause, 
@@ -289,13 +289,13 @@ to the ``SELECT``, its output will be
 Notes
 -----
 
-An emitter and its performance
+An Emitter and Its Performance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There're some use case specific optimizations of the evaluation of the
 ``SELECT`` and this subsection describes each optimization and its limitation.
 
-Simple transformation and filtering
+Simple Transformation and Filtering
 """""""""""""""""""""""""""""""""""
 
 Performing a simple per-tuple transformation or filtering over an input
@@ -309,7 +309,7 @@ Limitations of this optimization are:
 * There can only be one input stream and its range is ``[RANGE 1 TUPLES]``.
 * The emitter must be ``RSTREAM``.
 
-Evaluation in ``WHERE`` clause
+Evaluation in ``WHERE`` Clause
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Each set of tuples cross-joined in the ``FROM`` clause is evaluated exactly once
