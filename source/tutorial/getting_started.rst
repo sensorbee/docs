@@ -215,13 +215,6 @@ now, but this is basically same as the ``SELECT`` statement in SQL except two
 things: ``RSTREAM`` and ``RANGE``. Those concepts will briefly be explained in
 the next section.
 
-.. note::
-
-    ``sensorbee shell`` prints a tuple in JSON format. Therefore, double quotes
-    are used for strings instead of single quotes that is used in BQL. As a
-    result, output of the ``SELECT`` statement in ``sensorbee shell`` cannot
-    directly be copied to BQL statements.
-
 Querying: Basics
 ----------------
 

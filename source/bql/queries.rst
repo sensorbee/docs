@@ -263,7 +263,7 @@ Using Stream-Generating Functions
 BQL also knows "user-defined stream-generating functions" (UDSFs) that transform a stream into another stream and can be used, for example, to output multiple output rows per input row; something that is not possible with standard ``SELECT`` features.
 (These are similar to "Table Functions" in PostgreSQL.)
 Such UDSFs can also be used in the ``FROM`` clause:
-Instead of using a stream's identifier, use the function call syntax ``function(param, param, ...)`` with the UDSF name as the function name and the base stream's identifiers as parameters (as a string, i.e., in single quotes), possibly with other parameters.
+Instead of using a stream's identifier, use the function call syntax ``function(param, param, ...)`` with the UDSF name as the function name and the base stream's identifiers as parameters (as a string, i.e., in double quotes), possibly with other parameters.
 For example, if there is a UDSF called ``duplicate`` that takes the input stream's name as the first parameter and the number of copies of each input tuple as the second, this would look as follows::
 
     FROM duplicate("products", 3) [RANGE 10 SECONDS]
