@@ -172,29 +172,29 @@ non-zero.
 Secondly, start ``sensorbee shell``::
 
     /path/to/wordcount$ ./sensorbee shell -t wordcount
-    (wordcount)>>>
+    wordcount>
 
 ``-t wordcount`` means that the shell connects to ``wordcount`` topology. Now,
 it's ready to try some BQL statements. To start with, try the ``EVAL``
 statement, which evaluates arbitrary expressions supported by BQL::
 
-    (wordcount)>>> EVAL 1 + 1;
+    wordcount> EVAL 1 + 1;
     2
-    (wordcount)>>> EVAL power(2.0, 2.5);
+    wordcount> EVAL power(2.0, 2.5);
     5.65685424949238
-    (wordcount)>>> EVAL "Hello" || ", world!";
+    wordcount> EVAL "Hello" || ", world!";
     Hello, world!
 
 BQL also supports one line comments::
 
-    (wordcount)>>> -- This is a comment
-    (wordcount)>>>
+    wordcount> -- This is a comment
+    wordcount>
 
 Finally, create a source, which generates stream data or inputs data from other
 stream data sources::
 
-    (wordcount)>>> CREATE SOURCE sentences TYPE wc_sentences;
-    (wordcount)>>>
+    wordcount> CREATE SOURCE sentences TYPE wc_sentences;
+    wordcount>
 
 This ``CREATE SOURCE`` statement creates a source named ``sentences``. Its type
 is ``wc_sentencese`` and it's provided as a plugin in the ``wordcount`` package.
@@ -202,7 +202,7 @@ This source emits, on a regular basis, a random sentence having several words
 with the name of a person who wrote a sentence. To receive data (i.e. tuples)
 emitted from the source, use the ``SELECT`` statement::
 
-    (wordcount)>>> SELECT RSTREAM * FROM sentences [RANGE 1 TUPLES];
+    wordcount> SELECT RSTREAM * FROM sentences [RANGE 1 TUPLES];
     {"name":"isabella","text":"dolor consequat ut in ad in"}
     {"name":"sophia","text":"excepteur deserunt officia cillum lorem excepteur"}
     {"name":"sophia","text":"exercitation ut sed aute ullamco aliquip"}
@@ -330,7 +330,7 @@ Selection
 
 The ``SELECT`` statement can partially pick up some fields of input tuples::
 
-    (wordcount)>>> SELECT RSTREAM name FROM sentences [RANGE 1 TUPLES];
+    wordcount> SELECT RSTREAM name FROM sentences [RANGE 1 TUPLES];
     {"name":"isabella"}
     {"name":"isabella"}
     {"name":"jacob"}
@@ -352,7 +352,7 @@ Filtering
 The ``SELECT`` statement supports filtering with the ``WHERE`` clause as SQL
 does::
 
-    (wordcount)>>> SELECT RSTREAM * FROM sentences [RANGE 1 TUPLES] WHERE name = "sophia";
+    wordcount> SELECT RSTREAM * FROM sentences [RANGE 1 TUPLES] WHERE name = "sophia";
     {"name":"sophia","text":"anim eu occaecat do est enim do ea mollit"}
     {"name":"sophia","text":"cupidatat et mollit consectetur minim et ut deserunt"}
     {"name":"sophia","text":"elit est laborum proident deserunt eu sed consectetur"}
@@ -368,8 +368,8 @@ Grouping and Aggregates
 
 The ``GROUP BY`` clause is also available in BQL::
 
-    (wordcount)>>> SELECT ISTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
-    ... GROUP BY name; -- "..." at the beginning of this line was inserted by the shell
+    wordcount> SELECT ISTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
+        GROUP BY name;
     {"count":1,"name":"isabella"}
     {"count":1,"name":"emma"}
     {"count":2,"name":"isabella"}
@@ -396,8 +396,8 @@ understand their behaviors. When the statement receives ``isabella``, ``emma``,
 ``isabella``, ``jacob``, and ``isabella`` in this order, ``RSTREAM`` reports
 results as shown below (with some comments)::
 
-    (wordcount)>>> SELECT RSTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
-    ... GROUP BY name;
+    wordcount> SELECT RSTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
+        GROUP BY name;
     -- receive "isabella"
     {"count":1,"name":"isabella"}
     -- receive "emma"
@@ -418,8 +418,8 @@ results as shown below (with some comments)::
 On the other hand, ``ISTREAM`` only emits tuples updated in the current
 resulting relation::
 
-    (wordcount)>>> SELECT ISTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
-    ... GROUP BY name;
+    wordcount> SELECT ISTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
+        GROUP BY name;
     -- receive "isabella"
     {"count":1,"name":"isabella"}
     -- receive "emma", the count of "isabella" isn't updated
@@ -475,7 +475,7 @@ tokenized. Both arguments need to be string values.
 
 ::
 
-    (wordcount)>>> SELECT RSTREAM * FROM wc_tokenizer("sentences", "text") [RANGE 1 TUPLES];
+    wordcount> SELECT RSTREAM * FROM wc_tokenizer("sentences", "text") [RANGE 1 TUPLES];
     {"name":"ethan","text":"duis"}
     {"name":"ethan","text":"lorem"}
     {"name":"ethan","text":"adipiscing"}
@@ -502,16 +502,16 @@ issuing a new query. BQL has a **stream** (a.k.a a **continuous view**), which
 just works like a view in RDBMSs. A stream can be created by the
 ``CREATE STREAM`` statement::
 
-    (wordcount)>>> CREATE STREAM words AS
-    ... SELECT RSTREAM name, text AS word
-    ... FROM wc_tokenizer("sentences", "text") [RANGE 1 TUPLES];
-    (wordcount)>>>
+    wordcount> CREATE STREAM words AS
+        SELECT RSTREAM name, text AS word
+        FROM wc_tokenizer("sentences", "text") [RANGE 1 TUPLES];
+    wordcount>
 
 This statement creates a new stream called ``words``. The stream renames
 ``text`` field to ``word``. The stream can be referred by the ``FROM`` clause
 of the ``SELECT`` statement as follows::
 
-    (wordcount)>>> SELECT RSTREAM * FROM words [RANGE 1 TUPLES];
+    wordcount> SELECT RSTREAM * FROM words [RANGE 1 TUPLES];
     {"name":"isabella","word":"pariatur"}
     {"name":"isabella","word":"adipiscing"}
     {"name":"isabella","word":"id"}
@@ -527,8 +527,8 @@ Counting Words
 
 After creating the ``words`` stream, words can be counted as follows::
 
-    (wordcount)>>> SELECT ISTREAM word, count(*) FROM words [RANGE 60 SECONDS]
-    ... GROUP BY word;
+    wordcount> SELECT ISTREAM word, count(*) FROM words [RANGE 60 SECONDS]
+        GROUP BY word;
     {"count":1,"word":"aute"}
     {"count":1,"word":"eu"}
     {"count":1,"word":"quis"}
@@ -546,11 +546,11 @@ This statement counts the number of occurrences of each word appeared in past 60
 seconds. By creating another stream based on the ``SELECT`` statement above,
 Further statistical information can be obtained::
 
-    (wordcount)>>> CREATE STREAM word_counts AS
-    ... SELECT ISTREAM word, count(*) FROM words [RANGE 60 SECONDS]
-    ... GROUP BY word;
-    (wordcount)>>> (wordcount)>>> SELECT RSTREAM max(count), min(count)
-    ... FROM word_counts [RANGE 60 SECONDS];
+    wordcount> CREATE STREAM word_counts AS
+        SELECT ISTREAM word, count(*) FROM words [RANGE 60 SECONDS]
+        GROUP BY word;
+    wordcount> SELECT RSTREAM max(count), min(count)
+        FROM word_counts [RANGE 60 SECONDS];
     {"max":52,"min":52}
     {"max":120,"min":52}
     {"max":120,"min":50}
