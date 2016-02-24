@@ -56,7 +56,7 @@ To create a source having the name "src" with no source-specific parameter::
 
 To create a source with source-specific parameters::
 
-    CREATE SOURCE fluentd TYPE fluentd WITH bind = '0.0.0.0:12345',
-      tag_field = 'my_tag';
+    CREATE SOURCE fluentd TYPE fluentd WITH bind = "0.0.0.0:12345",
+      tag_field = "my_tag";
 
 As you can see, the name of a source can be same as the type name of a source.

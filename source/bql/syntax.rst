@@ -11,7 +11,7 @@ For example, the following is (syntactically) valid BQL input::
 
     SELECT RSTREAM given_name, last_name FROM persons [RANGE 1 TUPLES] WHERE age > 20;
 
-    CREATE SOURCE s TYPE fluentd WITH host='example.com', port=12345;
+    CREATE SOURCE s TYPE fluentd WITH host="example.com", port=12345;
 
     INSERT INTO file FROM data;
 
@@ -56,9 +56,8 @@ These alternatives are discussed in the following subsections.
 
 String Constants
 ^^^^^^^^^^^^^^^^
-A string constant in BQL is an arbitrary sequence of characters bounded by single quotes (``'``), for example ``'This is a string'``.
-To include a single-quote character within a string constant, write two adjacent single quotes, e.g., ``'Dianne''s horse'``.
-Note that this is *not* the same as a double-quote character (``"``).
+A string constant in BQL is an arbitrary sequence of characters bounded by double quotes (``"``), for example ``"This is a string"``.
+To include a double-quote character within a string constant, write two adjacent double quotes, e.g., ``"Dianne""s horse"``.
 
 No escaping for special characters is supported at the moment, but any valid UTF-8 encoded byte sequence can be used.
 See :ref:`the string data type reference<type_string>` for details.
@@ -233,7 +232,7 @@ The basic rules are:
 
   ::
 
-      ['child_key']
+      ["child_key"]
 
   mean "descend to the child node with the key ``child_key``".
   The second form must be used if the key name has a non-identifier shape (e.g., contains spaces, dots, brackets or similar).
@@ -326,10 +325,10 @@ the following table is supposed to illustrate the effect of various JSON Path ex
 =================================  ================
 ``nantoka``                        ``{"x": "y"}``
 ``nantoka.x``                      ``"y"``
-``nantoka['x']``                   ``"y"``
+``nantoka["x"]``                   ``"y"``
 ``foo[0].bar``                     ``5``
 ``foo[0].hoge[-1].a``              ``3``
-``['foo'][0]['hoge'][-1]['a']``    ``3``
+``["foo"][0]["hoge"][-1]["a"]``    ``3``
 ``foo[1:2].bar``                   ``[2, 8]``
 ``foo..bar``                       ``[5, 2, 8]``
 ``foo..hoge[0].b``                 ``[2, 6, 10]``
@@ -395,7 +394,7 @@ For example, the ``string_agg`` function can be called like
 
 ::
 
-    string_agg(name, ', ')
+    string_agg(name, ", ")
 
 to return a comma-separated list of all names in the respective group.
 However, the second parameter is not an aggregation parameter, so for a statement like
@@ -420,7 +419,7 @@ For example,
 
 ::
 
-    string_agg(first_name || ' ' || last_name, ',' ORDER BY last_name)
+    string_agg(first_name || " " || last_name, "," ORDER BY last_name)
 
 will create a comma-separated list of names, ordered ascending by the last name.
 
@@ -448,26 +447,26 @@ An array constructor is an expression that builds an array value using values fo
 A simple array constructor consists of a left square bracket ``[``, a list of expressions (separated by commas) for the array element values, and finally a right square bracket ``]``.
 For example::
 
-    SELECT RSTREAM [7, 2 * stream:a, true, 'blue'] FROM ...
+    SELECT RSTREAM [7, 2 * stream:a, true, "blue"] FROM ...
 
 Each element of the array can have a different type.
 In particular, the wildcard is also allowed as an expression and will include the whole current row as an array element.
 
 .. note::
 
-   Single-element arrays of strings could also be interpreted as JSON Paths and are therefore required to have a trailing comma after their only element: ``['foo',]``
+   Single-element arrays of strings could also be interpreted as JSON Paths and are therefore required to have a trailing comma after their only element: ``["foo",]``
 
 
 Map Constructors
 ----------------
 
 A map constructor is an expression that builds a map value using string keys and arbitrary values for its member elements.
-A simple map constructor consists of a left curly bracket ``{``, a list of ``'key': value`` pairs (separated by commas) for the map elements, and finally a right curly bracket ``}``.
+A simple map constructor consists of a left curly bracket ``{``, a list of ``"key": value`` pairs (separated by commas) for the map elements, and finally a right curly bracket ``}``.
 For example::
 
-    SELECT RSTREAM {'a_const': 7, 'prod': 2 * stream:a} FROM ...
+    SELECT RSTREAM {"a_const": 7, "prod": 2 * stream:a} FROM ...
 
-The keys must be string literals (i.e., they can not be computed expressions); in particular they must be written using *single* quotes.
+The keys must be string literals (i.e., they can not be computed expressions); in particular they must be written using double quotes.
 The values can be arbitrary expressions, including a wildcard.
 
 

@@ -268,7 +268,7 @@ When the argument type and the actual value type are different, weak type
 conversion are applied to values. Conversions are basically done by
 ``data.ToXXX`` functions (see godoc comments of each function in
 data/type_conversions.go). For example, ``func inc(i int) int`` can be called by
-``inc('3')`` in a BQL statement and it'll return 4. If a strict type checking
+``inc("3")`` in a BQL statement and it'll return 4. If a strict type checking
 or custom type conversion is required, receive values as ``data.Value`` and
 manually check or convert types, or define the UDF in the regular way.
 
@@ -319,8 +319,8 @@ join.go
 
 In join.go, the ``Join`` UDF is defined in a strict way. It also performs
 strict type checking. It's designed to be called with two types of forms:
-``my_join('a', 'b', 'c', 'separator')`` or
-``my_join(['a', 'b', 'c'], 'separator')``. Each argument and values in the array
+``my_join("a", "b", "c", "separator")`` or
+``my_join(["a", "b", "c"], "separator")``. Each argument and values in the array
 must be strings. The UDF receives arbitrary number of arguments.
 
 ::
@@ -345,7 +345,7 @@ must be strings. The UDF receives arbitrary number of arguments.
         }
 
         switch args[0].Type() {
-        case data.TypeString: // my_join('a', 'b', 'c', 'sep') form
+        case data.TypeString: // my_join("a", "b", "c", "sep") form
             var ss []string
             for _, v := range args {
                 s, err := data.AsString(v)
@@ -356,7 +356,7 @@ must be strings. The UDF receives arbitrary number of arguments.
             }
             return data.String(strings.Join(ss[:len(ss)-1], ss[len(ss)-1])), nil
 
-        case data.TypeArray: // my_join(['a', 'b', 'c'], 'sep') form
+        case data.TypeArray: // my_join(["a", "b", "c"], "sep") form
             if len(args) != 2 {
                 return empty, errors.New("wrong number of arguments for my_join(array, sep)")
             }
@@ -395,7 +395,7 @@ plugin/plugin.go
 In addition to ``Inc`` and ``Join``, this file registers the standard Go
 function ``strings.Join`` as ``my_join2``. Because it's converted to a UDF by
 ``udf.MustConvertGeneric``, arguments are weakly converted to given types.
-For example, ``my_join([1, 2.3, '4'], '-')`` is valid although ``strings.Join``
+For example, ``my_join([1, 2.3, "4"], "-")`` is valid although ``strings.Join``
 itself is ``func([]string, string) string``.
 
 ::
@@ -424,15 +424,15 @@ created on the server, the ``EVAL`` statement can be used to test them::
 
     EVAL my_inc(1); -- => 2
     EVAL my_inc(1.5); -- => 2
-    EVAL my_inc('10'); -- => 11
+    EVAL my_inc("10"); -- => 11
 
-    EVAL my_join('a', 'b', 'c', '-'); -- => 'a-b-c'
-    EVAL my_join(['a', 'b', 'c'], ',') -- => 'a,b,c'
-    EVAL my_join(1, 'b', 'c', '-') -- => error
-    EVAL my_join([1, 'b', 'c'], ',') -- => error
+    EVAL my_join("a", "b", "c", "-"); -- => "a-b-c"
+    EVAL my_join(["a", "b", "c"], ",") -- => "a,b,c"
+    EVAL my_join(1, "b", "c", "-") -- => error
+    EVAL my_join([1, "b", "c"], ",") -- => error
 
-    EVAL my_join2(['a', 'b', 'c'], ',') -- => 'a,b,c'
-    EVAL my_join2([1, 'b', 'c'], ',') -- => '1,b,c'
+    EVAL my_join2(["a", "b", "c"], ",") -- => "a,b,c"
+    EVAL my_join2([1, "b", "c"], ",") -- => "1,b,c"
 
 User-Defined Aggregates
 -----------------------

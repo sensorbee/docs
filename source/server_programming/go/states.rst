@@ -170,7 +170,7 @@ The UDF receives one arguemnt ``uds`` that is the name of the UDS to be updated.
 
     CREATE STATE my_counter_instance TYPE my_counter;
     CREATE STREAM events_with_id AS
-        SELECT RSTREAM my_next_count('my_counter_instance') AS id, *
+        SELECT RSTREAM my_next_count("my_counter_instance") AS id, *
         FROM events [RANGE 1 TUPLES];
 
 The BQL statements above add IDs to tuples emitted from a stream ``events``. The
@@ -182,7 +182,7 @@ the state of ``my_counter_instance`` is updated by its ``Next`` method.
 the UDS by its name through ``core.Context.SharedStates``. ``SharedStates``
 manages all the UDSs created in a topology. ``SharedState.Get`` returns the
 instance of the UDS having the given name. It returns an error if it couldn't
-find the instance. In the example above, ``my_next_count('my_counter_instance')``
+find the instance. In the example above, ``my_next_count("my_counter_instance")``
 will look up an instance of the UDS having the name ``my_counter_instance``,
 which was previously created by the ``CREATE STATE``. The UDS returned from
 ``Get`` method has the type ``core.SharedState`` and cannot directly be used as

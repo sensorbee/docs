@@ -64,9 +64,9 @@ need to be computed and emitted based on one input tuple::
     }
 
 ``WordSplitter`` splits text in a specific field by space. For example, when
-an input tuple is ``{'word': 'a b c'}`` and ``WordSplitter.Field`` is ``word``,
-following three tuples will be emitted: ``{'word': 'a'}``, ``{'word': 'b'}``,
-and ``{'word': 'c'}``.
+an input tuple is ``{"word": "a b c"}`` and ``WordSplitter.Field`` is ``word``,
+following three tuples will be emitted: ``{"word": "a"}``, ``{"word": "b"}``,
+and ``{"word": "c"}``.
 
 When a UDSF is a source-like UDSF, the ``Process`` method is only called once
 with a tuple that doesn't mean anything. Unlike a stream-like UDSF, the
@@ -296,7 +296,7 @@ A Complete Example
 This subsection provides a complete example of UDSFs described in this section.
 In addition to ``word_splitter`` and ``ticker``, the example also includes the
 ``lorem`` source, which periodically emits random texts as
-``{'text': 'lorem ipsum dolor sit amet'}``.
+``{"text": "lorem ipsum dolor sit amet"}``.
 
 Assume that the import path of the example repository is
 ``github.com/sensorbee/examples/udsfs``, which doesn't actually exist. The
@@ -511,7 +511,7 @@ Example BQL Statements
 
     CREATE SOURCE lorem TYPE lorem;
     CREATE STREAM lorem_words AS
-        SELECT RSTREAM * FROM word_splitter('lorem', 'text') [RANGE 1 TUPLES];
+        SELECT RSTREAM * FROM word_splitter("lorem", "text") [RANGE 1 TUPLES];
 
 Results of ``word_splitter`` can be received by the following ``SELECT``::
 

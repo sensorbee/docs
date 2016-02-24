@@ -19,11 +19,11 @@ BQL has following data types:
     ``bool``, Boolean, ``true``
     ``int``, 64-bit integer, ``12``
     ``float``, 64-bit floating point number, ``3.14``
-    ``string``, String, ``'sensorbee'``
+    ``string``, String, ``"sensorbee"``
     ``blob``, Binary large object, A blob value cannot directly be written in BQL.
     ``timestamp``, Datetime information in UTC, A timestamp value cannot directly be written in BQL.
-    ``array``, Array, "``[1, '2', 3.4]``"
-    ``map``, Map with string keys, "``{'a': 1, 'b': '2', 'c': 3.4}``"
+    ``array``, Array, "``[1, "2", 3.4]``"
+    ``map``, Map with string keys, "``{"a": 1, "b": "2", "c": 3.4}``"
 
 These types are designed to work well with JSON. They can be converted to or
 from JSON with some restrictions.
@@ -52,10 +52,10 @@ undefined value.
 ``map`` can also contain ``NULL`` as its value::
 
     {
-        'some_key': NULL
+        "some_key": NULL
     }
 
-This map is different from an empty map ``{}`` because the key ``'some_key'``
+This map is different from an empty map ``{}`` because the key ``"some_key"``
 actually exists in the map but the empty map doesn't even have a key.
 
 ``NULL`` is converted to ``null`` in JSON.
@@ -144,7 +144,7 @@ in BQL yet, but there're some ways to use ``blob`` in BQL:
 * Calling a function returning a ``timestamp`` value
 
 A ``timestamp`` value is converted to a string in RFC3339 format with nanosecond
-precision in JSON: ``'2006-01-02T15:04:05.999999999Z07:00'``. Although the
+precision in JSON: ``"2006-01-02T15:04:05.999999999Z07:00"``. Although the
 format can express nanoseconds, ``timestamp`` in BQL only guarantees microsecond
 precision as described above.
 
@@ -153,19 +153,19 @@ precision as described above.
 
 The type ``array`` provides a ordered sequence of values of any type, for example::
 
-    [1, '2', 3.4]
+    [1, "2", 3.4]
 
 An ``array`` value can also contain another ``array`` or ``map`` as its value::
 
     [
-        [1, '2', 3.4],
+        [1, "2", 3.4],
         [
-            ['4', 5.6, 7],
+            ["4", 5.6, 7],
             [true, false, NULL],
-            {'a': 10}
+            {"a": 10}
         ],
         {
-            'nested_array': [12, 34.5, '67']
+            "nested_array": [12, 34.5, "67"]
         }
     ]
 
@@ -181,25 +181,25 @@ The type ``map`` represents an unordered set of key-value pairs.
 A key needs to be a ``string`` and a value can be of any type::
 
     {
-        'a': 1,
-        'b': '2',
-        'c': 3.4
+        "a": 1,
+        "b": "2",
+        "c": 3.4
     }
 
 A ``map`` value can contain another ``map`` or ``array`` as its value::
 
     {
-        'a': {
-            'aa': 1,
-            'ab': '2',
-            'ac': 3.4
+        "a": {
+            "aa": 1,
+            "ab": "2",
+            "ac": 3.4
         },
-        'b': {
-            'ba': {'a': 10},
-            'bb': ['4', 5.6, 7],
-            'bc': [true, false, NULL]
+        "b": {
+            "ba": {"a": 10},
+            "bb": ["4", 5.6, 7],
+            "bc": [true, false, NULL]
         },
-        'c': [12, 34.5, '67']
+        "c": [12, 34.5, "67"]
     }
 
 A ``map`` is converted to an object in JSON.
@@ -211,8 +211,8 @@ BQL provides ``CAST(value AS type)`` operator, or ``value::type`` as a syntactic
 sugar, that converts the given value to a corresponding value in the given type,
 if those types are convertible. For example, ``CAST(1 AS string)``, or
 ``1::string``, converts an ``int`` value ``1`` to a ``string`` value and
-results in ``'1'``. Converting to the same type as the value's type is valid.
-For instance, ``'str'::string`` doesn't do anything and results in ``'str'``.
+results in ``"1"``. Converting to the same type as the value's type is valid.
+For instance, ``"str"::string`` doesn't do anything and results in ``"str"``.
 
 The following types are valid for the target type of ``CAST`` operator:
 
@@ -260,7 +260,7 @@ infinity result in ``true``.
 From ``string``
 ^^^^^^^^^^^^^^^
 
-An empty ``string`` value (i.e. ``''``) is converted to ``false``. Other values
+An empty ``string`` value (i.e. ``""``) is converted to ``false``. Other values
 are evaluated as ``true``.
 
 From ``blob``
@@ -324,12 +324,12 @@ then converts the result to an ``int`` value.
 
 ::
 
-    '1'::int   -- => 1
-    '2.5'::int -- => 2
+    "1"::int   -- => 1
+    "2.5"::int -- => 2
 
 The conversion results in an error when the ``string`` value contains the
 number that is out of the valid range of ``int`` values, or the value isn't a
-number. For example, ``'1a'::string`` results in an error even though the value
+number. For example, ``"1a"::string`` results in an error even though the value
 starts with a number.
 
 From ``timestamp``
@@ -338,10 +338,10 @@ From ``timestamp``
 A ``timestamp`` value is converted to an ``int`` value as the number of
 microseconds elapsed since January 1, 1970 UTC::
 
-    ('1970-01-01T00:00:00Z'::timestamp)::int        -- => 0
-    ('1970-01-01T00:00:00.123456Z'::timestamp)::int -- => 123456
-    ('1970-01-02T00:00:00Z'::timestamp)::int        -- => 86400000000
-    ('2016-01-18T09:22:40.123456Z'::timestamp)::int -- => 1453108960123456
+    ("1970-01-01T00:00:00Z"::timestamp)::int        -- => 0
+    ("1970-01-01T00:00:00.123456Z"::timestamp)::int -- => 123456
+    ("1970-01-02T00:00:00Z"::timestamp)::int        -- => 86400000000
+    ("2016-01-18T09:22:40.123456Z"::timestamp)::int -- => 1453108960123456
 
 The maximum ``timestamp`` that can be converted to ``int`` is
 294247-01-10T04:00:54.775807Z. The minimum is -290308-12-21T19:59:05.224192Z.
@@ -367,16 +367,16 @@ From ``int``
 ``int`` values are converted to the nearest ``float`` values::
 
     1::float -- => 1.0
-    (9000000000000012345::float)::int)::string -- => '9000000000000012288'
+    (9000000000000012345::float)::int)::string -- => "9000000000000012288"
 
 From ``string``
 ^^^^^^^^^^^^^^^
 
 A ``string`` value is parsed and converted to the nearest ``float`` value::
 
-    '1.1'::float   -- => 1.1
-    '1e-1'::float  -- => 0.1
-    '-1e+1'::float -- => -10.0
+    "1.1"::float   -- => 1.1
+    "1e-1"::float  -- => 0.1
+    "-1e+1"::float -- => -10.0
 
 From ``timestamp``
 ^^^^^^^^^^^^^^^^^^
@@ -385,9 +385,9 @@ A ``timestamp`` value is converted to a ``float`` value as the number of
 microseconds elapsed since January 1, 1970 UTC. The integral part of the result
 contains seconds and the decimal part contains microseconds::
 
-    ('1970-01-01T00:00:00Z'::timestamp)::float        -- => 0.0
-    ('1970-01-01T00:00:00.000001Z'::timestamp)::float -- => 0.000001
-    ('1970-01-02T00:00:00.000001Z'::timestamp)::float -- => 86400.000001
+    ("1970-01-01T00:00:00Z"::timestamp)::float        -- => 0.0
+    ("1970-01-01T00:00:00.000001Z"::timestamp)::float -- => 0.000001
+    ("1970-01-02T00:00:00.000001Z"::timestamp)::float -- => 86400.000001
 
 To ``string``
 -------------
@@ -405,15 +405,15 @@ Following types can be converted to ``string``:
 From ``bool``
 ^^^^^^^^^^^^^
 
-``true::string`` results in ``'true'``, ``false::string`` results in ``'false'``.
+``true::string`` results in ``"true"``, ``false::string`` results in ``"false"``.
 
 From ``int``
 ^^^^^^^^^^^^
 
 A ``int`` value is formatted as a signed decimal integer::
 
-    1::string     -- => '1'
-    (-24)::string -- => '-24'
+    1::string     -- => "1"
+    (-24)::string -- => "-24"
 
 From ``float``
 ^^^^^^^^^^^^^^
@@ -421,8 +421,8 @@ From ``float``
 A ``float`` value is formatted as a signed decimal floating point. Scientific
 notation is used when necessary::
 
-    1.2::string           -- => '1.2'
-    10000000000.0::string -- => '1e+10'
+    1.2::string           -- => "1.2"
+    10000000000.0::string -- => "1e+10"
 
 From ``blob``
 ^^^^^^^^^^^^^
@@ -433,21 +433,21 @@ From ``timestamp``
 ^^^^^^^^^^^^^^^^^^
 
 A ``timestamp`` value is formatted in RFC3339 format with nanosecond precision:
-'2006-01-02T15:04:05.999999999Z07:00'.
+"2006-01-02T15:04:05.999999999Z07:00".
 
 From ``array``
 ^^^^^^^^^^^^^^
 
 An ``array`` value is formatted as a JSON array::
 
-    [1, '2', 3.4]::string -- => '[1,"2",3.4]'
+    [1, "2", 3.4]::string -- => "[1,""2"",3.4]"
 
 From ``map``
 ^^^^^^^^^^^^
 
 A ``map`` value is formatted as a JSON object::
 
-    {'a': 1, 'b': '2', 'c': 3.4}::string -- => '{"a":1,"b":"2","c":3.4}'
+    {"a": 1, "b": "2", "c": 3.4}::string -- => "{""a"":1,""b"":""2"",""c"":3.4}"
 
 To ``timestamp``
 ----------------
@@ -485,8 +485,8 @@ From ``string``
 A ``string`` value is parsed in RFC3339 format, or RFC3339 with nanosecond
 precision format::
 
-    '1970-01-01T00:00:00Z'::timestamp        -- => 1970-01-01T00:00:00Z
-    '1970-01-01T00:00:00.000001Z'::timestamp -- => 1970-01-01T00:00:00.000001Z
-    '1970-01-02T00:00:00.000001Z'::timestamp -- => 1970-01-02T00:00:00.000001Z
+    "1970-01-01T00:00:00Z"::timestamp        -- => 1970-01-01T00:00:00Z
+    "1970-01-01T00:00:00.000001Z"::timestamp -- => 1970-01-01T00:00:00.000001Z
+    "1970-01-02T00:00:00.000001Z"::timestamp -- => 1970-01-02T00:00:00.000001Z
 
 Converting ill-formed ``string`` values to ``timestamp`` results in an error.

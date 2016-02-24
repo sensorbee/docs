@@ -364,7 +364,7 @@ configuration file for ``build_sensorbee``.
 ::
 
     CREATE SOURCE public_tweets TYPE twitter_public_stream
-        WITH key_file = 'api_key.yaml';
+        WITH key_file = "api_key.yaml";
 
 This statement creates a new source ``public_tweets``. To retrieve raw tweets
 from the source run the following ``SELECT`` statement::
@@ -401,7 +401,7 @@ languages needs to be removed. This can be done by the ``WHERE``
 clause::
 
     SELECT RSTREAM * FROM public_tweets [RANGE 1 TUPLES]
-        WHERE lang = 'en';
+        WHERE lang = "en";
 
 Tweets have the ``lang`` field and it can be used for the filtering.
 
@@ -410,22 +410,22 @@ learning. Thus, removing unnecessary fields keeps data simple and clean::
 
     CREATE STREAM en_tweets AS
         SELECT RSTREAM
-            'sensorbee.tweets' AS tag, id_str AS id, lang, text,
+            "sensorbee.tweets" AS tag, id_str AS id, lang, text,
             user.screen_name AS screen_name, user.description AS description
         FROM public_tweets [RANGE 1 TUPLES]
-        WHERE lang = 'en';
+        WHERE lang = "en";
 
 This statement creates a new stream ``en_tweets``. It only selects English
-tweets by ``WHERE lang = 'en'``. ``'sensorbee.tweets' AS tag`` is used by
+tweets by ``WHERE lang = "en"``. ``"sensorbee.tweets" AS tag`` is used by
 ``fluentd`` sink later. The resulting from the stream will look like::
 
     {
-        'tag': 'sensorbee.tweets',
-        'id': 'the string representation of tweet's id',
-        'lang': 'en',
-        'text': 'the contents of the tweet',
-        'screen_name': 'user's @screen_name',
-        'description': 'user's profile description'
+        "tag": "sensorbee.tweets",
+        "id": "the string representation of tweet's id",
+        "lang": "en",
+        "text": "the contents of the tweet",
+        "screen_name": "user's @screen_name",
+        "description": "user's profile description"
     }
 
 .. note::
@@ -452,11 +452,11 @@ most basic operations on each tweets.
             filter_stop_words(
                 nlp_split(
                     nlp_to_lower(filter_punctuation_marks(text)),
-                ' ')) AS text_vector,
+                " ")) AS text_vector,
             filter_stop_words(
                 nlp_split(
                     nlp_to_lower(filter_punctuation_marks(description)),
-                ' ')) AS description_vector,
+                " ")) AS description_vector,
             *
         FROM en_tweets [RANGE 1 TUPLES];
 
@@ -486,7 +486,7 @@ marks such as ",", ".", or "()".
 Second of all, all uppercase letters are converted into lowercase letters by
 the ``nlp_to_lower`` UDF. The UDF is registered in
 ``github.com/sensorbee/nlp/plugin``. Because a letter is mere byte code and
-the values of 'a' and 'A' are different, machine learning algorithms consider
+the values of "a" and "A" are different, machine learning algorithms consider
 "word" and "Word" have different meanings. To avoid that confusion, all letter
 should be "normalized".
 
@@ -502,7 +502,7 @@ tutorial is done in two steps: tokenization and filtering. To perform a
 dictionary-based stopword filtering, the content of a tweet need to be
 tokenized. Tokenization is a process that converts a sentence into a sequence
 of words. In English, "I like sushi" will be tokenized as
-``['I', 'like', 'sushi']``. Although tokenization isn't as simple as just
+``["I", "like", "sushi"]``. Although tokenization isn't as simple as just
 splitting words by white spaces, the ``preprocessed_tweets`` stream simply
 does it for simplicity by the UDF ``nlp_split``, which is defined in
 ``github.com/sensorbee/nlp`` package. ``nlp_split`` takes two arguments: a
@@ -514,7 +514,7 @@ of this tutorial in ``github.com/sensorbee/tutorial/ml`` package. It's a mere
 example UDF and doesn't provide perfect stopword filtering.
 
 As a result, both ``text_vector`` and ``description_vector`` have an array
-of words like ``['i', 'want', 'eat', 'sushi']`` created from the sentence
+of words like ``["i", "want", "eat", "sushi"]`` created from the sentence
 ``I want to eat sushi.``.
 
 Preprocessing shown so far is very similar to the preprocessing required for
@@ -549,8 +549,8 @@ its elements have non-zero weight. In such cases, a feature vector can
 effectively expressed as a map::
 
     {
-        'word': weight,
-        'word': weight,
+        "word": weight,
+        "word": weight,
         ...
     }
 
@@ -558,24 +558,24 @@ This tutorial uses online classification algorithms that is imported from
 Jubatus. It accepts the following form of data as a feature vector::
 
     {
-        'word1': 1,
-        'key1': {
-            'word2': 2,
-            'word3': 1.5,
+        "word1": 1,
+        "key1": {
+            "word2": 2,
+            "word3": 1.5,
         },
-        'word4': [1.1, 1.2, 1.3]
+        "word4": [1.1, 1.2, 1.3]
     }
 
 A map can be nested and its value can be an array containing weights. The map
 above is converted to something like::
 
     {
-        'word1': 1,
-        'key1/word2': 2,
-        'key1/word3': 1.5,
-        'word4[0]': 1.1,
-        'word4[1]': 1.2,
-        'word4[2]': 1.3
+        "word1": 1,
+        "key1/word2": 2,
+        "key1/word3": 1.5,
+        "word4[0]": 1.1,
+        "word4[1]": 1.2,
+        "word4[2]": 1.3
     }
 
 The actual feature vector for the tutorial is created by the ``fv_tweets``
@@ -584,8 +584,8 @@ stream::
     CREATE STREAM fv_tweets AS
     SELECT RSTREAM
         {
-            'text': nlp_weight_tf(text_vector),
-            'description': nlp_weight_tf(description_vector)
+            "text": nlp_weight_tf(text_vector),
+            "description": nlp_weight_tf(description_vector)
         } AS feature_vector,
         tag, id, screen_name, lang, text, description
     FROM preprocessed_tweets [RANGE 1 TUPLES];
@@ -609,10 +609,10 @@ pre-trained machine learning models have to be loaded::
 
     LOAD STATE age_model TYPE jubaclassifier_arow
         OR CREATE IF NOT SAVED
-        WITH label_field = 'age', regularization_weight = 0.001;
+        WITH label_field = "age", regularization_weight = 0.001;
     LOAD STATE gender_model TYPE jubaclassifier_arow
         OR CREATE IF NOT SAVED
-        WITH label_field = 'gender', regularization_weight = 0.001;
+        WITH label_field = "gender", regularization_weight = 0.001;
 
 In SensorBee, Machine learning models are expressed as user-defined states
 (UDSs). In the statement above, two models are loaded: ``age_model`` and
@@ -639,8 +639,8 @@ to work::
 
     CREATE STREAM labeled_tweets AS
         SELECT RSTREAM
-            juba_classified_label(jubaclassify('age_model', feature_vector)) AS age,
-            juba_classified_label(jubaclassify('gender_model', feature_vector)) AS gender,
+            juba_classified_label(jubaclassify("age_model", feature_vector)) AS age,
+            juba_classified_label(jubaclassify("gender_model", feature_vector)) AS gender,
             tag, id, screen_name, lang, text, description
         FROM fv_tweets [RANGE 1 TUPLES];
 
@@ -768,11 +768,11 @@ in the file overlap with ``twitter.bql``, so only differences will be explained.
 ::
 
     CREATE STATE age_model TYPE jubaclassifier_arow
-        WITH label_field = 'age', regularization_weight = 0.001;
-    CREATE SINK age_model_trainer TYPE uds WITH name = 'age_model';
+        WITH label_field = "age", regularization_weight = 0.001;
+    CREATE SINK age_model_trainer TYPE uds WITH name = "age_model";
     CREATE STATE gender_model TYPE jubaclassifier_arow
-        WITH label_field = 'gender', regularization_weight = 0.001;
-    CREATE SINK gender_model_trainer TYPE uds WITH name = 'gender_model';
+        WITH label_field = "gender", regularization_weight = 0.001;
+    CREATE SINK gender_model_trainer TYPE uds WITH name = "gender_model";
 
 These statements create UDSs for machine learning models of age and gender
 classifications. ``CREATE STATE`` statements are same as ones in
@@ -793,7 +793,7 @@ obtain labels from the ``age`` field and the ``gender`` field, respectively.
 
 ::
 
-    CREATE PAUSED SOURCE training_data TYPE file WITH path = 'training_tweets.json';
+    CREATE PAUSED SOURCE training_data TYPE file WITH path = "training_tweets.json";
 
 This statement creates a source which inputs tuples from a file.
 ``training_tweets.json`` is the file prepared previously and contains training
@@ -808,9 +808,9 @@ rather than the ``twitter_public_stream`` source.
 ::
 
     CREATE STREAM age_labeled_tweets AS
-        SELECT RSTREAM * FROM fv_tweets [RANGE 1 TUPLES] WHERE age != '';
+        SELECT RSTREAM * FROM fv_tweets [RANGE 1 TUPLES] WHERE age != "";
     CREATE STREAM gender_labeled_tweets AS
-        SELECT RSTREAM * FROM fv_tweets [RANGE 1 TUPLES] WHERE gender != '';
+        SELECT RSTREAM * FROM fv_tweets [RANGE 1 TUPLES] WHERE gender != "";
 
 These statements create new sources that only emit tuples having a label for
 training.

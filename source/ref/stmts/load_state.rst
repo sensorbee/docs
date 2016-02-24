@@ -97,7 +97,7 @@ a tag "trained"::
 To load a UDS with **set_parameters**::
 
     LOAD STATE my_uds TYPE my_uds_type TAG trained
-        SET force_format_version = 'v1';
+        SET force_format_version = "v1";
 
 To load a UDS that hasn't been saved yet with ``OR CREATE IF NOT SAVED``::
 
@@ -116,5 +116,5 @@ When the UDS hasn't been saved previously, the statement above falls back into
 
 ``OR CREATE IF NOT SAVED`` can be used with a tag and **set_parameters**::
 
-    LOAD STATE my_uds TYPE my_uds_type TAG trained SET force_format_version = 'v1'
+    LOAD STATE my_uds TYPE my_uds_type TAG trained SET force_format_version = "v1"
         OR CREATE IF NOT SAVED WITH id = 1;

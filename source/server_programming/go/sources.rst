@@ -147,7 +147,7 @@ in the ``WITH`` clause of the ``CREATE SOURCE`` statement::
 
     CREATE SOURCE my_ticker TYPE ticker WITH interval = 0.1;
 
-``my_ticker`` emits tuples that look like ``{'tick': 123}`` in every 100ms.
+``my_ticker`` emits tuples that look like ``{"tick": 123}`` in every 100ms.
 Without the ``interval`` parameter, ``my_ticker`` will emit tuples in every one
 second by default.
 
@@ -421,14 +421,14 @@ the value of ``tick`` field::
     REWIND SOURCE my_rewindable_ticker;
 
     -- output examples of SELECT RSTREAM * FROM my_rewindable_ticker [RANGE 1 TUPLES];
-    {'tick':0}
-    {'tick':1}
-    {'tick':2}
+    {"tick":0}
+    {"tick":1}
+    {"tick":2}
     ...
-    {'tick':123}
+    {"tick":123}
     -- REWIND SOURCE is executed here
-    {'tick':0}
-    {'tick':1}
+    {"tick":0}
+    {"tick":1}
     ...
 
 ``bql.SourceCreatorFunc``

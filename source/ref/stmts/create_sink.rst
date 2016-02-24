@@ -45,6 +45,6 @@ To create a sink having the name "snk" with no sink-specific parameter::
 
 To create a sink with sink-specific parameters::
 
-    CREATE SINK fluentd TYPE fluentd WITH tag_field = 'fluentd_tag';
+    CREATE SINK fluentd TYPE fluentd WITH tag_field = "fluentd_tag";
 
 As you can see, the name of a sink can be same as the type name of a sink.

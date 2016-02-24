@@ -164,7 +164,7 @@ The leftmost column shows the data of the tuple in the stream, next to that is t
 
 Consider the following statement (where ``*STREAM`` is a placeholder for one of the emit operators)::
 
-    SELECT *STREAM id, price FROM stream [RANGE 3 TUPLES] WHERE cat = 'toy';
+    SELECT *STREAM id, price FROM stream [RANGE 3 TUPLES] WHERE cat = "toy";
 
 This statement just takes the ``id`` and ``price`` key-value pairs of every tuple and outputs them untransformed.
 The table below shows the emitted data for each emit operator.
@@ -266,7 +266,7 @@ Such UDSFs can also be used in the ``FROM`` clause:
 Instead of using a stream's identifier, use the function call syntax ``function(param, param, ...)`` with the UDSF name as the function name and the base stream's identifiers as parameters (as a string, i.e., in single quotes), possibly with other parameters.
 For example, if there is a UDSF called ``duplicate`` that takes the input stream's name as the first parameter and the number of copies of each input tuple as the second, this would look as follows::
 
-    FROM duplicate('products', 3) [RANGE 10 SECONDS]
+    FROM duplicate("products", 3) [RANGE 10 SECONDS]
 
 
 Table Joins
@@ -521,6 +521,6 @@ and ``expression`` can generally be any expression, but it cannot contain refere
 
 For example, in the SensorBee Shell, the following can be done::
 
-    >>> EVAL 'foo' || 'bar';
+    >>> EVAL "foo" || "bar";
     foobar
 

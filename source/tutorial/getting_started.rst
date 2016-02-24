@@ -182,7 +182,7 @@ statement, which evaluates arbitrary expressions supported by BQL::
     2
     (wordcount)>>> EVAL power(2.0, 2.5);
     5.65685424949238
-    (wordcount)>>> EVAL 'Hello' || ', world!';
+    (wordcount)>>> EVAL "Hello" || ", world!";
     Hello, world!
 
 BQL also supports one line comments::
@@ -283,10 +283,10 @@ only has one tuple in it.
     described a little here. Assume that a source ``s`` emits following 4
     tuples with timestamps :math:`t_1` to :math:`t_4`::
 
-        t1: {'a': 1}
-        t2: {'a': 2}
-        t3: {'a': 2}
-        t4: {'a': 3}
+        t1: {"a": 1}
+        t2: {"a": 2}
+        t3: {"a": 2}
+        t4: {"a": 3}
 
     When selecting these tuples by
 
@@ -296,22 +296,22 @@ only has one tuple in it.
 
     the resulting relation for each timestamp would be::
 
-        t1: {'a': 1}
-        t2: {'a': 2}
-        t3: {'a': 2}
-        t4: {'a': 3}
+        t1: {"a": 1}
+        t2: {"a": 2}
+        t3: {"a": 2}
+        t4: {"a": 3}
 
     These tuples are identical to what the source ``s`` has emitted. On the
     other hand, when ``ISTREAM`` is used instead of ``RSTREAM`` in the
     previous ``SELECT`` statement, the statement emits only three tuples::
 
-        t1: {'a': 1}
-        t2: {'a': 2}
-        t4: {'a': 3}
+        t1: {"a": 1}
+        t2: {"a": 2}
+        t4: {"a": 3}
 
     The reason why it happens is that the resulting relation wasn't updated at
     :math:`t_3` since both relations at :math:`t_2` and :math:`t_3` have
-    the same tuple ``{'a': 2}`` as a result.
+    the same tuple ``{"a": 2}`` as a result.
 
     In other words, when using ``ISTREAM`` with ``[RANGE 1 TUPLES]``, a
     resulting tuple is emitted only when it's different from the previous
@@ -339,7 +339,7 @@ The ``SELECT`` statement can partially pick up some fields of input tuples::
     ...
 
 In this example, only the ``name`` field is picked up from input tuples that
-have 'name' and 'text' fields.
+have "name" and "text" fields.
 
 BQL is schema-less at the moment and the specification of output tuples needs
 to be documented by authors of sources. The ``SELECT`` statement is only able
@@ -352,7 +352,7 @@ Filtering
 The ``SELECT`` statement supports filtering with the ``WHERE`` clause as SQL
 does::
 
-    (wordcount)>>> SELECT RSTREAM * FROM sentences [RANGE 1 TUPLES] WHERE name = 'sophia';
+    (wordcount)>>> SELECT RSTREAM * FROM sentences [RANGE 1 TUPLES] WHERE name = "sophia";
     {"name":"sophia","text":"anim eu occaecat do est enim do ea mollit"}
     {"name":"sophia","text":"cupidatat et mollit consectetur minim et ut deserunt"}
     {"name":"sophia","text":"elit est laborum proident deserunt eu sed consectetur"}
@@ -369,7 +369,7 @@ Grouping and Aggregates
 The ``GROUP BY`` clause is also available in BQL::
 
     (wordcount)>>> SELECT ISTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
-    ... GROUP BY name; -- '...' at the beginning of this line was inserted by the shell
+    ... GROUP BY name; -- "..." at the beginning of this line was inserted by the shell
     {"count":1,"name":"isabella"}
     {"count":1,"name":"emma"}
     {"count":2,"name":"isabella"}
@@ -398,19 +398,19 @@ results as shown below (with some comments)::
 
     (wordcount)>>> SELECT RSTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
     ... GROUP BY name;
-    -- receive 'isabella'
+    -- receive "isabella"
     {"count":1,"name":"isabella"}
-    -- receive 'emma'
+    -- receive "emma"
     {"count":1,"name":"isabella"}
     {"count":1,"name":"emma"}
-    -- receive 'isabella'
+    -- receive "isabella"
     {"count":2,"name":"isabella"}
     {"count":1,"name":"emma"}
-    -- receive 'jacob'
+    -- receive "jacob"
     {"count":2,"name":"isabella"}
     {"count":1,"name":"emma"}
     {"count":1,"name":"jacob"}
-    -- receive 'isabella'
+    -- receive "isabella"
     {"count":3,"name":"isabella"}
     {"count":1,"name":"emma"}
     {"count":1,"name":"jacob"}
@@ -420,15 +420,15 @@ resulting relation::
 
     (wordcount)>>> SELECT ISTREAM name, count(*) FROM sentences [RANGE 60 SECONDS]
     ... GROUP BY name;
-    -- receive 'isabella'
+    -- receive "isabella"
     {"count":1,"name":"isabella"}
-    -- receive 'emma', the count of 'isabella' isn't updated
+    -- receive "emma", the count of "isabella" isn't updated
     {"count":1,"name":"emma"}
-    -- receive 'isabella'
+    -- receive "isabella"
     {"count":2,"name":"isabella"}
-    -- receive 'jacob'
+    -- receive "jacob"
     {"count":1,"name":"jacob"}
-    -- receive 'isabella'
+    -- receive "isabella"
     {"count":3,"name":"isabella"}
 
 This is one typical situation that ``ISTREAM`` works well.
@@ -445,20 +445,20 @@ split up into words. There could be a user-defined function (UDF)
 A resulting tuple of this statement may look like::
 
     {
-        'name': 'emma',
-        'words': ['exercitation', 'ut', 'sed', 'aute', 'ullamco', 'aliquip']
+        "name": "emma",
+        "words": ["exercitation", "ut", "sed", "aute", "ullamco", "aliquip"]
     }
 
 However, to count words with the ``GROUP BY`` clause and the ``count`` function,
 the tuple above further needs to be split up into tuples so that each tuple has
 one word instead of an array of words::
 
-    {'name': 'emma', 'word': 'exercitation'}
-    {'name': 'emma', 'word': 'ut'}
-    {'name': 'emma', 'word': 'sed'}
-    {'name': 'emma', 'word': 'aute'}
-    {'name': 'emma', 'word': 'ullamco'}
-    {'name': 'emma', 'word': 'aliquip'}
+    {"name": "emma", "word": "exercitation"}
+    {"name": "emma", "word": "ut"}
+    {"name": "emma", "word": "sed"}
+    {"name": "emma", "word": "aute"}
+    {"name": "emma", "word": "ullamco"}
+    {"name": "emma", "word": "aliquip"}
 
 With these results, the statement below can compute a count of each word::
 
@@ -475,7 +475,7 @@ tokenized. Both arguments need to be string values.
 
 ::
 
-    (wordcount)>>> SELECT RSTREAM * FROM wc_tokenizer('sentences', 'text') [RANGE 1 TUPLES];
+    (wordcount)>>> SELECT RSTREAM * FROM wc_tokenizer("sentences", "text") [RANGE 1 TUPLES];
     {"name":"ethan","text":"duis"}
     {"name":"ethan","text":"lorem"}
     {"name":"ethan","text":"adipiscing"}
@@ -497,14 +497,14 @@ Creating a Stream
 -----------------
 
 Although it's ready to count tokenized words, it's easier to have something like
-a view to avoid writing ``wc_tokenizer('sentences', 'text')`` every time
+a view to avoid writing ``wc_tokenizer("sentences", "text")`` every time
 issuing a new query. BQL has a **stream** (a.k.a a **continuous view**), which
 just works like a view in RDBMSs. A stream can be created by the
 ``CREATE STREAM`` statement::
 
     (wordcount)>>> CREATE STREAM words AS
     ... SELECT RSTREAM name, text AS word
-    ... FROM wc_tokenizer('sentences', 'text') [RANGE 1 TUPLES];
+    ... FROM wc_tokenizer("sentences", "text") [RANGE 1 TUPLES];
     (wordcount)>>>
 
 This statement creates a new stream called ``words``. The stream renames
@@ -580,7 +580,7 @@ the file can contain following statements::
 
     CREATE STREAM words AS
         SELECT RSTREAM name, text AS word
-            FROM wc_tokenizer('sentences', 'text') [RANGE 1 TUPLES];
+            FROM wc_tokenizer("sentences", "text") [RANGE 1 TUPLES];
 
     CREATE STREAM word_counts AS
         SELECT ISTREAM word, count(*)

@@ -41,11 +41,11 @@ BQL provides following string operators:
 .. csv-table::
    :header: "Operator", "Description", "Example", "Result"
 
-   ``||``, Concatenation, "``'Hello' || ', world'``", "``'Hello, world'``"
+   ``||``, Concatenation, "``"Hello" || ", world"``", "``"Hello, world"``"
 
 All types convertible to a string can be an operand of ``||``. When an operand
 isn't a string, it's converted to string. Then, it's concatenated as a string.
-For example, ``'a' || 1`` results in ``'a1'`` and ``10 || true`` will be
+For example, ``"a" || 1`` results in ``"a1"`` and ``10 || true`` will be
 ``10true``.
 
 Comparison operators
@@ -83,9 +83,9 @@ Valid examples are as follows:
 
     * Integers and floating point numbers can be compared.
 
-* ``'abc' > 'def'``
+* ``"abc" > "def"``
 * ``1::timestamp <= 2::timestamp``
-* ``NULL > 'a'``
+* ``NULL > "a"``
     * This expression is valid although it always results in ``NULL``. See
       :ref:`bql_operators_null_comparison` below.
 
@@ -122,11 +122,11 @@ expression is ``NULL``.
 
 .. note::
 
-    ``[NULL] = [NULL]`` and ``{'a': NULL} = {'a': NULL}`` result in ``true``
+    ``[NULL] = [NULL]`` and ``{"a": NULL} = {"a": NULL}`` result in ``true``
     although it contradict the three-valued logic. This specification is
     provided for convenience. Arrays or maps often have ``NULL`` to indicate
     that there's no value for a specific key but the key actually exists. In
-    other words, ``{'a': NULL, 'b': 1}`` and ``{'b': 1}`` are different.
+    other words, ``{"a": NULL, "b": 1}`` and ``{"b": 1}`` are different.
     Therefore, ``NULL`` in arrays are maps are compared as if it's a regular
     value. Unlike ``NULL``, comparing infinite floating point values
     always result in ``false``.
