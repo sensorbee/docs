@@ -41,7 +41,7 @@ BQL provides following string operators:
 .. csv-table::
    :header: "Operator", "Description", "Example", "Result"
 
-   ``||``, Concatenation, "``"Hello" || ", world"``", "``"Hello, world"``"
+   ``||``, Concatenation, "``""Hello"" || "", world""``", "``""Hello, world""``"
 
 All types convertible to a string can be an operand of ``||``. When an operand
 isn't a string, it's converted to string. Then, it's concatenated as a string.

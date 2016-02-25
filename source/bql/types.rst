@@ -19,11 +19,11 @@ BQL has following data types:
     ``bool``, Boolean, ``true``
     ``int``, 64-bit integer, ``12``
     ``float``, 64-bit floating point number, ``3.14``
-    ``string``, String, ``"sensorbee"``
+    ``string``, String, "``""sensorbee""``"
     ``blob``, Binary large object, A blob value cannot directly be written in BQL.
     ``timestamp``, Datetime information in UTC, A timestamp value cannot directly be written in BQL.
-    ``array``, Array, "``[1, "2", 3.4]``"
-    ``map``, Map with string keys, "``{"a": 1, "b": "2", "c": 3.4}``"
+    ``array``, Array, "``[1, ""2"", 3.4]``"
+    ``map``, Map with string keys, "``{""a"": 1, ""b"": ""2"", ""c"": 3.4}``"
 
 These types are designed to work well with JSON. They can be converted to or
 from JSON with some restrictions.
