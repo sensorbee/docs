@@ -9,6 +9,12 @@ Welcome to SensorBee's documentation!
 Contents:
 
 .. toctree::
+   :maxdepth: 1
+   :numbered: -1
+
+   preface.rst
+
+.. toctree::
    :maxdepth: 2
    :numbered: 4
 

@@ -22,10 +22,10 @@ Synopsis
 
     where stream_to_relation_operator is:
 
-        "[" RANGE range_number {TUPLES | SECONDS | MILLISECONDS}
+        '[' RANGE range_number {TUPLES | SECONDS | MILLISECONDS}
             [, BUFFER SIZE buffer_size]
             [, drop_mode IF FULL]
-        "]"
+        ']'
 
 Description
 -----------
@@ -83,12 +83,12 @@ Emitter
     The following parameters are intentionally undocumented at the moment
     because their specification related to computational model would likely
     be changed soon.
-    ["[" {
+    ['[' {
         LIMIT emitter_limit |
         EVERY sample_count-{ST | ND | RD | TH} TUPLE} |
         EVERY sample_time {SECONDS | MILLISECONDS} |
         SAMPLE sampling_rate %
-    } "]"]
+    } ']']
 
 ``FROM`` Clause
 ^^^^^^^^^^^^^^^
