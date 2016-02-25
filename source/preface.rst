@@ -27,7 +27,7 @@ engine. SensorBee is designed to be used for streaming ETL
 `Fog <http://www.cisco.com/c/dam/en_us/solutions/trends/iot/docs/computing-overview.pdf>`_.
 In ETL operations, SensorBee mainly focuses on data transformation and data
 enrichment, especially using machine learning. SensorBee is very small (< 30MB)
-and runs on a small computers such as Raspberry Pi.
+and runs on small computers such as Raspberry Pi.
 
 The processing flow in SensorBee can be written in BQL, a dialect of CQL
 (Continuous Query Language), which is similar to SQL but extended for streaming
