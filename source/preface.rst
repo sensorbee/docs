@@ -22,7 +22,7 @@ What is SensorBee?
 ******************
 
 SensorBee is an open source lightweight stateful streaming data processing
-engine. SensorBee is designed to be used for streaming ETL
+engine for IoT. SensorBee is designed to be used for streaming ETL
 (Extract/Transform/Load) at the edge of the network including
 `Fog <http://www.cisco.com/c/dam/en_us/solutions/trends/iot/docs/computing-overview.pdf>`_.
 In ETL operations, SensorBee mainly focuses on data transformation and data
