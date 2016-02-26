@@ -164,7 +164,7 @@ UDS has to be provided with it::
 
 In this example, a UDF ``my_next_count`` is registered to the SensorBee server.
 The UDF calls ``Counter.Next`` method to obtain the next count and returns it.
-The UDF receives one arguemnt ``uds`` that is the name of the UDS to be updated.
+The UDF receives one argument ``uds`` that is the name of the UDS to be updated.
 
 ::
 

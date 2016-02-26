@@ -228,7 +228,7 @@ Unlike a regular source, the ``GenerateStream`` method of a rewindable source
 must not return after it emits all tuples. Instead, it needs to wait until the
 ``Rewind`` method or the ``Stop`` method is called. Once it returns, the source
 is considered stopped and no further operation including the ``REWIND SOURCE``
-statement woulnd't work on the source.
+statement wouldn't work on the source.
 
 Due to its nature, a stream isn't often resumable. A resumable source is
 mostly used for relatively static data sources such as relations or files.

@@ -31,7 +31,7 @@ and runs on small computers such as Raspberry Pi.
 
 The processing flow in SensorBee is written in BQL, a dialect of CQL
 (Continuous Query Language), which is similar to SQL but extended for streaming
-data processing. Its internal data structure (tuple) is compatbile to JSON
+data processing. Its internal data structure (tuple) is compatible to JSON
 rather than rows in RDBMSs. Therefore, in addition to regular SQL expressions,
 BQL implements JSON notation and type conversions that works well with JSON.
 BQL is also schemaless at the moment to support rapid prototyping and
@@ -41,7 +41,7 @@ integration.
 
     Supporting a schema in SensorBee is being planned to increase its
     robustness, debuggability, and speed. However, the version that will support
-    the feature has not been decieded yet.
+    the feature has not been decided yet.
 
 SensorBee manages user-defined states (UDSs) and BQL utilizes those states to
 perform stateful processing on streaming data. An example of stateful processing

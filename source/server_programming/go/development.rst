@@ -26,7 +26,7 @@ the same repository.
 Implementing Components
 -----------------------
 
-The next step is to implement components. There's no restiction on which
+The next step is to implement components. There's no restriction on which
 standard or 3rd party packages to depend.
 
 Functions or structs that are registered to the SensorBee server needs to be
@@ -62,7 +62,7 @@ implementation of components. Firstly, by separating them, other Go packages can
 import the components to use the package as a library without registering them
 to SensorBee. Secondly, having a separated plugin package allows a user to
 register a component with a different name. This is especially useful
-when names of comopnents conflict each other.
+when names of components conflict each other.
 
 To use the example plugin above, "github.com/user/myudf/plugin" package needs
 to be added to the plugin path list of SensorBee.
