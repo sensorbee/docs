@@ -131,7 +131,7 @@ another stream having the ``name``. Because the ``name`` is given outside the
 UDSF, it's uncontrollable from the UDSF. However, there're cases that a UDSF
 wants to know from which stream a tuple has come. For example, when providing
 a UDSF performing a JOIN or two streams, a UDSF needs to distinguish which
-stream emittted the tuple. If the UDSF was defined as
+stream emitted the tuple. If the UDSF was defined as
 ``my_join(left_stream, right_stream)``, ``decl`` can be used as follows in
 ``UDSFCreator.CreateUDSF``::
 
