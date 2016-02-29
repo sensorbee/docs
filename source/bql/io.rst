@@ -151,7 +151,7 @@ and there's no parameter that is common to all sinks.
 
 Sink types can also be registered to the SensorBee server as plugins. To learn
 how to develop and register a sink plugin, see
-:ref:`server_programming_go_sink`.
+:ref:`server_programming_go_sinks`.
 
 Built-in Sinks
 ^^^^^^^^^^^^^^
@@ -210,7 +210,7 @@ This section describes operations among UDSs. Use cases of UDSs described in
 Creating a UDS
 --------------
 
-A UDS can be created by the :ref:`bql_stmts_create_state` statement::
+A UDS can be created by the :ref:`ref_stmts_create_state` statement::
 
     CREATE STATE age_classifier TYPE jubaclassifier_arow
         WITH label_field = "age", regularization_weight = 0.001;
