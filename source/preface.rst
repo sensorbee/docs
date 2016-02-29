@@ -103,12 +103,12 @@ Besides this documentation, there're other resources about SensorBee:
 
 Website
 
-    TODO
+    `<http://sensorbee.io/>`_ has general information of SensorBee.
 
 github
 
     The `sensorbee <https://github.com/sensorbee>`_ organization has the core
-    source code of SensorBee and its plugins.
+    source code of SensorBee and its official plugins.
 
 Godoc
 
@@ -118,4 +118,3 @@ Godoc
 Mailing lists
 
     TODO
-
