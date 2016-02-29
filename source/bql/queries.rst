@@ -499,6 +499,6 @@ and ``expression`` can generally be any expression, but it cannot contain refere
 
 For example, in the SensorBee Shell, the following can be done::
 
-    >>> EVAL "foo" || "bar";
+    > EVAL "foo" || "bar";
     foobar
 
