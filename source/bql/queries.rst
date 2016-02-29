@@ -485,28 +485,6 @@ If a stream thus created is no longer needed, it can be dropped using the ``DROP
 
     DROP STREAM stream_name;
 
-
-Data Output
-===========
-
-To write data to a sink, there are two different statements.
-If *all* data from a stream is to be written to a sink unaltered, the
-
-::
-
-    INSERT INTO sink_name FROM stream_name;
-
-statement can be used.
-
-If the stream that is used to insert into the sink was created only for that purpose, the ``CREATE STREAM`` and ``INSERT INTO`` statements can be merged to one::
-
-    INSERT INTO sink_name select_statement;
-
-For example::
-
-    INSERT INTO notifier SELECT RSTREAM * FROM events [RANGE 1 TUPLES] WHERE importance > 5;
-
-
 Expression Evaluation
 =====================
 

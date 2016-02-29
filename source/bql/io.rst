@@ -11,10 +11,6 @@ user-defined staets (UDSs).
 
 TODO:
 
-- Data Output
-    - CREATE SINK
-    - UPDATE SINK
-    - DROP SINK
 - Stateful Data Processing
     - CREATE STATE
     - UPDATE STATE
@@ -63,7 +59,7 @@ BQL has built-in source types.
 
 ``file``
 
-    The ``file`` type provides a source that input tuples from an existing file.
+    The ``file`` type provides a source that inputs tuples from an existing file.
 
 ``node_statuses``
 
@@ -141,6 +137,65 @@ a source may cascadingly be stopped when the source gets dropped.
 
 Data Output
 ===========
+
+Results of processing tuples need to be emitted systems or services running
+outside the SensorBee server so that it can work with them as a part of a
+large system. A **sink** outputs the result of computations performed within
+the SensorBee server. This section explains how sinks are operated in BQL.
+
+Creating a Sink
+---------------
+
+A sink can be created by the :ref:`ref_stmts_create_sink` statement::
+
+    CREATE SINK filtered_logs TYPE file WITH path = "filtered_access_log.jsonl";
+
+The statement is very similar to the ``CREATE SOURCE`` statement. It takes the
+name of the new sink, its type, and parameters. Multiple parameters can also be
+provided as a list separated by commas.
+
+Sink types can also be registered to the SensorBee server as plugins. To learn
+how to develop and register a sink plugin, see
+:ref:`server_programming_go_sink`.
+
+Built-in Sinks
+^^^^^^^^^^^^^^
+
+BQL has built-in sink types.
+
+``file``
+
+    The ``file`` type provides a sink that writes tuples to a file.
+
+``stdout``
+
+    The ``stdout`` sinks writes output tuples to stdout.
+
+``uds``
+
+    The ``uds`` sink passes tuples to user-defined states, which is described
+    later.
+
+Writing Data to a Sink
+-----------------------
+
+The :ref:`ref_stmts_insert_into` statement writes data to a sink::
+
+    INSERT INTO filtered_logs FROM filtering_stream;
+
+The statement takes the name of sink to be written and the name of a source or
+a stream, which will be described in following chapters.
+
+Dropping a Sink
+---------------
+
+The :ref:`ref_stmts_drop_sink` statement drops a sink from a topology::
+
+    DROP SINK filtered_logs;
+
+The statement taks the name of the sink to be dropped. The sink cannot be
+accessed once it gets dropped. All ``INSERT INTO`` statements writing to the
+dropped sink are also stopped.
 
 .. _bql_io_state:
 
