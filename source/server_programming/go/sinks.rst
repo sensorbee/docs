@@ -1,3 +1,5 @@
+.. _server_programming_go_sinks:
+
 Sink Plugins
 ============
 
