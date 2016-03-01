@@ -5,3 +5,4 @@ Reference
 #########
 
 .. include:: ref/stmts.rst
+.. include:: ref/commands.rst

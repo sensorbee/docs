@@ -23,7 +23,7 @@ Contents:
    server_programming.rst
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :numbered: -1
 
    ref.rst

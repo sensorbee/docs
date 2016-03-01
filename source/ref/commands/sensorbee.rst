@@ -1,7 +1,7 @@
 .. _ref_commands_sensorbee:
 
-``sensorbee``
-=============
+sensorbee
+=========
 
 ``sensorbee`` is the main command to manipulate SensorBee. ``sensorbee``
 consists of a set of following subcommands:
@@ -26,8 +26,8 @@ Flags and Options
 
 .. _ref_commands_sensorbee_run:
 
-``sensorbee run``
-=================
+sensorbee run
+=============
 
 ``sensorbee run`` runs the SensorBee server that manages multiple topologies
 that can dynamically modified at runtime.
@@ -308,8 +308,8 @@ Flags and Options
 
 .. _ref_commands_sensorbee_runfile:
 
-``sensorbee runfile``
-=====================
+sensorbee runfile
+=================
 
 ``sensorbee runfile`` runs a single BQL file. This command is mainly designed
 for offline data processing but can be used as a standalone SensorBee process
@@ -394,8 +394,8 @@ Flags and Options
 
 .. _ref_commands_sensorbee_shell:
 
-``sensorbee shell``
-===================
+sensorbee shell
+===============
 
 ``sensorbee shell`` starts a new shell to manipulate the SensorBee server. The
 shell can be terminated by writing ``exit`` or typing ``C-d``.
@@ -435,5 +435,62 @@ Flags and options
 
 .. _ref_commands_sensorbee_topology:
 
-``sensorbee topology``
-======================
+sensorbee topology
+==================
+
+``sensorbee topology``, or ``sensorbee t``, is used to manipulate topologies on
+the SensorBee server.
+
+.. note::
+
+    This command is provided because the syntax of BQL statements that
+    controls topologies has not been discussed enough yet.
+
+The command consists of following subcommands:
+
+``sensorbee topology create <name>`` or ``sensorbee t c <name>``
+
+    This command creates a new topology on the SensorBee server. The ``<name>``
+    argument is the name of the topology to be created. ``$?`` will be 0 if
+    the command is successful. Otherwise, it'll be non-zero. The command fails
+    if the topology already exists on the server.
+
+``sensorbee topology drop <name>`` or ``sensorbee t drop <name>``
+
+    This command drops an existing topology on the SensorBee server. The
+    ``<name>`` argument is the name of the topology to be dropped. ``$?`` will
+    be 0 if the command is successful. Otherwise, it'll be non-zero. The command
+    doesn't fail even if the topology doesn't exist on the server.
+
+``sensorbee topology list`` or ``sensorbee t l``
+
+    This commands prints names of all topologies that the SensorBee server has,
+    one name per line.
+
+All commands share the same flags and options. Flags and options need to be
+given after the subcommand name::
+
+    $ sensorbee topology create --flag --option value my_topology
+
+In this example, a flag ``--flag`` and an option ``--option value`` are
+provided. The argument of the command, i.e. the name of topology, is
+``my_topology``.
+
+Flags and Options
+-----------------
+
+``--api-version version``
+
+    This option changes the API version of the SensorBee server. The default
+    value of this option is ``v1``.
+
+``--help`` or ``-h``
+
+    When this flag is given, the command prints the usage of itself.
+
+``--uri``
+
+    This option is used when the SensorBee server is running at non-localhost
+    or using non-default port number (15601). The value should have a format
+    like ``http://host:port/``. The default value of this option is
+    ``http://localhost:15601/``.

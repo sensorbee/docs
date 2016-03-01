@@ -1,7 +1,7 @@
 .. _ref_commands_build_sensorbee:
 
-``build_sensorbee``
-===================
+build_sensorbee
+===============
 
 Because SensorBee is written in Go, all its dependencies including plugins
 generally need to be statically linked, or at least cannot be dynamically
@@ -50,8 +50,8 @@ The ``plugins`` section is optional and may have a list of plugins as follows::
 A plugin must be provided as a valid import path of Go. A path depends on each
 plugin.
 
-An Example
-^^^^^^^^^^
+A Complete Example
+^^^^^^^^^^^^^^^^^^
 
 ::
 
