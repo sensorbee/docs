@@ -32,6 +32,15 @@ Flags and Options
 ``sensorbee run`` runs the SensorBee server that manages multiple topologies
 that can dynamically modified at runtime.
 
+Basic Usage
+-----------
+
+::
+
+    $ sensorbee run -c sensorbee.yaml
+
+.. _ref_commands_sensorbee_run_config:
+
 Configuration
 -------------
 
@@ -301,6 +310,87 @@ Flags and Options
 
 ``sensorbee runfile``
 =====================
+
+``sensorbee runfile`` runs a single BQL file. This command is mainly designed
+for offline data processing but can be used as a standalone SensorBee process
+that doesn't expose any interface to manipulate the topology.
+
+``sensorbee runfile`` stops after all the nodes created by the given BQL file
+stops. The command doesn't stop if it contains a source that generates infinite
+tuples or is rewindable. Other non-rewindable sources such as ``file`` stopping
+when it emits all tuples written in a file can work well with the command.
+
+Sources generally need to be created with ``PAUSED`` keyword in the
+:ref:`ref_stmts_create_source` statement. Without ``PAUSED``, a source can start
+emitting tuples before all nodes in a topology can correctly be set up.
+Therefore, a BQL file passed to the command should look like::
+
+    CREATE PAUSED SOURCE source_1 TYPE ...;
+    CREATE PAUSED SOURCE source_2 TYPE ...;
+    ...
+    CREATE PAUSED SOURCE source_n TYPE ...;
+
+    ... CREATE STREAM, CREATE SINK, or other statements
+
+    RESUME SOURCE source_1;
+    RESUME SOURCE source_2;
+    ...
+    RESUME SOURCE source_n;
+
+With the ``--save-uds`` option described later, it saves UDSs at the end of its
+execution.
+
+Basic Usage
+-----------
+
+::
+
+    $ sensorbee runfile my_topology.bql
+
+With options::
+
+    $ sensorbee runfile -c sensorbee.yaml -s '' my_topology.bql
+
+Configuration
+-------------
+
+``sensorbee runfile`` accepts the configuration file for ``sensorbee run``. It
+only uses ``logging`` and ``storage`` sections. The configuration file may
+contain other sections as well and the same file for ``sensorbee run`` can also
+be used for ``sensorbee runfile``. See
+:ref:`its configuration <ref_commands_sensorbee_run_config>` for details.
+
+Flags and Options
+-----------------
+
+``--config path`` or ``-c path``
+
+    This option receives the path of the configuration file. By default, the
+    value is empty and no configuration file is used. This value can also be
+    passed through ``SENSORBEE_CONFIG`` environment variable.
+
+``--help`` or ``-h``
+
+    When this flag is given, the command prints the usage of itself.
+
+``--save-uds udss`` or ``-s udss``
+
+    This option receives a list of names of UDSs separated by commas. UDSs
+    listed in it will be saved at the end of execution. For example, when the
+    option is ``-s "a,b,c"``, UDSs named ``a``, ``b``, and ``c`` will be saved.
+    To save all UDSs in a topology, pass an empty string: ``-s ""``.
+
+    By default, all UDSs will **not** be saved at the end of execution.
+
+``--topology name`` or ``-t name``
+
+    This option changes the name of the topology to be run with the given BQL
+    file. The default name is taken from the file name of the BQL file. The name
+    specified to this option will be used in log messages or saved UDS data.
+    Especially, names of files containing saved UDS data has contains the name
+    of the topology. Therefore, providing the same name as the topology that
+    will be run by ``sensorbee run`` later on allows users to prepare UDSs
+    including pre-trained machine learning models in advance.
 
 .. _ref_commands_sensorbee_shell:
 
