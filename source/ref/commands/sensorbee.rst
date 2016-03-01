@@ -397,6 +397,42 @@ Flags and Options
 ``sensorbee shell``
 ===================
 
+``sensorbee shell`` starts a new shell to manipulate the SensorBee server. The
+shell can be terminated by writing ``exit`` or typing ``C-d``.
+
+Basic Usage
+-----------
+
+::
+
+    $ sensorbee shell -t my_topology
+    my_topology>
+
+Flags and options
+-----------------
+
+``--api-version version``
+
+    This option changes the API version of the SensorBee server. The default
+    value of this option is ``v1``.
+
+``--help`` or ``-h``
+
+    When this flag is given, the command prints the usage of itself.
+
+``--topology name`` or ``-t name``
+
+    The name of a topology to be manipulated can be specified through this
+    option so that ``USE topology_name`` doesn't have to be used in the shell.
+    The default value is an empty name, that is, no topology is specified.
+
+``--uri``
+
+    This option is used when the SensorBee server is running at non-localhost
+    or using non-default port number (15601). The value should have a format
+    like ``http://host:port/``. The default value of this option is
+    ``http://localhost:15601/``.
+
 .. _ref_commands_sensorbee_topology:
 
 ``sensorbee topology``
