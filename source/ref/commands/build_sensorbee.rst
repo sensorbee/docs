@@ -79,7 +79,7 @@ Flags and Options
     ``build_sensorbee`` downloads (i.e. ``go get``) all plugins listed in
     ``build.yaml``. When it's ``false``, ``build_sensorbee`` doesn't download
     plugins and tries to used plugins as installed in the environment. The
-    default value is true.
+    default value is ``true``.
 
     Specifying ``false`` is useful when the custom ``sensorbee`` command needs
     to depend on a plugin that is in a special git branch or locally modified.
