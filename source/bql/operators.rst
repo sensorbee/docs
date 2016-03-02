@@ -43,10 +43,10 @@ BQL provides following string operators:
 
    ``||``, Concatenation, "``""Hello"" || "", world""``", "``""Hello, world""``"
 
-All types convertible to a string can be an operand of ``||``. When an operand
-isn't a string, it's converted to string. Then, it's concatenated as a string.
-For example, ``"a" || 1`` results in ``"a1"`` and ``10 || true`` will be
-``10true``.
+``||`` only accepts strings and ``NULL``. For example, ``"1" || 2`` results in
+an error. When one operand is ``NULL``, the result is also ``NULL``.
+For instance, ``NULL || "str"``, ``"str" || NULL``, and ``NULL || NULL`` result
+in ``NULL``.
 
 Comparison operators
 ====================
