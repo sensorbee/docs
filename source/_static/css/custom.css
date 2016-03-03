@@ -3,3 +3,12 @@
 #function-reference h6 {
   margin-bottom: 4px;
 }
+
+#function-reference h5 {
+  border-top: 1px solid #404040;
+  padding-top: 20px;
+}
+
+#function-reference h5 tt {
+  font-size: 100%;
+}
