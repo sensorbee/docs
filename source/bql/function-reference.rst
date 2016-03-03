@@ -1551,7 +1551,9 @@ Aggregate Functions Reference
 Description
 """""""""""
 
-input values, including nulls, concatenated into an array
+``array_agg`` returns an array containing all input values, including ``NULL`` values.
+There is no guarantee on the order of items in the result.
+Use the ``ORDER BY`` clause to achieve a certain ordering.
 
 Parameter Types
 """""""""""""""
@@ -1576,13 +1578,13 @@ Return Type
 Description
 """""""""""
 
-the average (arithmetic mean) of all input values
+``avg`` computes the average (arithmetic mean) of all input values.
 
 Parameter Types
 """""""""""""""
 
 ``x``
-    ``int`` or ``float``
+    ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
 """""""""""
@@ -1601,7 +1603,7 @@ Return Type
 Description
 """""""""""
 
-true if all input values are true, otherwise false
+``bool_and`` returns ``true`` if all input values are true, otherwise ``false``.
 
 Parameter Types
 """""""""""""""
@@ -1626,7 +1628,7 @@ Return Type
 Description
 """""""""""
 
-true if at least one input value is true, otherwise false
+``bool_or`` returns ``true`` if at least one input value is true, otherwise ``false``.
 
 Parameter Types
 """""""""""""""
@@ -1648,11 +1650,12 @@ Return Type
 ::
 
     count(x)
+    count(*)
 
 Description
 """""""""""
 
-number of input rows for which ``x`` is not null
+``count`` returns the number of input rows for which ``x`` is not ``NULL``, or the number of total rows if ``*`` is passed.
 
 Parameter Types
 """""""""""""""
@@ -1667,29 +1670,6 @@ Return Type
 
 
 
-``count``
-^^^^^^^^^
-
-::
-
-    count(*)
-
-Description
-"""""""""""
-
-number of input rows
-
-Parameter Types
-"""""""""""""""
-
-``x``
-    none
-
-Return Type
-"""""""""""
-
-``int``
-
 
 
 ``json_object_agg``
@@ -1702,13 +1682,23 @@ Return Type
 Description
 """""""""""
 
-aggregates name/value pairs as a map
+``json_object_agg`` aggregates pairs of key ``k`` and value ``v`` as a map.
+If both key and value are ``NULL``, the pair is ignored.
+If only the value is ``NULL``, it is still added with the corresponding key. 
+It is an error if only the key is ``NULL``.
+It is an error if a key appears multiple times.
+
+A map does not have an ordering, therefore there is no guarantee on the result map ordering, whether or not ``ORDER BY`` is used.
+
 
 Parameter Types
 """""""""""""""
 
-``x``
-    ``string``, any
+``k``
+    ``string``
+
+``v``
+    any
 
 Return Type
 """""""""""
@@ -1728,13 +1718,13 @@ Return Type
 Description
 """""""""""
 
-maximum value of ``x`` across all input values
+``max`` computes the maximum value of all input values.
 
 Parameter Types
 """""""""""""""
 
 ``x``
-    ``int`` or ``float``
+    ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
 """""""""""
@@ -1754,13 +1744,13 @@ same as largest input value
 Description
 """""""""""
 
-the median of all input values
+``median`` computes the median of all input values.
 
 Parameter Types
 """""""""""""""
 
 ``x``
-    ``int`` or ``float``
+    ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
 """""""""""
@@ -1779,13 +1769,13 @@ Return Type
 Description
 """""""""""
 
-minimum value of ``x`` across all input values
+``min`` computes the minimum value of all input values.
 
 Parameter Types
 """""""""""""""
 
 ``x``
-    ``int`` or ``float``
+    ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
 """""""""""
@@ -1804,13 +1794,16 @@ same as smallest input value
 Description
 """""""""""
 
-input values concatenated into a string, separated by ``sep``
+``string_agg`` returns a string with all values of ``x`` concatenated, separated by the (non-aggregate) ``sep`` parameter.
 
 Parameter Types
 """""""""""""""
 
 ``x``
-    ``string``, ``string`` (scalar)
+    ``string``
+
+``sep``
+    ``string`` (scalar)
 
 Return Type
 """""""""""
@@ -1830,18 +1823,17 @@ Return Type
 Description
 """""""""""
 
-sum of ``x`` across all input values
+``sum`` computes the sum of all input values.
 
 Parameter Types
 """""""""""""""
 
 ``x``
-    ``int`` or ``float``
+    ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
 """""""""""
 
-``float`` if the input contains a
-``float``, ``int`` otherwise
+``float`` if the input contains a ``float``, ``int`` otherwise
 
 
