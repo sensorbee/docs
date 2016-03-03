@@ -1,36 +1,37 @@
 
+******************
 Function Reference
-==================
+******************
 
 Scalar Functions Reference
---------------------------
+==========================
 
 
 ``abs``
-^^^^^^^
+-------
 
 ::
 
     abs(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``abs`` computes the absolute value of a number.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as input
 
 Examples
-""""""""
+^^^^^^^^
 
 +----------------+----------+
 | Function Call  | Result   |
@@ -40,30 +41,30 @@ Examples
 
 
 ``cbrt``
-^^^^^^^^
+--------
 
 ::
 
     cbrt(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``cbrt`` computes the cube root of a number.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +----------------+-------------------------+
 | Function Call  | Result                  |
@@ -76,32 +77,32 @@ Examples
 
 
 ``ceil``
-^^^^^^^^
+--------
 
 ::
 
     ceil(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``ceil`` computes the smallest integer not less than its argument.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as input
 
 The return type is ``float`` for ``float`` input in order to avoid problems with input values that are too large for the ``int`` data type.
 
 Examples
-""""""""
+^^^^^^^^
 
 +----------------+----------+
 | Function Call  | Result   |
@@ -115,30 +116,30 @@ Examples
 
 
 ``degrees``
-^^^^^^^^^^^
+-----------
 
 ::
 
     degrees(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``degrees`` converts radians to degrees.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +--------------------------------+-----------+
 | Function Call                  | Result    |
@@ -150,20 +151,20 @@ Examples
 
 
 ``div``
-^^^^^^^
+-------
 
 ::
 
     div(y, x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``div`` computes the integer quotient ``y``/``x`` of two numbers ``y`` and ``x``.
 If ``x`` is ``0.0`` (float) then ``NaN`` will be returned; it it is ``0`` (integer) then a runtime error will occur.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``y``
     ``int`` or ``float``
@@ -172,12 +173,12 @@ Parameter Types
     same as ``y``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as input
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------+----------+
 | Function Call     | Result   |
@@ -190,30 +191,30 @@ Examples
 
 
 ``exp``
-^^^^^^^
+-------
 
 ::
 
     exp(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``exp`` computes the exponential of a number.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +----------------+-----------------------+
 | Function Call  | Result                |
@@ -224,32 +225,32 @@ Examples
 
 
 ``floor``
-^^^^^^^^^
+---------
 
 ::
 
     floor(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``floor`` computes the largest integer not greater than its argument.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as input
 
 The return type is ``float`` for ``float`` input in order to avoid problems with input values that are too large for the ``int`` data type.
 
 Examples
-""""""""
+^^^^^^^^
 
 +-----------------+----------+
 | Function Call   | Result   |
@@ -262,31 +263,31 @@ Examples
 
 
 ``ln``
-^^^^^^
+------
 
 ::
 
     ln(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``ln`` computes the natural logarithm of a number.
 If the parameter is not strictly positive, ``NaN`` is returned.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +----------------+------------------------+
 | Function Call  | Result                 |
@@ -297,7 +298,7 @@ Examples
 
 
 ``log``
-^^^^^^^
+-------
 
 ::
 
@@ -305,12 +306,12 @@ Examples
     log(b, x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``log`` computes the logarithm of a number ``x`` to base ``b`` (default: 10).
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
@@ -319,12 +320,12 @@ Parameter Types
     same as ``x``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +--------------------+----------+
 | Function Call      | Result   |
@@ -340,20 +341,20 @@ Examples
 
 
 ``mod``
-^^^^^^^
+-------
 
 ::
 
     mod(y, x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``mod`` computes the remainder of integer division ``y``/``x`` of two numbers ``y`` and ``x``.
 If ``x`` is ``0.0`` (float) then ``NaN`` will be returned; it it is ``0`` (integer) then a runtime error will occur.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``y``
     ``int`` or ``float``
@@ -362,12 +363,12 @@ Parameter Types
     same as ``y``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as input
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------+----------+
 | Function Call     | Result   |
@@ -380,24 +381,24 @@ Examples
 
 
 ``pi``
-^^^^^^
+------
 
 ::
 
     pi()
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``pi`` returns the π constant (more or less 3.14).
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +----------------+-----------------------+
 | Function Call  | Result                |
@@ -408,19 +409,19 @@ Examples
 
 
 ``power``
-^^^^^^^^^
+---------
 
 ::
 
     power(a, b)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``power`` computes ``a`` raised to the power of ``b``.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``a``
     ``int`` or ``float``
@@ -429,14 +430,14 @@ Parameter Types
     same as ``a``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 The return type is ``float`` even for integer input in order to have a uniform behavior for cases such as ``power(2, -2)``.
 
 Examples
-""""""""
+^^^^^^^^
 
 +---------------------+-----------+
 | Function Call       | Result    |
@@ -449,30 +450,30 @@ Examples
 
 
 ``radians``
-^^^^^^^^^^^
+-----------
 
 ::
 
     radians(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``radians`` converts degrees to radians.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +------------------+-----------------------+
 | Function Call    | Result                |
@@ -483,32 +484,32 @@ Examples
 
 
 ``round``
-^^^^^^^^^
+---------
 
 ::
 
     round(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``round`` computes the nearest integer of a number.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as input
 
 The return type is ``float`` for ``float`` input in order to avoid problems with input values that are too large for the ``int`` data type.
 
 Examples
-""""""""
+^^^^^^^^
 
 +-----------------+----------+
 | Function Call   | Result   |
@@ -523,31 +524,31 @@ Examples
 
 
 ``sqrt``
-^^^^^^^^
+--------
 
 ::
 
     sqrt(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``sqrt`` computes the square root of a number.
 If the parameter is negative, ``NaN`` is returned.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +----------------+------------------------+
 | Function Call  | Result                 |
@@ -559,32 +560,32 @@ Examples
 
 
 ``trunc``
-^^^^^^^^^
+---------
 
 ::
 
     trunc(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``trunc`` computes the truncated integer (towards zero) of a number.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as input
 
 The return type is ``float`` for ``float`` input in order to avoid problems with input values that are too large for the ``int`` data type.
 
 Examples
-""""""""
+^^^^^^^^
 
 +-----------------+----------+
 | Function Call   | Result   |
@@ -597,21 +598,21 @@ Examples
 
 
 ``width_bucket``
-^^^^^^^^^^^^^^^^
+----------------
 
 ::
 
     width_bucket(x, left, right, count)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``widthBucketFunc`` computes the bucket to which ``x`` would be assigned in an equidepth histogram with ``count`` buckets in the range :math:`[\text{left},\text{right}[`.
 Points on a bucket border belong to the right bucket.
 Points outside of the :math:`[\text{left},\text{right}[` range have bucket number :math:`0` and :math:`\text{count}+1`, respectively.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float``
@@ -626,12 +627,12 @@ Parameter Types
     ``int``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``int``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------------------+----------+
 | Function Call                 | Result   |
@@ -643,14 +644,14 @@ Examples
 
 
 ``random``
-^^^^^^^^^^
+----------
 
 ::
 
     random()
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``random`` returns a pseudo-random number in the range :math:`0.0 <= x < 1.0`.
 
@@ -658,12 +659,12 @@ This function is not safe for use in cryptographic applications.
 See the `Go math/rand package <https://golang.org/pkg/math/rand/>`_ for details.
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 Examples
-""""""""
+^^^^^^^^
 
 +---------------+--------------------------+
 | Function Call | Result                   |
@@ -674,14 +675,14 @@ Examples
 
 
 ``setseed``
-^^^^^^^^^^^
+-----------
 
 ::
 
     setseed(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``setseed`` initializes the seed for subsequent ``random()`` calls.
 The parameter must be in the range :math:`-1.0 <= x <= 1.0`.
@@ -690,7 +691,7 @@ This function is not safe for use in cryptographic applications.
 See the `Go math/rand package <https://golang.org/pkg/math/rand/>`_ for details.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``float``
@@ -698,84 +699,84 @@ Parameter Types
 
 
 ``acos``
-^^^^^^^^
+--------
 
 ::
 
     acos(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``acos`` computes the inverse cosine of a number.
 
 
 
 ``asin``
-^^^^^^^^
+--------
 
 ::
 
     asin(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``asin`` computes the inverse sine of a number.
 
 
 
 ``atan``
-^^^^^^^^
+--------
 
 ::
 
     atan(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``atan`` computes the inverse tangent of a number.
 
 
 
 ``cos``
-^^^^^^^
+-------
 
 ::
 
     cos(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``cos`` computes the cosine of a number.
 
 
 
 ``cot``
-^^^^^^^
+-------
 
 ::
 
     cot(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``cot`` computes the cotangent of a number.
 
 
 
 ``sin``
-^^^^^^^
+-------
 
 ::
 
     sin(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``sin`` computes the sine of a number.
 
@@ -783,44 +784,44 @@ Description
 
 
 ``tan``
-^^^^^^^
+-------
 
 ::
 
     tan(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``tan`` computes the tangent of a number.
 
 
 
 ``bit_length``
-^^^^^^^^^^^^^^
+--------------
 
 ::
 
     bit_length(s)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``bit_length`` computes the number of bits in a string.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``int``
 
 Examples
-""""""""
+^^^^^^^^
 
 +------------------------+----------+
 | Function Call          | Result   |
@@ -831,7 +832,7 @@ Examples
 
 
 ``btrim``
-^^^^^^^^^
+---------
 
 ::
 
@@ -839,12 +840,12 @@ Examples
     btrim(s, chars)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``btrim`` removes the longest string consisting only of characters in ``chars`` (default: whitespace) from the start and end of ``s``.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
@@ -853,12 +854,12 @@ Parameter Types
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------------------+------------+
 | Function Call                 | Result     |
@@ -871,30 +872,30 @@ Examples
 
 
 ``char_length``
-^^^^^^^^^^^^^^^
+---------------
 
 ::
 
     char_length(s)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``char_length`` computes the number of characters in a string.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``int``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------------+----------+
 | Function Call           | Result   |
@@ -905,31 +906,31 @@ Examples
 
 
 ``concat``
-^^^^^^^^^^
+----------
 
 ::
 
     concat(s [, ...])
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``concat`` concatenates all strings given as input arguments.
 ``NULL`` values are ignored, i.e., treated like an empty string.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s`` and all subsequent parameters
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------------------+-------------+
 | Function Call                 | Result      |
@@ -940,21 +941,21 @@ Examples
 
 
 ``format``
-^^^^^^^^^^
+----------
 
 ::
 
     format(s, [x, ...])
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``format`` formats a variable number of arguments ``x`` according to a format string ``s``.
 
 See the `Go package fmt <https://golang.org/pkg/fmt/>`_ for details of what formatting codes are allowed.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
@@ -963,12 +964,12 @@ Parameter Types
     any
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +--------------------------------+--------------+
 | Function Call                  | Result       |
@@ -979,31 +980,31 @@ Examples
 
 
 ``lower``
-^^^^^^^^^
+---------
 
 ::
 
     lower(s)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``lower`` converts a string ``s`` to lower case.
 Non-ASCII Unicode characters are mapped to their lower case, too.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------+------------+
 | Function Call     | Result     |
@@ -1015,7 +1016,7 @@ Examples
 
 
 ``ltrim``
-^^^^^^^^^
+---------
 
 ::
 
@@ -1023,12 +1024,12 @@ Examples
     ltrim(s, chars)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``ltrim`` removes the longest string consisting only of characters in ``chars`` (default: whitespace) from the start of ``s``.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
@@ -1037,12 +1038,12 @@ Parameter Types
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------------------+---------------+
 | Function Call                 | Result        |
@@ -1055,30 +1056,30 @@ Examples
 
 
 ``md5``
-^^^^^^^
+-------
 
 ::
 
     md5(s)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``md5`` computes the MD5 checksum of a string ``s`` and returns it in hexadecimal format.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +----------------+----------------------------------------+
 | Function Call  | Result                                 |
@@ -1089,31 +1090,31 @@ Examples
 
 
 ``octet_length``
-^^^^^^^^^^^^^^^^
+----------------
 
 ::
 
     octet_length(s)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``octet_length`` computes the number of bytes in a string ``s``.
 Note that due to UTF-8 encoding, this may differ from the number returned by ``char_length``.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``int``
 
 Examples
-""""""""
+^^^^^^^^
 
 +--------------------------+----------+
 | Function Call            | Result   |
@@ -1124,7 +1125,7 @@ Examples
 
 
 ``overlay``
-^^^^^^^^^^^
+-----------
 
 ::
 
@@ -1132,13 +1133,13 @@ Examples
     overlay(s, repl, from, for)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``overlay`` replaces ``for`` characters in a string ``s`` with the string ``repl``, starting at ``from`` (1-based counting).
 If ``for`` is not given, the length of ``repl`` is used as a default.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
@@ -1153,12 +1154,12 @@ Parameter Types
     ``int``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------------------------+---------------+
 | Function Call                       | Result        |
@@ -1172,7 +1173,7 @@ Examples
 
 
 ``rtrim``
-^^^^^^^^^
+---------
 
 ::
 
@@ -1180,12 +1181,12 @@ Examples
     rtrim(s, chars)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``rtrim`` removes the longest string consisting only of characters in ``chars`` (default: whitespace) from the end of ``s``.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
@@ -1194,12 +1195,12 @@ Parameter Types
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------------------+---------------+
 | Function Call                 | Result        |
@@ -1214,30 +1215,30 @@ Examples
 
 
 ``sha1``
-^^^^^^^^
+--------
 
 ::
 
     sha1(s)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``sha1`` computes the SHA1 checksum of a string ``s`` and returns it in hexadecimal format.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-----------------+------------------------------------------------+
 | Function Call   | Result                                         |
@@ -1248,30 +1249,30 @@ Examples
 
 
 ``sha256``
-^^^^^^^^^^
+----------
 
 ::
 
     sha256(s)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``sha256`` computes the SHA256 checksum of a string ``s`` and returns it in hexadecimal format.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------+------------------------------------------------------------------------+
 | Function Call     | Result                                                                 |
@@ -1283,19 +1284,19 @@ Examples
 
 
 ``strpos``
-^^^^^^^^^^
+----------
 
 ::
 
     strpos(s, t)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``strpos`` returns the index of the first occurence of ``t`` in ``s`` (1-based) or 0 if it is not found.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
@@ -1304,12 +1305,12 @@ Parameter Types
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``int``
 
 Examples
-""""""""
+^^^^^^^^
 
 +--------------------------+----------+
 | Function Call            | Result   |
@@ -1321,7 +1322,7 @@ Examples
 
 
 ``substring``
-^^^^^^^^^^^^^
+-------------
 
 ::
 
@@ -1330,7 +1331,7 @@ Examples
     substring(s, from, for)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``substring(s, r)`` extracts the substring matching regular expression ``r`` from ``s``.
 See the `Go regexp package <https://golang.org/pkg/regexp/>`_ for details of matching.
@@ -1341,7 +1342,7 @@ If ``for`` is not given, everything until the end of ``str`` is returned.
 Which of those behaviors is used depends on the type of the second parameter (``int`` or ``string``).
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
@@ -1356,12 +1357,12 @@ Parameter Types
     ``int``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +---------------------------------+-------------+
 | Function Call                   | Result      |
@@ -1378,31 +1379,31 @@ Examples
 
 
 ``upper``
-^^^^^^^^^
+---------
 
 ::
 
     upper(s)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``upper`` converts a string ``s`` to upper case.
 Non-ASCII Unicode characters are mapped to their upper case, too.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``s``
     ``string``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------+------------+
 | Function Call     | Result     |
@@ -1413,19 +1414,19 @@ Examples
 
 
 ``distance_us``
-^^^^^^^^^^^^^^^
+---------------
 
 ::
 
     distance_us(u, v)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``distance_us`` computes the signed temporal distance from ``u`` to ``v`` in microseconds.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``u``
     ``timestamp``
@@ -1434,12 +1435,12 @@ Parameter Types
     ``timestamp``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``int``
 
 Examples
-""""""""
+^^^^^^^^
 
 +-----------------------------------------------------------------------------------------------+--------------+
 | Function Call                                                                                 | Result       |
@@ -1452,33 +1453,33 @@ Examples
 
 
 ``clock_timestamp``
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 ::
 
     clock_timestamp()
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``clock_timestamp`` returns the current date and time in UTC.
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``timestamp``
 
 
 
 ``now``
-^^^^^^^
+-------
 
 ::
 
     now()
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``now`` returns the date and time in UTC of the point in time when processing of the current tuple started.
 In particular and as opposed to ``clock_timestamp``, the timestamp returned by ``now()`` does not change during a processing run triggered by the arrival of a tuple.
@@ -1494,7 +1495,7 @@ the values of ``a`` and ``b`` are most probably different by a very short timesp
 ``now`` cannot be used in an ``EVAL`` statement outside of a stream processing context.
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``timestamp``
 
@@ -1503,30 +1504,30 @@ Return Type
 
 
 ``coalesce``
-^^^^^^^^^^^^
+------------
 
 ::
 
     coalesce(x [, ...])
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``coalesce`` returns the first non-null input parameter or ``NULL`` if there is no such parameter.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x`` and all subsequent
     any
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as input
 
 Examples
-""""""""
+^^^^^^^^
 
 +-------------------------------+----------+
 | Function Call                 | Result   |
@@ -1538,106 +1539,106 @@ Examples
 
 
 Aggregate Functions Reference
------------------------------
+=============================
 
 
 ``array_agg``
-^^^^^^^^^^^^^
+-------------
 
 ::
 
     array_agg(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``array_agg`` returns an array containing all input values, including ``NULL`` values.
 There is no guarantee on the order of items in the result.
 Use the ``ORDER BY`` clause to achieve a certain ordering.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     any
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``array``
 
 
 
 ``avg``
-^^^^^^^
+-------
 
 ::
 
     avg(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``avg`` computes the average (arithmetic mean) of all input values.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 
 
 ``bool_and``
-^^^^^^^^^^^^
+------------
 
 ::
 
     bool_and(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``bool_and`` returns ``true`` if all input values are true, otherwise ``false``.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``bool``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``bool``
 
 
 
 ``bool_or``
-^^^^^^^^^^^
+-----------
 
 ::
 
     bool_or(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``bool_or`` returns ``true`` if at least one input value is true, otherwise ``false``.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``bool``
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``bool``
 
@@ -1645,7 +1646,7 @@ Return Type
 
 
 ``count``
-^^^^^^^^^
+---------
 
 ::
 
@@ -1653,18 +1654,18 @@ Return Type
     count(*)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``count`` returns the number of input rows for which ``x`` is not ``NULL``, or the number of total rows if ``*`` is passed.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     any
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``int``
 
@@ -1673,14 +1674,14 @@ Return Type
 
 
 ``json_object_agg``
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 ::
 
     json_object_agg(k, v)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``json_object_agg`` aggregates pairs of key ``k`` and value ``v`` as a map.
 If both key and value are ``NULL``, the pair is ignored.
@@ -1692,7 +1693,7 @@ A map does not have an ordering, therefore there is no guarantee on the result m
 
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``k``
     ``string``
@@ -1701,7 +1702,7 @@ Parameter Types
     any
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``map``
 
@@ -1709,25 +1710,25 @@ Return Type
 
 
 ``max``
-^^^^^^^
+-------
 
 ::
 
     max(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``max`` computes the maximum value of all input values.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as largest input value
 
@@ -1735,69 +1736,69 @@ same as largest input value
 
 
 ``median``
-^^^^^^^^^^
+----------
 
 ::
 
     median(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``median`` computes the median of all input values.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float``
 
 
 
 ``min``
-^^^^^^^
+-------
 
 ::
 
     min(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``min`` computes the minimum value of all input values.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 same as smallest input value
 
 
 
 ``string_agg``
-^^^^^^^^^^^^^^
+--------------
 
 ::
 
     string_agg(x, sep)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``string_agg`` returns a string with all values of ``x`` concatenated, separated by the (non-aggregate) ``sep`` parameter.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``string``
@@ -1806,7 +1807,7 @@ Parameter Types
     ``string`` (scalar)
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``string``
 
@@ -1814,25 +1815,25 @@ Return Type
 
 
 ``sum``
-^^^^^^^
+-------
 
 ::
 
     sum(x)
 
 Description
-"""""""""""
+^^^^^^^^^^^
 
 ``sum`` computes the sum of all input values.
 
 Parameter Types
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 ``x``
     ``int`` or ``float`` (mixed types are allowed)
 
 Return Type
-"""""""""""
+^^^^^^^^^^^
 
 ``float`` if the input contains a ``float``, ``int`` otherwise
 

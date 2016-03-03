@@ -253,6 +253,3 @@ The special syntax considerations for aggregate functions are explained in `Aggr
 It should be noted that except for ``count``, these functions return a ``NULL`` value when no rows are selected.
 In particular, ``sum`` of no rows returns ``NULL``, not zero as one might expect, and ``array_agg`` returns ``NULL`` rather than an empty array when there are no input rows.
 The ``coalesce`` function can be used to substitute zero or an empty array for ``NULL`` when necessary.
-
-
-.. include:: bql/function-reference.rst
