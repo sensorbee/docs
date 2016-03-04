@@ -4,8 +4,11 @@
 Function Reference
 ******************
 
-Scalar Functions Reference
-==========================
+Common Mathematical Functions
+=============================
+
+For the functions below, if a given parameter is outside the mathematically valid range for that function (e.g., ``sqrt(-2)``, ``log(0)``, ``div(2.0, 0.0)``) and the return type is ``float``, then ``NaN`` is returned.
+However, if the return type is ``int`` (e.g., ``div(2, 0)``), there is no ``NaN`` option and an error will occur instead.
 
 
 .. _ref_func_abs:
@@ -678,7 +681,7 @@ Examples
 Description
 ^^^^^^^^^^^
 
-``widthBucketFunc`` computes the bucket to which ``x`` would be assigned in an equidepth histogram with ``count`` buckets in the range :math:`[\text{left},\text{right}[`.
+``width_bucket`` computes the bucket to which ``x`` would be assigned in an equidepth histogram with ``count`` buckets in the range :math:`[\text{left},\text{right}[`.
 Points on a bucket border belong to the right bucket.
 Points outside of the :math:`[\text{left},\text{right}[` range have bucket number :math:`0` and :math:`\text{count}+1`, respectively.
 
@@ -712,7 +715,11 @@ Examples
 +-------------------------------+----------+
 
 
+Pseudo-Random Functions
+=======================
 
+The characteristics of the functions below are equal to those from `the Go rand module <https://golang.org/pkg/math/rand/>`_.
+They are not suitable for cryptographic applications.
 
 .. _ref_func_random:
 
@@ -771,6 +778,14 @@ Parameter Types
 ``x``
     ``float``
 
+
+
+Trigonometric Functions
+=======================
+
+All trigonometric functions take arguments and return values of type ``float``.
+Trigonometric functions arguments are expressed in radians.
+Inverse functions return values are expressed in radians.
 
 
 .. _ref_func_acos:
@@ -884,6 +899,10 @@ Description
 
 ``tan`` computes the tangent of a number.
 
+
+
+String Functions
+================
 
 
 .. _ref_func_bit_length:
@@ -1572,6 +1591,10 @@ Examples
 
 
 
+Time Functions
+==============
+
+
 .. _ref_func_distance_us:
 
 ``distance_us``
@@ -1667,6 +1690,10 @@ Return Type
 
 
 
+Other Scalar Functions
+======================
+
+
 
 .. _ref_func_coalesce:
 
@@ -1705,9 +1732,16 @@ Examples
 
 
 
-Aggregate Functions Reference
-=============================
+Aggregate Functions
+===================
 
+Aggregate functions compute a single result from a set of input values.
+It should be noted that except for ``count``, these functions return a ``NULL`` value when no rows are selected.
+In particular, ``sum`` of no rows returns ``NULL``, not zero as one might expect, and ``array_agg`` returns ``NULL`` rather than an empty array when there are no input rows.
+The ``coalesce`` function can be used to substitute zero or an empty array for ``NULL`` when necessary.
+
+Also note that most aggregate functions ignore singular ``NULL`` values in their input, i.e., processing is done as if this row had not been in the input.
+(One notable exception is the ``array_agg`` function that includes input ``NULL`` values in its output.)
 
 .. _ref_func_array_agg:
 
