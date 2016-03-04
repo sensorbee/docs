@@ -1,3 +1,4 @@
+.. _ref_func:
 
 ******************
 Function Reference
@@ -6,6 +7,8 @@ Function Reference
 Scalar Functions Reference
 ==========================
 
+
+.. _ref_func_abs:
 
 ``abs``
 -------
@@ -39,6 +42,8 @@ Examples
 | ``abs(-17.4)`` | ``17.4`` |
 +----------------+----------+
 
+
+.. _ref_func_cbrt:
 
 ``cbrt``
 --------
@@ -75,6 +80,8 @@ Examples
 +----------------+-------------------------+
 
 
+
+.. _ref_func_ceil:
 
 ``ceil``
 --------
@@ -115,6 +122,8 @@ Examples
 
 
 
+.. _ref_func_degrees:
+
 ``degrees``
 -----------
 
@@ -149,6 +158,8 @@ Examples
 
 
 
+
+.. _ref_func_div:
 
 ``div``
 -------
@@ -190,6 +201,8 @@ Examples
 
 
 
+.. _ref_func_exp:
+
 ``exp``
 -------
 
@@ -223,6 +236,8 @@ Examples
 +----------------+-----------------------+
 
 
+
+.. _ref_func_floor:
 
 ``floor``
 ---------
@@ -262,6 +277,8 @@ Examples
 
 
 
+.. _ref_func_ln:
+
 ``ln``
 ------
 
@@ -296,6 +313,8 @@ Examples
 +----------------+------------------------+
 
 
+
+.. _ref_func_log:
 
 ``log``
 -------
@@ -340,6 +359,8 @@ Examples
 
 
 
+.. _ref_func_mod:
+
 ``mod``
 -------
 
@@ -380,6 +401,8 @@ Examples
 
 
 
+.. _ref_func_pi:
+
 ``pi``
 ------
 
@@ -407,6 +430,8 @@ Examples
 +----------------+-----------------------+
 
 
+
+.. _ref_func_power:
 
 ``power``
 ---------
@@ -449,6 +474,8 @@ Examples
 
 
 
+.. _ref_func_radians:
+
 ``radians``
 -----------
 
@@ -482,6 +509,8 @@ Examples
 +------------------+-----------------------+
 
 
+
+.. _ref_func_round:
 
 ``round``
 ---------
@@ -523,6 +552,44 @@ Examples
 
 
 
+.. _ref_func_sign:
+
+``sign``
+--------
+
+::
+
+    sign(x)
+
+Description
+^^^^^^^^^^^
+
+``sign`` returns the sign of a number: 1 for positive numbers, -1 for negative numbers and 0 for zero.
+
+Parameter Types
+^^^^^^^^^^^^^^^
+
+``x``
+    ``int`` or ``float``
+
+Return Type
+^^^^^^^^^^^
+
+``int``
+
+Examples
+^^^^^^^^
+
++----------------+------------------------+
+| Function Call  | Result                 |
++================+========================+
+| ``sign(2)``    | ``1``                  |
++----------------+------------------------+
+
+
+
+.. _ref_func_sqrt:
+
 ``sqrt``
 --------
 
@@ -558,6 +625,8 @@ Examples
 
 
 
+
+.. _ref_func_trunc:
 
 ``trunc``
 ---------
@@ -596,6 +665,8 @@ Examples
 +-----------------+----------+
 
 
+
+.. _ref_func_width_bucket:
 
 ``width_bucket``
 ----------------
@@ -643,6 +714,8 @@ Examples
 
 
 
+.. _ref_func_random:
+
 ``random``
 ----------
 
@@ -674,6 +747,8 @@ Examples
 
 
 
+.. _ref_func_setseed:
+
 ``setseed``
 -----------
 
@@ -698,6 +773,8 @@ Parameter Types
 
 
 
+.. _ref_func_acos:
+
 ``acos``
 --------
 
@@ -711,6 +788,8 @@ Description
 ``acos`` computes the inverse cosine of a number.
 
 
+
+.. _ref_func_asin:
 
 ``asin``
 --------
@@ -726,6 +805,8 @@ Description
 
 
 
+.. _ref_func_atan:
+
 ``atan``
 --------
 
@@ -739,6 +820,8 @@ Description
 ``atan`` computes the inverse tangent of a number.
 
 
+
+.. _ref_func_cos:
 
 ``cos``
 -------
@@ -754,6 +837,8 @@ Description
 
 
 
+.. _ref_func_cot:
+
 ``cot``
 -------
 
@@ -767,6 +852,8 @@ Description
 ``cot`` computes the cotangent of a number.
 
 
+
+.. _ref_func_sin:
 
 ``sin``
 -------
@@ -783,6 +870,8 @@ Description
 
 
 
+.. _ref_func_tan:
+
 ``tan``
 -------
 
@@ -796,6 +885,8 @@ Description
 ``tan`` computes the tangent of a number.
 
 
+
+.. _ref_func_bit_length:
 
 ``bit_length``
 --------------
@@ -830,6 +921,8 @@ Examples
 +------------------------+----------+
 
 
+
+.. _ref_func_btrim:
 
 ``btrim``
 ---------
@@ -871,6 +964,8 @@ Examples
 
 
 
+.. _ref_func_char_length:
+
 ``char_length``
 ---------------
 
@@ -904,6 +999,8 @@ Examples
 +-------------------------+----------+
 
 
+
+.. _ref_func_concat:
 
 ``concat``
 ----------
@@ -939,6 +1036,48 @@ Examples
 +-------------------------------+-------------+
 
 
+
+.. _ref_func_concat_ws:
+
+``concat_ws``
+-------------
+
+::
+
+    concat_ws(sep, s [, ...])
+
+Description
+^^^^^^^^^^^
+
+``concat_ws`` concatenates all strings given as input arguments ``s`` using the separator ``sep``.
+``NULL`` values are ignored.
+
+Parameter Types
+^^^^^^^^^^^^^^^
+
+``sep``
+    ``string``
+
+``s`` and all subsequent parameters
+    ``string``
+
+Return Type
+^^^^^^^^^^^
+
+``string``
+
+Examples
+^^^^^^^^
+
++---------------------------------------+--------------+
+| Function Call                         | Result       |
++=======================================+==============+
+| ``concat_ws(":", "abc", NULL, "22")`` | ``"abc:22"`` |
++---------------------------------------+--------------+
+
+
+
+.. _ref_func_format:
 
 ``format``
 ----------
@@ -979,6 +1118,8 @@ Examples
 
 
 
+.. _ref_func_lower:
+
 ``lower``
 ---------
 
@@ -1014,6 +1155,8 @@ Examples
 
 
 
+
+.. _ref_func_ltrim:
 
 ``ltrim``
 ---------
@@ -1055,6 +1198,8 @@ Examples
 
 
 
+.. _ref_func_md5:
+
 ``md5``
 -------
 
@@ -1088,6 +1233,8 @@ Examples
 +----------------+----------------------------------------+
 
 
+
+.. _ref_func_octet_length:
 
 ``octet_length``
 ----------------
@@ -1123,6 +1270,8 @@ Examples
 +--------------------------+----------+
 
 
+
+.. _ref_func_overlay:
 
 ``overlay``
 -----------
@@ -1172,6 +1321,8 @@ Examples
 
 
 
+.. _ref_func_rtrim:
+
 ``rtrim``
 ---------
 
@@ -1212,7 +1363,7 @@ Examples
 
 
 
-
+.. _ref_func_sha1:
 
 ``sha1``
 --------
@@ -1248,6 +1399,8 @@ Examples
 
 
 
+.. _ref_func_sha256:
+
 ``sha256``
 ----------
 
@@ -1282,6 +1435,8 @@ Examples
 
 
 
+
+.. _ref_func_strpos:
 
 ``strpos``
 ----------
@@ -1320,6 +1475,8 @@ Examples
 
 
 
+
+.. _ref_func_substring:
 
 ``substring``
 -------------
@@ -1378,6 +1535,8 @@ Examples
 
 
 
+.. _ref_func_upper:
+
 ``upper``
 ---------
 
@@ -1412,6 +1571,8 @@ Examples
 +-------------------+------------+
 
 
+
+.. _ref_func_distance_us:
 
 ``distance_us``
 ---------------
@@ -1452,6 +1613,8 @@ Examples
 
 
 
+.. _ref_func_clock_timestamp:
+
 ``clock_timestamp``
 -------------------
 
@@ -1470,6 +1633,8 @@ Return Type
 ``timestamp``
 
 
+
+.. _ref_func_now:
 
 ``now``
 -------
@@ -1502,6 +1667,8 @@ Return Type
 
 
 
+
+.. _ref_func_coalesce:
 
 ``coalesce``
 ------------
@@ -1542,6 +1709,8 @@ Aggregate Functions Reference
 =============================
 
 
+.. _ref_func_array_agg:
+
 ``array_agg``
 -------------
 
@@ -1569,6 +1738,8 @@ Return Type
 
 
 
+.. _ref_func_avg:
+
 ``avg``
 -------
 
@@ -1593,6 +1764,8 @@ Return Type
 ``float``
 
 
+
+.. _ref_func_bool_and:
 
 ``bool_and``
 ------------
@@ -1619,6 +1792,8 @@ Return Type
 
 
 
+.. _ref_func_bool_or:
+
 ``bool_or``
 -----------
 
@@ -1644,6 +1819,8 @@ Return Type
 
 
 
+
+.. _ref_func_count:
 
 ``count``
 ---------
@@ -1672,6 +1849,8 @@ Return Type
 
 
 
+
+.. _ref_func_json_object_agg:
 
 ``json_object_agg``
 -------------------
@@ -1709,6 +1888,8 @@ Return Type
 
 
 
+.. _ref_func_max:
+
 ``max``
 -------
 
@@ -1735,6 +1916,8 @@ same as largest input value
 
 
 
+.. _ref_func_median:
+
 ``median``
 ----------
 
@@ -1760,6 +1943,8 @@ Return Type
 
 
 
+.. _ref_func_min:
+
 ``min``
 -------
 
@@ -1784,6 +1969,8 @@ Return Type
 same as smallest input value
 
 
+
+.. _ref_func_string_agg:
 
 ``string_agg``
 --------------
@@ -1813,6 +2000,8 @@ Return Type
 
 
 
+
+.. _ref_func_sum:
 
 ``sum``
 -------
