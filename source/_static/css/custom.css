@@ -1,0 +1,13 @@
+@import url("theme.css");
+
+#function-reference h5 {
+  margin-bottom: 5px;
+}
+
+#function-reference h4 {
+  padding-top: 25px;
+}
+
+#function-reference h4 tt {
+  font-size: 100%;
+}
