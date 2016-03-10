@@ -481,4 +481,28 @@ plugin/plugin.go
 Writing Tuples to a UDS
 -----------------------
 
-TODO
+When a UDS implements ``core.Writer``, the ``INSERT INTO`` statement can
+insert tuples into the UDS via the ``uds`` sink::
+
+    type Writer interface {
+        Write(*Context, *Tuple) error
+    }
+
+The following is the example of using the ``uds`` sink::
+
+::
+
+    CREATE STATE my_state TYPE my_state_type;
+    CREATE SINK my_state_sink TYPE uds WITH name = "my_state";
+    INSERT INTO my_state_sink FROM some_stream;
+
+If ``my_state_type`` doesn't implement ``core.Writer``, the ``CREATE SINK``
+statement fails. Every time ``some_stream`` emits a tuple, the ``Write``
+method of ``my_state`` is called.
+
+Example
+^^^^^^^
+
+Models provided by Jubatus machine learning plugin for SensorBee implement
+the ``Write`` method. When tuples are inserted into a UDS, it trains the model
+it has.
