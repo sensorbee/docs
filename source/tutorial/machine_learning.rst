@@ -113,10 +113,16 @@ under the ``config`` directory. Create a temporary directory and copy those
 files to the directory (**replace /path/to/ with an appropriate path**)::
 
     $ mkdir -p /path/to/sbml
-    $ cp $GOPATH/src/github.com/sensorbee/tutorial/ml/config/* /path/to/sbml/
+    $ cp -r $GOPATH/src/github.com/sensorbee/tutorial/ml/config/* /path/to/sbml/
     $ cd /path/to/sbml
     /path/to/sbml$ ls
-    TODO
+    Gemfile
+    build.yaml
+    fluent.conf
+    sensorbee.yaml
+    train.bql
+    twitter.bql
+    uds
 
 Installing and Running fluentd
 ------------------------------
