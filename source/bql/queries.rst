@@ -45,6 +45,7 @@ From an SQL point of view, it makes sense to think of ``stream [RANGE window-spe
 The **time-based operator** is used with a certain time span :math:`I` (such as 60 seconds) and at point in time :math:`t^*` uses all tuples in the range :math:`[t^*-I, t^*]` to create the relation :math:`R(t^*)`.
 
 Valid time spans are positive integer or float values, followed by the ``SECONDS`` or ``MILLISECONDS`` keyword, for example ``[RANGE 3.5 SECONDS]`` or ``[RANGE 200 MILLISECONDS]`` are valid specifications.
+The maximal allowed values are 86,400 for ``SECONDS`` and 86,400,000 for ``MILLISECONDS``, i.e., the maximal window size is one day.
 
 .. note::
 
@@ -60,6 +61,7 @@ Valid time spans are positive integer or float values, followed by the ``SECONDS
 The **tuple-based operator** is used with a number :math:`k` and uses the last :math:`k` tuples that have arrived (or *all* tuples that have arrived when this number is less than :math:`k`) to create the relation :math:`R(t^*)`.
 
 Valid ranges are positive integral values, followed by the ``TUPLES`` keyword, for example ``[RANGE 10 TUPLES]`` is a valid specification.
+The maximal allowed value is 1,048,575.
 
 .. note::
 
