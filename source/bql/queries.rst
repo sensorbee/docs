@@ -420,10 +420,43 @@ For the example above,
 
     SELECT RSTREAM a.foo.bar AS x FROM input [RANGE 1 TUPLES];
 
-will result in an output document that has the shape ``{"x": 7}`` instead of ``{"col_1": 7}``.
-Note that it is possible to use the same column alias multiple times, but in this case it is undefined which of the values with the same alias will end up in that output key.
+will result in an output row that has the shape ``{"x": 7}`` instead of ``{"col_1": 7}``.
+Note that it is possible to use the same column label multiple times, but in this case it is undefined which of the values with the same alias will end up in that output key.
 
-TODO: Explain `... AS foo.bar[4]` syntax.
+To place values at other places than the top level of an output row map, a subset of the JSON Path syntax described in `Field Selectors`_ can be used for column labels as well. Where such a selector describes the position in a map uniquely, the value will be placed at that location. For the input data example above,
+
+::
+
+    SELECT RSTREAM a.foo.bar AS x.y[3].z FROM input [RANGE 1 TUPLES];
+
+will result in an output document with the following shape::
+
+    {"x": {"y": [null, null, null, {"z": 7}]}}
+
+That is, a string ``child_key`` in the column label hierarchy will assume a map at the corresponding position and put the value in that map using ``child_key`` as a key; a numeric index ``[n]`` will assume an array and put the value in the ``n``-th position, padded with ``NULL`` items before if required. Negative list indices cannot be used. Also, `Extended Descend Operators`_ cannot be used.
+
+It is safe to assign multiple values to non-overlapping locations of an output row created this way, as shown below::
+
+    SELECT RSTREAM 7 AS x.y[3].z, "bar" AS x.foo, 17 AS x.y[0]
+      FROM input [RANGE 1 TUPLES];
+
+This will create the following output row::
+
+    {"x": {"y": [17, null, null, {"z": 7}], "foo": "bar"}}
+
+However, as the order in which the items of the select list are processed is not defined, it is not safe to override values placed by one select list item from another select list item. For example,
+
+::
+
+    SELECT RSTREAM [1, 2, 3] AS x, 17 AS x[1] ...
+
+does *not* guarantee a particular output. Also, statements such as
+
+::
+
+    SELECT RSTREAM 1 AS x.y, 2 AS x[1] ...
+
+will lead to errors because `x` can not be a map and an array at the same time.
 
 
 Notes on Wildcards

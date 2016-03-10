@@ -423,7 +423,7 @@ For example,
 
 will create a comma-separated list of names, ordered ascending by the last name.
 
-See `TODO: Aggregate Functions`_ for a list of built-in aggregate functions.
+See `Aggregate Functions`_ for a list of built-in aggregate functions.
 
 
 Type Casts
