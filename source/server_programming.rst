@@ -24,4 +24,3 @@ appropriately set up. SensorBee requires Go 1.4 or later.
 
 .. include:: /server_programming/extend.rst
 .. include:: /server_programming/go.rst
-.. include:: /server_programming/python.rst
