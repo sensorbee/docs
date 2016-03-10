@@ -112,21 +112,22 @@ range_number
     tuple is inserted into the window having **range_number** tuples, the
     oldest tuple is removed. "The oldest tuple" is the tuple that was
     inserted into the window before any other tuples, not the tuple having
-    the oldest timestamp.
+    the oldest timestamp. The maximum **range_number** is 1048575 with
+    ``TUPLES`` keywords.
 
     When ``SECONDS`` or ``MILLISECONDS`` is specified, **range_number** can
     be a positive number and the difference of the minimum and maximum
     timestamps of tuples in the window can be at most **range_number**
     seconds or milliseconds. If a new tuple is inserted into the window,
     tuples whose timestamp is **range_number** seconds or milliseconds
-    earlier than the new tuple's timestamp are removed.
+    earlier than the new tuple's timestamp are removed. The maximum
+    **range_number** is 86400 with ``SECONDS`` and 86400000 with
+    ``MILLISECONDS``.
 
 buffer_size
     **buffer_size** specifies the size of buffer, or a queue, located between
     **from_item** and the ``SELECT``. **buffer_size** must be an integer and
-    greater than 0.
-
-    .. todo:: define the maximum buffer size
+    greater than 0. The meximum **buffer_size** is 131071.
 
 drop_mode
     **drop_mode** controls how a new tuple is inserted into the buffer located
@@ -152,7 +153,13 @@ drop_mode
           inserted into the buffer after any other tuples, not the tuple
           having the newest timestamp.
 
-    .. todo:: describe the difference between a buffer and a window.
+    .. note::
+
+        A buffer is different from a window. A buffer is placed in front of a
+        window. A window gets a new tuple from a buffer and computes a new
+        relation. A buffer is used not to block emitting tuples so that
+        multiple ``SELECT`` statements can work concurrently without waiting
+        for their receivers to consume tuples.
 
 **stream_alias**
     **stream_alias** provides an alias of **from_item** and it can be referred
@@ -245,12 +252,12 @@ Each item in the list can be any expression. Each item (i.e. output field)
 will have a name. When an expression only consists of a field name, the output
 name of the expression will be the field name. For example, the output name
 of ``strm:price`` in ``SELECT RSTREAM strm:price FROM ...`` will be ``price``,
-not ``strm:price``. If an expression is other than a field name, the output
-name will be ``col_n`` where ``n`` is replaced with the number corresponding
-to n-th expression. The output field name can manually be specified by
-``AS output_name``.
-
-.. todo:: Write the spec of the output field when the expression is a UD(A)F call.
+not ``strm:price``. When the expression is a UDF call, the name of the UDF
+will be used as the name of the output field. For example, the result of
+``count(*)`` is named as ``count``. If an expression is other than a field
+name or a UDF call, the output name will be ``col_n`` where ``n`` is replaced
+with the number corresponding to n-th expression. The output field name can
+manually be specified by ``AS output_name``.
 
 When the expression is ``*``, all fields which have not been specified in the
 ``SELECT`` list yet will be included. Output names of those fields will be
@@ -283,8 +290,8 @@ to the ``SELECT``, its output will be
         "e": v4
     }
 
-.. todo:: Describe the spec of how fields having the same name will be merged
-          into the output. In other words, how conflicts are resolved.
+When some fields have the same name, only one of them will be included in the
+result. It is undefined which field will be chosen as a result.
 
 Notes
 -----
