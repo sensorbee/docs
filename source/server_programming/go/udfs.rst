@@ -434,11 +434,6 @@ created on the server, the ``EVAL`` statement can be used to test them::
     EVAL my_join2(["a", "b", "c"], ",") -- => "a,b,c"
     EVAL my_join2([1, "b", "c"], ",") -- => "1,b,c"
 
-User-Defined Aggregates
------------------------
-
-TODO
-
 Dynamic Loading
 ---------------
 
