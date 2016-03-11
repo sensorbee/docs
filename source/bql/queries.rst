@@ -386,7 +386,7 @@ However, JSON Path allows to access nested elements as well::
 
     SELECT RSTREAM a.foo.bar FROM input [RANGE 1 TUPLES];
 
-If the input data has the form ``{"a": {"foo": {"bar": 7}}}``, then the output will be ``{"col_1": 7}``.
+If the input data has the form ``{"a": {"foo": {"bar": 7}}}``, then the output will be ``{"col_0": 7}``.
 (See paragraph `Column Labels`_ below for details on output key naming, and the section `Field Selectors`_ for details about the available syntax for JSON Path expressions.)
 
 
@@ -405,7 +405,7 @@ Column Labels
 ^^^^^^^^^^^^^
 
 The result value of every expression in the select list will be assigned to a key in the output row.
-If not explicitly specified, these output keys will be ``"col_1"``, ``"col_2"``, etc. in the order the expressions were specified in the select list.
+If not explicitly specified, these output keys will be ``"col_0"``, ``"col_1"``, etc. in the order the expressions were specified in the select list.
 However, in some cases a more meaningful output key is chosen by default, as already shown above:
 
 - If the expression is a single top-level key (like ``a``), then the output key will be the same.
@@ -420,7 +420,7 @@ For the example above,
 
     SELECT RSTREAM a.foo.bar AS x FROM input [RANGE 1 TUPLES];
 
-will result in an output row that has the shape ``{"x": 7}`` instead of ``{"col_1": 7}``.
+will result in an output row that has the shape ``{"x": 7}`` instead of ``{"col_0": 7}``.
 Note that it is possible to use the same column label multiple times, but in this case it is undefined which of the values with the same alias will end up in that output key.
 
 To place values at other places than the top level of an output row map, a subset of the JSON Path syntax described in `Field Selectors`_ can be used for column labels as well. Where such a selector describes the position in a map uniquely, the value will be placed at that location. For the input data example above,
@@ -498,9 +498,9 @@ Single Input Stream
 +-------------------+-----------------------+--------------------------+
 | ``a, b``          | ``{"a": 1, "b": 2}``  | ``{"a": 1, "b": 2}``     |
 +-------------------+-----------------------+--------------------------+
-| ``a + b``         | ``{"a": 1, "b": 2}``  | ``{"col_1": 3}``         |
+| ``a + b``         | ``{"a": 1, "b": 2}``  | ``{"col_0": 3}``         |
 +-------------------+-----------------------+--------------------------+
-| ``a, a + b``      | ``{"a": 1, "b": 2}``  | ``{"a": 1, "col_2": 3}`` |
+| ``a, a + b``      | ``{"a": 1, "b": 2}``  | ``{"a": 1, "col_1": 3}`` |
 +-------------------+-----------------------+--------------------------+
 | ``*``             | ``{"a": 1, "b": 2}``  | ``{"a": 1, "b": 2}``     |
 +-------------------+-----------------------+--------------------------+
@@ -516,7 +516,7 @@ Join on Two Streams ``l`` and ``r``
 +-------------------+-----------------------+-----------------------+--------------------------------------+
 | ``l:a, r:c``      | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"a": 1, "c": 3}``                 |
 +-------------------+-----------------------+-----------------------+--------------------------------------+
-| ``l:a + r:c``     | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"col_1": 4}``                     |
+| ``l:a + r:c``     | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"col_0": 4}``                     |
 +-------------------+-----------------------+-----------------------+--------------------------------------+
 | ``l:*``           | ``{"a": 1, "b": 2}``  | ``{"c": 3, "d": 4}``  | ``{"a": 1, "b": 2}``                 |
 +-------------------+-----------------------+-----------------------+--------------------------------------+

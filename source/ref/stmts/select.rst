@@ -256,8 +256,8 @@ not ``strm:price``. When the expression is a UDF call, the name of the UDF
 will be used as the name of the output field. For example, the result of
 ``count(*)`` is named as ``count``. If an expression is other than a field
 name or a UDF call, the output name will be ``col_n`` where ``n`` is replaced
-with the number corresponding to n-th expression. The output field name can
-manually be specified by ``AS output_name``.
+with the number corresponding to n-th expression (counting from 0). The output
+field name can manually be specified by ``AS output_name``.
 
 When the expression is ``*``, all fields which have not been specified in the
 ``SELECT`` list yet will be included. Output names of those fields will be
