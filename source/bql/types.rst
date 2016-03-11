@@ -336,15 +336,13 @@ From ``timestamp``
 ^^^^^^^^^^^^^^^^^^
 
 A ``timestamp`` value is converted to an ``int`` value as the number of
-microseconds elapsed since January 1, 1970 UTC::
+seconds elapsed since January 1, 1970 UTC::
 
     ("1970-01-01T00:00:00Z"::timestamp)::int        -- => 0
-    ("1970-01-01T00:00:00.123456Z"::timestamp)::int -- => 123456
-    ("1970-01-02T00:00:00Z"::timestamp)::int        -- => 86400000000
-    ("2016-01-18T09:22:40.123456Z"::timestamp)::int -- => 1453108960123456
-
-The maximum ``timestamp`` that can be converted to ``int`` is
-294247-01-10T04:00:54.775807Z. The minimum is -290308-12-21T19:59:05.224192Z.
+    ("1970-01-01T00:00:00.123456Z"::timestamp)::int -- => 0
+    ("1970-01-01T00:00:01Z"::timestamp)::int         -- => 0
+    ("1970-01-02T00:00:00Z"::timestamp)::int        -- => 86400
+    ("2016-01-18T09:22:40.123456Z"::timestamp)::int -- => 1453108960
 
 To ``float``
 ------------
@@ -462,11 +460,11 @@ From ``int``
 ^^^^^^^^^^^^
 
 An ``int`` value to be converted to a ``timestamp`` value is assumed to have
-the number of microseconds elapsed since January 1, 1970 UTC::
+the number of seconds elapsed since January 1, 1970 UTC::
 
-    0::timestamp                -- => 1970-01-01T00:00:00Z
-    1::timestamp                -- => 1970-01-01T00:00:00.000001Z
-    1453108960123456::timestamp -- => 2016-01-18T09:22:40.123456Z
+    0::timestamp          -- => 1970-01-01T00:00:00Z
+    1::timestamp          -- => 1970-01-01T00:00:01Z
+    1453108960::timestamp -- => 2016-01-18T09:22:40Z
 
 From ``float``
 ^^^^^^^^^^^^^^
