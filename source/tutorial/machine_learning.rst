@@ -5,27 +5,27 @@ Using Machine Learning
 This chapter describes how to use machine learning on SensorBee.
 
 In this tutorial, SensorBee retrieves tweets written in English from
-Twitter's public stream using sample API. SensorBee adds two labels to each
-tweet: age and gender. Tweets are labeled (*classified*) by machine learning.
+Twitter's public stream using the API. SensorBee adds two labels to each
+tweet: age and gender. Tweets are labeled ("classified") using machine learning.
 
-Following sections shows how to install dependencies, set them up, and apply
+The following sections shows how to install dependencies, set them up, and apply
 machine learning to tweets using SensorBee.
 
 .. note::
 
     Due to the way the Twitter client receives tweets from Twitter, the behavior
-    of this tutorial demonstration doesn't seem very smooth. For example, it
-    gets around 50 tweets in 100ms and stops for 900ms, then repeats the same
-    behavior in every one second. So, it's easily misunderstood that SensorBee
+    of this tutorial demonstration does not seem very smooth. For example, the client
+    gets around 50 tweets in 100ms, then stops for 900ms, and repeats the same
+    behavior every second. So, it is easy to get the misperception that SensorBee
     and its machine learning library are doing mini-batch processing, but they
-    do not actually do it.
+    actually do not.
 
 Prerequisities
 ==============
 
 This tutorial requires following software to be installed:
 
-* Ruby 2.1.8 or later
+* Ruby 2.1.4 or later
 
     * https://www.ruby-lang.org/en/documentation/installation/
 
@@ -40,18 +40,18 @@ This tutorial requires following software to be installed:
 In this tutorial, Ruby 2.1.4, Elasticsearch 2.2.0, and Kibana 4.4.0 are used.
 
 This tutorial assumes that Elasticsearch and Kibana are running on the same
-host as where SensorBee runs. However, it's can be configured to use those
-servers running on a different host.
+host as SensorBee. However, SensorBee can be configured to use services
+running on a different host.
 
-In addition, Go 1.4 or later is, of course, required. See
-:ref:`tutorial_getting_started` to learn how to setting it up.
+In addition, Go 1.4 or later and Git are required, as described in
+:ref:`tutorial_getting_started`.
 
-Quick Setting Up Guide
-----------------------
+Quick Set Up Guide
+------------------
 
-If there's no Elasticsearch and Kibana instances that can be used for this
-tutorial, they need to be installed. Skip this subsection if they're already
-installed. In case an error occurs, look at documentation in
+If there are no Elasticsearch and Kibana instances that can be used for this
+tutorial, they need to be installed. Skip this subsection if they are already
+installed. In case an error occurs, look up the documentation at
 `<http://www.elastic.co/>`_.
 
 Installing and Running Elasticsearch
@@ -59,10 +59,12 @@ Installing and Running Elasticsearch
 
 Download the package from `<https://www.elastic.co/downloads/elasticsearch>`_
 and extract the compressed file. Then, run ``bin/elasticsearch`` in the
-directory::
+directory with the extracted files::
 
     /path/to/elasticserach-2.2.0$ bin/elasticsearch
     ... log messages ...
+
+Note that a Java runtime is required to run the command above.
 
 To see if Elasticsearch is running, access the server with ``curl`` command::
 
@@ -84,21 +86,22 @@ Installing and Running Kibana
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Download the package from `<https://www.elastic.co/downloads/kibana>`_ and
-extract the compressed file. Then, run ``bin/kibana`` in the directory::
+extract the compressed file. Then, run ``bin/kibana`` in the directory
+with the extracted files::
 
     /path/to/kibana-4.4.0$ bin/kibana
     ... log messages ...
 
 Access `<http://localhost:5601/>`_ with a Web browser. Kibana is running
 correctly if it shows a page saying "Configure an index pattern". Since
-Elasticsearch doesn't have the data yet, no more operation isn't necessary at
-the moment. `Running SensorBee`_ section shows how to perform further steps
-later.
+Elasticsearch does not have any data yet, no more operation is necessary at
+the moment. In the `Running SensorBee`_ section further configuration steps
+are described.
 
 Installation and Setup
 ======================
 
-Some work needs to be done before actually trying to interact with this tutorial.
+Some work needs to be done before continuing this tutorial.
 
 Installing the Tutorial Package
 -------------------------------
@@ -106,10 +109,9 @@ Installing the Tutorial Package
 To setting up the system, ``go get`` the tutorial package first::
 
     $ go get github.com/sensorbee/tutorial/ml
-    $
 
-The package contains configuration files that are necessary for the tutorial
-under the ``config`` directory. Create a temporary directory and copy those
+The package contains configuration files in the ``config`` subdirectory
+that are necessary for the tutorial. Create a temporary directory and copy those
 files to the directory (**replace /path/to/ with an appropriate path**)::
 
     $ mkdir -p /path/to/sbml
@@ -153,7 +155,8 @@ privileges (i.e. ``sudo``)::
     /path/to/sbml$
 
 After installing bundler, run the following command to install fluentd and its
-plugins under the ``/path/to/sbml`` directory::
+plugins under the ``/path/to/sbml`` directory (in order to build the gems, you
+may have to install Ruby header files before)::
 
     /path/to/sbml$ bundle install --path vendor/bundle
     Fetching gem metadata from https://rubygems.org/............
@@ -191,7 +194,7 @@ confirm whether fluentd is correctly installed, run the command below::
     fluentd 0.12.20
     /path/to/sbml$
 
-If it prints the version, the installation is completed and fluentd is ready to
+If it prints the version, the installation is complete and fluentd is ready to
 be used.
 
 Once fluentd is installed, run it with the provided configuration file::
@@ -219,15 +222,11 @@ Once fluentd is installed, run it with the provided configuration file::
       </match>
     </ROOT>
     2016-02-05 16:02:10 -0800 [info]: listening fluent socket on 0.0.0.0:24224
-    ^C2016-02-05 16:02:18 -0800 [info]: shutting down fluentd
-    2016-02-05 16:02:18 -0800 [info]: shutting down input type="forward" plugin_id="...
-    2016-02-05 16:02:18 -0800 [info]: shutting down output type="elasticsearch" plug...
-    2016-02-05 16:02:18 -0800 [info]: process finished code=0
 
 Some log messages are truncated with ``...`` at the end of each line.
 
 The configuration file ``fluent.conf`` is provided as a part of this tutorial.
-It defines one data source using ``in_forward`` and one destination that
+It defines a data source using ``in_forward`` and a destination that
 is connected to Elasticsearch. If the Elasticserver is running on a different
 host or using a port number different from 9200, edit ``fluent.conf``::
 
@@ -278,17 +277,23 @@ Running SensorBee
 =================
 
 All requirements for this tutorial have been installed and set up. The next
-step is to build and run ``sensorbee`` command::
+step is to install ``build_sensorbee``, then build and run the ``sensorbee``
+executable::
 
+    /path/to/sbml$ go get gopkg.in/sensorbee/sensorbee.v0/cmd/build_sensorbee
     /path/to/sbml$ build_sensorbee
     sensorbee_main.go
     /path/to/sbml$ ./sensorbee run -c sensorbee.yaml
-    INFO[0000] Setting up the server context
+    INFO[0000] Setting up the server context                 config={"logging":
+    {"log_dropped_tuples":false,"min_log_level":"info","summarize_dropped_tuples":
+    false,"target":"stderr"},"network":{"listen_on":":15601"},"storage":{"uds":
+    {"params":{"dir":"uds"},"type":"fs"}},"topologies":{"twitter":{"bql_file":
+    "twitter.bql"}}}
     INFO[0000] Setting up the topology                       topology=twitter
     INFO[0000] Starting the server on :15601
 
 Because SensorBee loads pre-trained machine learning models on its startup,
-it may take a while to setting up a topology. After the server shows the
+it may take a while to set up a topology. After the server shows the
 message ``Starting the server on :15601``, access Kibana at
 `<http://localhost:5601/>`_. If operations so far are sucessful, it returns the
 page as shown below:
