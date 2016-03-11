@@ -127,7 +127,7 @@ expression is ``NULL``.
     provided for convenience. Arrays or maps often have ``NULL`` to indicate
     that there's no value for a specific key but the key actually exists. In
     other words, ``{"a": NULL, "b": 1}`` and ``{"b": 1}`` are different.
-    Therefore, ``NULL`` in arrays are maps are compared as if it's a regular
+    Therefore, ``NULL`` in arrays and maps are compared as if it's a regular
     value. Unlike ``NULL``, comparing infinite floating point values
     always result in ``false``.
 
