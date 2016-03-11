@@ -6,7 +6,7 @@ Operators
 
 This chapter introduces operators used in BQL.
 
-Arithmetic operators
+Arithmetic Operators
 ====================
 
 BQL provides following arithmetic operators:
@@ -33,7 +33,7 @@ example, ``3 + 5 * 2.5`` is valid.
     because ``--`` and succeeding characters are parsed as a comment. For
     example, ``---3`` is parsed as ``--`` and a comment body ``-3``.
 
-String operators
+String Operators
 ================
 
 BQL provides following string operators:
@@ -48,7 +48,7 @@ an error. When one operand is ``NULL``, the result is also ``NULL``.
 For instance, ``NULL || "str"``, ``"str" || NULL``, and ``NULL || NULL`` result
 in ``NULL``.
 
-Comparison operators
+Comparison Operators
 ====================
 
 BQL provides following comparison operators:
@@ -102,7 +102,7 @@ There's one exception. When one operand of comparison operators except
 
 .. _bql_operators_null_comparison:
 
-``NULL`` comparison
+``NULL`` Comparison
 -------------------
 
 In a three-valued logic, comparing any value with ``NULL`` results in ``NULL``.
@@ -131,7 +131,7 @@ expression is ``NULL``.
     value. Unlike ``NULL``, comparing infinite floating point values
     always result in ``false``.
 
-Logical operators
+Logical Operators
 =================
 
 BQL provides following logical operators:
@@ -146,8 +146,8 @@ BQL provides following logical operators:
 Logical operators also follow the three-valued logic. For example,
 ``true AND NULL`` and ``NULL OR false`` result in ``NULL``.
 
-JSON operators
+JSON Operators
 ==============
 
-Operator precedence
+Operator Precedence
 ===================
