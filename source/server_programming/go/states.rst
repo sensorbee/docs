@@ -490,8 +490,6 @@ insert tuples into the UDS via the ``uds`` sink::
 
 The following is the example of using the ``uds`` sink::
 
-::
-
     CREATE STATE my_state TYPE my_state_type;
     CREATE SINK my_state_sink TYPE uds WITH name = "my_state";
     INSERT INTO my_state_sink FROM some_stream;
