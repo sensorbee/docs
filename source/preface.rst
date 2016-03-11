@@ -93,6 +93,9 @@ The following conventions are used in the synopsis of a command:
 
 * Dots (``...``) mean that the preceding element can be repeated.
 
+* Commands that are to be run in a normal system shell are prefixed with a
+  dollar sign (``$``).
+
 Types and keywords in BQL are written with ``fixed-size fonts``.
 
 *******************
