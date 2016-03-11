@@ -1303,7 +1303,8 @@ Examples
 Description
 ^^^^^^^^^^^
 
-``overlay`` replaces ``for`` characters in a string ``s`` with the string ``repl``, starting at ``from`` (1-based counting).
+``overlay`` replaces ``for`` characters in a string ``s`` with the string ``repl``, starting at ``from``.
+(Index counting starts at 0.)
 If ``for`` is not given, the length of ``repl`` is used as a default.
 
 Parameter Types
@@ -1332,9 +1333,9 @@ Examples
 +-------------------------------------+---------------+
 | Function Call                       | Result        |
 +=====================================+===============+
-| ``overlay("Txxxxas", "hom", 2)``    | ``"Thomxas"`` |
+| ``overlay("Txxxxas", "hom", 1)``    | ``"Thomxas"`` |
 +-------------------------------------+---------------+
-| ``overlay("Txxxxas", "hom", 2, 4)`` | ``"Thomas"``  |
+| ``overlay("Txxxxas", "hom", 1, 4)`` | ``"Thomas"``  |
 +-------------------------------------+---------------+
 
 
@@ -1467,7 +1468,7 @@ Examples
 Description
 ^^^^^^^^^^^
 
-``strpos`` returns the index of the first occurence of ``t`` in ``s`` (1-based) or 0 if it is not found.
+``strpos`` returns the index of the first occurence of ``t`` in ``s`` (index counting starts at 0) or -1 if it is not found.
 
 Parameter Types
 ^^^^^^^^^^^^^^^
@@ -1489,7 +1490,7 @@ Examples
 +--------------------------+----------+
 | Function Call            | Result   |
 +==========================+==========+
-| ``strpos("high", "ig")`` | ``2``    |
+| ``strpos("high", "ig")`` | ``1``    |
 +--------------------------+----------+
 
 
@@ -1512,7 +1513,8 @@ Description
 ``substring(s, r)`` extracts the substring matching regular expression ``r`` from ``s``.
 See the `Go regexp package <https://golang.org/pkg/regexp/>`_ for details of matching.
 
-``substring(s, from, for)`` returns the ``for`` characters of ``str`` starting from the ``from`` index (1-based).
+``substring(s, from, for)`` returns the ``for`` characters of ``str`` starting from the ``from`` index.
+(Index counting starts at 0.)
 If ``for`` is not given, everything until the end of ``str`` is returned.
 
 Which of those behaviors is used depends on the type of the second parameter (``int`` or ``string``).
@@ -1545,9 +1547,9 @@ Examples
 +=================================+=============+
 | ``substring("Thomas", "...$")`` | ``"mas"``   |
 +---------------------------------+-------------+
-| ``substring("Thomas", 2)``      | ``"homas"`` |
+| ``substring("Thomas", 1)``      | ``"homas"`` |
 +---------------------------------+-------------+
-| ``substring("Thomas", 2, 3)``   | ``"hom"``   |
+| ``substring("Thomas", 1, 3)``   | ``"hom"``   |
 +---------------------------------+-------------+
 
 
