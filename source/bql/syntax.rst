@@ -251,7 +251,7 @@ The basic rules are:
 
 The first element of a JSON Path must always be a "map access" component (since the document is always a map) and the leading dot must be omitted.
 
-For example, ``ids[1]`` in the document given above would return ``17``, ``dists[-2].other`` would return ``7`` and just ``dists`` would return the array ``[{"other": "foo", "value": 7}, {"other": "bar", "value": 3.5}]``.
+For example, ``ids[1]`` in the document given above would return ``17``, ``dists[-2].other`` would return ``foo`` and just ``dists`` would return the array ``[{"other": "foo", "value": 7}, {"other": "bar", "value": 3.5}]``.
 
 Extended Descend Operators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
