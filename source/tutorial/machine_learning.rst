@@ -5,27 +5,27 @@ Using Machine Learning
 This chapter describes how to use machine learning on SensorBee.
 
 In this tutorial, SensorBee retrieves tweets written in English from
-Twitter's public stream using sample API. SensorBee adds two labels to each
-tweet: age and gender. Tweets are labeled (*classified*) by machine learning.
+Twitter's public stream using Twitter's Sample API. SensorBee adds two labels to each
+tweet: age and gender. Tweets are labeled ("classified") using machine learning.
 
-Following sections shows how to install dependencies, set them up, and apply
+The following sections shows how to install dependencies, set them up, and apply
 machine learning to tweets using SensorBee.
 
 .. note::
 
     Due to the way the Twitter client receives tweets from Twitter, the behavior
-    of this tutorial demonstration doesn't seem very smooth. For example, it
-    gets around 50 tweets in 100ms and stops for 900ms, then repeats the same
-    behavior in every one second. So, it's easily misunderstood that SensorBee
+    of this tutorial demonstration does not seem very smooth. For example, the client
+    gets around 50 tweets in 100ms, then stops for 900ms, and repeats the same
+    behavior every second. So, it is easy to get the misperception that SensorBee
     and its machine learning library are doing mini-batch processing, but they
-    do not actually do it.
+    actually do not.
 
 Prerequisities
 ==============
 
 This tutorial requires following software to be installed:
 
-* Ruby 2.1.8 or later
+* Ruby 2.1.4 or later
 
     * https://www.ruby-lang.org/en/documentation/installation/
 
@@ -33,25 +33,27 @@ This tutorial requires following software to be installed:
 
     * https://www.elastic.co/products/elasticsearch
 
+To check that the data arrives properly in Elasticsearch and to show
+see this data could be visualized, also install:
+
 * Kibana 4.4.0 or later
 
     * https://www.elastic.co/products/kibana
 
-In this tutorial, Ruby 2.1.4, Elasticsearch 2.2.0, and Kibana 4.4.0 are used.
+However, explanations on how to configure and use Kibana for data visualization
+are not part of this tutorial. It is assumed that Elasticsearch and Kibana are
+running on the same host as SensorBee. However, SensorBee can be configured to
+use services running on a different host.
 
-This tutorial assumes that Elasticsearch and Kibana are running on the same
-host as where SensorBee runs. However, it's can be configured to use those
-servers running on a different host.
+In addition, Go 1.4 or later and Git are required, as described in
+:ref:`tutorial_getting_started`.
 
-In addition, Go 1.4 or later is, of course, required. See
-:ref:`tutorial_getting_started` to learn how to setting it up.
+Quick Set Up Guide
+------------------
 
-Quick Setting Up Guide
-----------------------
-
-If there's no Elasticsearch and Kibana instances that can be used for this
-tutorial, they need to be installed. Skip this subsection if they're already
-installed. In case an error occurs, look at documentation in
+If there are no Elasticsearch and Kibana instances that can be used for this
+tutorial, they need to be installed. Skip this subsection if they are already
+installed. In case an error occurs, look up the documentation at
 `<http://www.elastic.co/>`_.
 
 Installing and Running Elasticsearch
@@ -59,10 +61,12 @@ Installing and Running Elasticsearch
 
 Download the package from `<https://www.elastic.co/downloads/elasticsearch>`_
 and extract the compressed file. Then, run ``bin/elasticsearch`` in the
-directory::
+directory with the extracted files::
 
     /path/to/elasticserach-2.2.0$ bin/elasticsearch
     ... log messages ...
+
+Note that a Java runtime is required to run the command above.
 
 To see if Elasticsearch is running, access the server with ``curl`` command::
 
@@ -84,21 +88,24 @@ Installing and Running Kibana
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Download the package from `<https://www.elastic.co/downloads/kibana>`_ and
-extract the compressed file. Then, run ``bin/kibana`` in the directory::
+extract the compressed file. Then, run ``bin/kibana`` in the directory
+with the extracted files::
 
     /path/to/kibana-4.4.0$ bin/kibana
     ... log messages ...
 
 Access `<http://localhost:5601/>`_ with a Web browser. Kibana is running
 correctly if it shows a page saying "Configure an index pattern". Since
-Elasticsearch doesn't have the data yet, no more operation isn't necessary at
-the moment. `Running SensorBee`_ section shows how to perform further steps
-later.
+Elasticsearch does not have any data yet, no more operation is necessary at
+the moment. In the `Running SensorBee`_ section further configuration steps
+are described.
 
 Installation and Setup
 ======================
 
-Some work needs to be done before actually trying to interact with this tutorial.
+At this point, the environment described in the previous section is assumed
+to be installed correctly and working. Now, some more components needs to be
+set up before continuing this tutorial.
 
 Installing the Tutorial Package
 -------------------------------
@@ -106,10 +113,9 @@ Installing the Tutorial Package
 To setting up the system, ``go get`` the tutorial package first::
 
     $ go get github.com/sensorbee/tutorial/ml
-    $
 
-The package contains configuration files that are necessary for the tutorial
-under the ``config`` directory. Create a temporary directory and copy those
+The package contains configuration files in the ``config`` subdirectory
+that are necessary for the tutorial. Create a temporary directory and copy those
 files to the directory (**replace /path/to/ with an appropriate path**)::
 
     $ mkdir -p /path/to/sbml
@@ -153,7 +159,8 @@ privileges (i.e. ``sudo``)::
     /path/to/sbml$
 
 After installing bundler, run the following command to install fluentd and its
-plugins under the ``/path/to/sbml`` directory::
+plugins under the ``/path/to/sbml`` directory (in order to build the gems, you
+may have to install Ruby header files before)::
 
     /path/to/sbml$ bundle install --path vendor/bundle
     Fetching gem metadata from https://rubygems.org/............
@@ -191,7 +198,7 @@ confirm whether fluentd is correctly installed, run the command below::
     fluentd 0.12.20
     /path/to/sbml$
 
-If it prints the version, the installation is completed and fluentd is ready to
+If it prints the version, the installation is complete and fluentd is ready to
 be used.
 
 Once fluentd is installed, run it with the provided configuration file::
@@ -219,15 +226,11 @@ Once fluentd is installed, run it with the provided configuration file::
       </match>
     </ROOT>
     2016-02-05 16:02:10 -0800 [info]: listening fluent socket on 0.0.0.0:24224
-    ^C2016-02-05 16:02:18 -0800 [info]: shutting down fluentd
-    2016-02-05 16:02:18 -0800 [info]: shutting down input type="forward" plugin_id="...
-    2016-02-05 16:02:18 -0800 [info]: shutting down output type="elasticsearch" plug...
-    2016-02-05 16:02:18 -0800 [info]: process finished code=0
 
 Some log messages are truncated with ``...`` at the end of each line.
 
 The configuration file ``fluent.conf`` is provided as a part of this tutorial.
-It defines one data source using ``in_forward`` and one destination that
+It defines a data source using ``in_forward`` and a destination that
 is connected to Elasticsearch. If the Elasticserver is running on a different
 host or using a port number different from 9200, edit ``fluent.conf``::
 
@@ -278,31 +281,41 @@ Running SensorBee
 =================
 
 All requirements for this tutorial have been installed and set up. The next
-step is to build and run ``sensorbee`` command::
+step is to install ``build_sensorbee``, then build and run the ``sensorbee``
+executable::
 
+    /path/to/sbml$ go get gopkg.in/sensorbee/sensorbee.v0/cmd/build_sensorbee
     /path/to/sbml$ build_sensorbee
     sensorbee_main.go
     /path/to/sbml$ ./sensorbee run -c sensorbee.yaml
-    INFO[0000] Setting up the server context
+    INFO[0000] Setting up the server context                 config={"logging":
+    {"log_dropped_tuples":false,"min_log_level":"info","summarize_dropped_tuples":
+    false,"target":"stderr"},"network":{"listen_on":":15601"},"storage":{"uds":
+    {"params":{"dir":"uds"},"type":"fs"}},"topologies":{"twitter":{"bql_file":
+    "twitter.bql"}}}
     INFO[0000] Setting up the topology                       topology=twitter
     INFO[0000] Starting the server on :15601
 
 Because SensorBee loads pre-trained machine learning models on its startup,
-it may take a while to setting up a topology. After the server shows the
+it may take a while to set up a topology. After the server shows the
 message ``Starting the server on :15601``, access Kibana at
-`<http://localhost:5601/>`_. If operations so far are sucessful, it returns the
-page as shown below:
+`<http://localhost:5601/>`_. If the setup operations performed so far have been
+sucessful, it returns the page as shown below with a green "Create" button:
 
 .. image:: /tutorial/kibana_create_index.png
 
-Click "Create" button to work with data coming from SensorBee. After the action
-is completed, Kibana is ready to visualize data. The picture below shows an
-example chart:
+(If the button is not visible, see the section on `Troubleshooting`_ below.)
+Click the "Create" button to work with data coming from SensorBee. After the action
+is completed, you should see a list of fields that were found in the data
+stored so far. If you click "Discover" in the top menu, a selection of the tweets
+and a diagram with the tweet frequency should be visible.
+
+Kibana can now be used to visualize and search through the data in Elasticsearch.
+Although this tutorial doesn't describe the usage of Kibana, many tutorials
+and examples can be found on the Web. The picture below shows an
+example chart showing some classification metrics:
 
 .. image:: /tutorial/kibana_chart_sample.png
-
-Although this tutorial doesn't describe the usage of Kibana, many tutorials
-and examples can be found on the Web.
 
 Troubleshooting
 ---------------
@@ -342,52 +355,58 @@ For other errors, report them to `<https://github.com/sensorbee/tutorial>`_.
 BQL Statements and Plugins
 ==========================
 
-This section describes how SensorBee input tweets from Twitter, preprocesses
+This section describes how SensorBee produced the output that was
+seen in the previous section: How it loads tweets from Twitter, preprocesses
 tweets for machine learning, and finally classifies tweets to extract
 demographic information of each tweets. ``twitter.bql`` in the ``config``
 directory contains all BQL statements used in this tutorial.
 
-Following subsections explains what each statement does. To interact with some
-streams created by ``twitter.bql``,  open another terminal to launch
+The following subsections explains what each statement does. To interact with some
+streams created by ``twitter.bql``,  open another terminal (while the ``sensorbee``
+instance from the previous section is still running) and launch
 ``sensorbee shell``::
 
     /path/to/sbml$ ./sensorbee shell -t twitter
     twitter>
 
+In the following sections of this tutorial, statements prefixed with
+``twitter>`` can be executed in the SensorBee shell; statements without this prefix
+are statements from the ``twitter.bql`` file.
+
 Creating a Twitter Source
 -------------------------
 
-This tutorial doesn't work without retrieving the public timeline of Twitter
+This tutorial does not work without retrieving the public timeline of Twitter
 using the Sample API. The Sample API is provided for free to retrieve a
 portion of tweets sampled from the public timeline.
 
-`github.com/sensorbee/twitter <https://github.com/sensorbee/twitter/>`_
-package provides a plugin for public time line retrieval. Its type name is
+The `github.com/sensorbee/twitter <https://github.com/sensorbee/twitter/>`_
+package provides a plugin for public time line retrieval. The source provided by that plugin has the type
 ``twitter_public_stream``. The plugin can be registered to the SensorBee
-server by adding ``github.com/sensorbee/tiwtter/plugin`` to the ``build.yaml``
-configuration file for ``build_sensorbee``.
-
-::
+server by adding ``github.com/sensorbee/twitter/plugin`` to the ``build.yaml``
+configuration file for ``build_sensorbee``. Now consider the first statement
+in the ``twitter.bql`` file::
 
     CREATE SOURCE public_tweets TYPE twitter_public_stream
         WITH key_file = "api_key.yaml";
 
-This statement creates a new source ``public_tweets``. To retrieve raw tweets
-from the source run the following ``SELECT`` statement::
+This statement creates a new source with the name ``public_tweets``. To retrieve raw
+tweets from that source, run the following ``SELECT`` statement in the
+SensorBee shell::
 
     twitter> SELECT RSTREAM * FROM public_tweets [RANGE 1 TUPLES];
 
 .. note::
 
-    For simplicity, a relative path is specified for ``key_file`` parameter.
-    However, it's usually recommended to pass an absolute path for it when
+    For simplicity, a relative path is specified as the ``key_file`` parameter.
+    However, it is usually recommended to pass an absolute path when
     running the SensorBee server as a daemon.
 
 Preprocessing Tweets and Extracting Features for Machine Learning
 -----------------------------------------------------------------
 
 Before applying machine learning to tweets, they need to be converted into
-another form of information so that machine learning algorithms can utlize
+another form of information so that machine learning algorithms can utilize
 them. The conversion consists of two tasks: preprocessing and feature
 extraction. Preprocessing generally involves data cleansing, filtering,
 normalization, and so on. Feature extraction transforms preprocessed data
@@ -403,10 +422,10 @@ Selecting Meaningful Fields of English Tweets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Because this tutorial aims at English tweets, tweets written in other
-languages needs to be removed. This can be done by the ``WHERE``
-clause::
+languages needs to be removed. This can be done with the ``WHERE``
+clause, as you can check in the SensorBee shell::
 
-    SELECT RSTREAM * FROM public_tweets [RANGE 1 TUPLES]
+    twitter> SELECT RSTREAM * FROM public_tweets [RANGE 1 TUPLES]
         WHERE lang = "en";
 
 Tweets have the ``lang`` field and it can be used for the filtering.
@@ -423,7 +442,7 @@ learning. Thus, removing unnecessary fields keeps data simple and clean::
 
 This statement creates a new stream ``en_tweets``. It only selects English
 tweets by ``WHERE lang = "en"``. ``"sensorbee.tweets" AS tag`` is used by
-``fluentd`` sink later. The resulting from the stream will look like::
+``fluentd`` sink later. The items in that stream will look like::
 
     {
         "tag": "sensorbee.tweets",
@@ -445,9 +464,9 @@ tweets by ``WHERE lang = "en"``. ``"sensorbee.tweets" AS tag`` is used by
 Removing Noise
 ^^^^^^^^^^^^^^
 
-A noise that is meaningless and could be harmful to machine learning
+Noise that is meaningless and could be harmful to machine learning
 algorithms needs to be removed. The field of natural language processing
-(NLP) have developed many methods for this purpose and they can be found in a
+(NLP) has developed many methods for this purpose and they can be found in a
 wide variety of articles. However, this tutorial only applies some of the
 most basic operations on each tweets.
 
@@ -471,16 +490,16 @@ The statement above creates a new stream ``preprocessed_tweets`` from
 ``text_vector`` and ``description_vector``. As for preprocessing, the
 statement applies following methods to ``text`` and ``description`` fields:
 
-* Removing punctuation marks
-* Changing uppercase letters to lowercase
-* Removing stopwords
+* Remove punctuation marks
+* Change uppercase letters to lowercase
+* Remove stopwords
 
 .. todo:: rename "stop word" to "stopword" in both code and BQL
 
 First of all, punctuation marks are removed by the user-defined function (UDF)
-``filter_puncuation_marks``. It's provided as a plugin of this tutorial in
+``filter_puncuation_marks``. It is provided in a plugin for this tutorial in the
 ``github.com/sensorbee/tutorial/ml`` package. The UDF removes some punctuation
-marks such as ",", ".", or "()".
+marks such as ",", ".", or "()" from a string.
 
 .. note::
 
@@ -489,11 +508,11 @@ marks such as ",", ".", or "()".
     simply removes most of them for simplicity. Develop a better UDF to solve
     this issue as an exercise.
 
-Second of all, all uppercase letters are converted into lowercase letters by
+Second, all uppercase letters are converted into lowercase letters by
 the ``nlp_to_lower`` UDF. The UDF is registered in
 ``github.com/sensorbee/nlp/plugin``. Because a letter is mere byte code and
 the values of "a" and "A" are different, machine learning algorithms consider
-"word" and "Word" have different meanings. To avoid that confusion, all letter
+"word" and "Word" have different meanings. To avoid that confusion, all letters
 should be "normalized".
 
 .. note::
@@ -505,18 +524,18 @@ should be "normalized".
 Finally, all stopwords are removed. Stopwords are words that appear too often
 and don't provide any insight for classification. Stopword filtering in this
 tutorial is done in two steps: tokenization and filtering. To perform a
-dictionary-based stopword filtering, the content of a tweet need to be
+dictionary-based stopword filtering, the content of a tweet needs to be
 tokenized. Tokenization is a process that converts a sentence into a sequence
 of words. In English, "I like sushi" will be tokenized as
 ``["I", "like", "sushi"]``. Although tokenization isn't as simple as just
 splitting words by white spaces, the ``preprocessed_tweets`` stream simply
-does it for simplicity by the UDF ``nlp_split``, which is defined in
+does it for simplicity using the UDF ``nlp_split``, which is defined in the
 ``github.com/sensorbee/nlp`` package. ``nlp_split`` takes two arguments: a
 sentence and a splitter. In the statement, contents are split by a white
 space. ``nlp_split`` returns an array of strings. Then, the UDF
-``filter_stop_words`` takes the return value of ``nlp_split`` and remove
-stopword contained in the array. ``filter_stop_word`` is provided as a part
-of this tutorial in ``github.com/sensorbee/tutorial/ml`` package. It's a mere
+``filter_stop_words`` takes the return value of ``nlp_split`` and removes
+stopwords contained in the array. ``filter_stop_word`` is provided as a part
+of this tutorial in the ``github.com/sensorbee/tutorial/ml`` package. It's a mere
 example UDF and doesn't provide perfect stopword filtering.
 
 As a result, both ``text_vector`` and ``description_vector`` have an array
@@ -529,7 +548,7 @@ field including Elasticsearch.
 
 .. note::
 
-    For other preprocessing approaches such as stemming, refer natural
+    For other preprocessing approaches such as stemming, refer to natural
     language processing textbooks.
 
 Creating Features
@@ -560,8 +579,9 @@ effectively expressed as a map::
         ...
     }
 
-This tutorial uses online classification algorithms that is imported from
-Jubatus. It accepts the following form of data as a feature vector::
+This tutorial uses online classification algorithms that are imported from
+`Jubatus <http://jubat.us/en/>`_, a distributed online machine learning server.
+These algorithms accept the following form of data as a feature vector::
 
     {
         "word1": 1,
@@ -572,6 +592,7 @@ Jubatus. It accepts the following form of data as a feature vector::
         "word4": [1.1, 1.2, 1.3]
     }
 
+The SensorBee terminology for that kind of data structure is "map".
 A map can be nested and its value can be an array containing weights. The map
 above is converted to something like::
 
@@ -584,11 +605,11 @@ above is converted to something like::
         "word4[2]": 1.3
     }
 
-The actual feature vector for the tutorial is created by the ``fv_tweets``
+The actual feature vectors for the tutorial are created in the ``fv_tweets``
 stream::
 
     CREATE STREAM fv_tweets AS
-    SELECT RSTREAM
+      SELECT RSTREAM
         {
             "text": nlp_weight_tf(text_vector),
             "description": nlp_weight_tf(description_vector)
@@ -597,9 +618,9 @@ stream::
     FROM preprocessed_tweets [RANGE 1 TUPLES];
 
 As described earler, ``text_vector`` and ``description_vector`` are arrays of
-words. ``nlp_weight_tf`` function defined in ``github.com/sensorbee/nlp``
-package computes a feature vector from the array. The weight is term
-frequency (i.e. the number of occurrances of a word). The result is a map
+words. The ``nlp_weight_tf`` function defined in the ``github.com/sensorbee/nlp``
+package computes a feature vector from an array. The weight is term
+frequency (i.e. the number of occurrences of a word). The result is a map
 expressing a sparse vector above. To see how the ``feature_vector`` looks
 like, just issue a ``SELECT`` statement for the ``fv_tweets`` stream.
 
@@ -620,23 +641,23 @@ pre-trained machine learning models have to be loaded::
         OR CREATE IF NOT SAVED
         WITH label_field = "gender", regularization_weight = 0.001;
 
-In SensorBee, Machine learning models are expressed as user-defined states
+In SensorBee, machine learning models are expressed as user-defined states
 (UDSs). In the statement above, two models are loaded: ``age_model`` and
-``gender_model``. These models has necessary information to classify gender and
-age of the user of each tweet. They're saved in the ``uds`` directory
-beforehand::
+``gender_model``. These models contain the necessary information to classify gender and
+age of the user of each tweet. The model files are located in the ``uds`` directory
+that was copied from the package's ``config`` directory beforehand::
 
     /path/to/sbml$ ls uds
     twitter-age_model-default.state
     twitter-gender_model-default.state
 
 These filenames were automatically assigned by SensorBee server when the
-``SAVE STATE`` statement is issued. It'll be described later.
+``SAVE STATE`` statement was issued. It will be described later.
 
 Both models have the type ``jubaclassifier_arow`` imported from
-Jubatus, which distributed online machine learning server. The UDS type is
-implemented in the `github.com/sensorbee/jubatus/classifier <https://github.com/sensorbee/jubatus/classifier>`_
-package. ``jubaclassifier_arow`` implements AROW online linear classification
+Jubatus. The UDS type is implemented in the
+`github.com/sensorbee/jubatus/classifier <https://github.com/sensorbee/jubatus/classifier>`_
+package. ``jubaclassifier_arow`` implements the AROW online linear classification
 algorithm [Crammer09]_. Parameters specified in the ``WITH`` clause are related
 to training and will be described later.
 
@@ -679,7 +700,7 @@ Inserting Labeled Tweets Into Elasticsearch via Fluentd
 -------------------------------------------------------
 
 Finally, tweets labeled by machine learning need to be inserted into
-Elasticsearch for visualization. This is done via fluentd which is previously
+Elasticsearch for visualization. This is done via fluentd which was previously
 set up.
 
 ::
@@ -692,13 +713,18 @@ package. The ``fluentd`` sink write tuples into fluentd's ``forward`` input
 plugin running on the same host.
 
 After creating the sink, the ``INSERT INTO`` statement starts writing tuples
-from a source or a stream into it.
+from a source or a stream into it. This statement is the last one in the
+``twitter.bql`` file and also concludes this section. All the steps from
+connecting to the Twitter API, transforming tweets and analyzing them using
+Jubatus have been shown in this section. As the last part of this tutorial,
+it will be shown how the training of the previously loaded model files has
+been done.
 
 Training
 ========
 
 The previous section used the machine learning models that were already trained
-but didn't describe how to train them. This section explains how machine
+but it was not described how to train them. This section explains how machine
 learning models can be trained with BQL and the ``sensorbee`` command.
 
 Preparing Training Data
@@ -706,7 +732,7 @@ Preparing Training Data
 
 Because the machine learning algorithm used in this tutorial is supervised
 learning, it requires a training data set to create models. Training data is a
-pair of original data and its label. There's no common format of a training
+pair of original data and its label. There is no common format of a training
 data set and a format can vary depending on use cases. In this tutorial, a
 training data set consists of multiple lines each of which has exactly one
 JSON object.
@@ -717,13 +743,13 @@ JSON object.
     {"text":"I wanna eat sushi.", ...}
     ...
 
-In addition, each JSON object needs to have two field: age and gender::
+In addition, each JSON object needs to have two fields "age" and "gender"::
 
     {"age":"10-19","gender":"male", ...other original fields...}
     {"age":"20-29","gender":"female", ...other original fields...}
     ...
 
-In the pretrained model, age and gender have following labels:
+In the pre-trained model, age and gender have following labels:
 
 * age
 
@@ -739,23 +765,21 @@ In the pretrained model, age and gender have following labels:
     * ``female``
 
 Both age and gender can have additional labels if necessary. Labels can be empty
-if they aren't sure. After annotating each tweets, the training data set needs
+if they are not known for sure. After annotating each tweet, the training data set needs
 to be saved as ``training_tweets.json`` in the ``/path/to/sbml`` directory.
 
-The training data set used for the pretrained models contains 4974 gender labels
+The training data set used for the pre-trained models contains 4974 gender labels
 and 14747 age labels.
 
 Training
 --------
 
-Once the training data set is prepared, the models can be trained by the
-following command.
-
-::
+Once the training data set has been prepared, the models can be trained with the
+following command::
 
     /path/to/sbml$ ./sensorbee runfile -t twitter -c sensorbee.yaml -s '' train.bql
 
-``sensorbee runfile`` executes BQL statement written in the given file,
+``sensorbee runfile`` executes BQL statements written in a given file,
 e.g. ``train.bql`` in the command above. ``-t twitter`` means the name of the
 topology is ``twitter``. The name is used for the filenames of saved models
 later. ``-c sensorbee.yaml`` passes the same configuration file as the one
@@ -776,14 +800,15 @@ in the file overlap with ``twitter.bql``, so only differences will be explained.
     CREATE STATE age_model TYPE jubaclassifier_arow
         WITH label_field = "age", regularization_weight = 0.001;
     CREATE SINK age_model_trainer TYPE uds WITH name = "age_model";
+
     CREATE STATE gender_model TYPE jubaclassifier_arow
         WITH label_field = "gender", regularization_weight = 0.001;
     CREATE SINK gender_model_trainer TYPE uds WITH name = "gender_model";
 
 These statements create UDSs for machine learning models of age and gender
 classifications. ``CREATE STATE`` statements are same as ones in
-``twitter.bql``. The ``CREATE SINK`` statement above creates a new sink with the
-type ``uds``. The ``uds`` sink writes tuples into the given UDS if the UDS
+``twitter.bql``. The ``CREATE SINK`` statements above create new sinks with the
+type ``uds``. The ``uds`` sink writes tuples into the UDS specified as ``name`` if the UDS
 supports it. ``jubaclassifier_arow`` supports writing tuples. When a tuple is
 written to it, it trains the model with the tuple having training data. It
 assumes that the tuple has two fields: a feature vector field and a label field.
@@ -808,7 +833,7 @@ tuple untile all other components in the topology are set up and the
 ``RESUME SOURCE`` statement is issued.
 
 ``en_tweets``, ``preprocessed_tweets``, and ``fv_tweets`` streams are same as
-ones in ``twitter.bql`` except that the tweets are emitted from ``file`` source
+ones in ``twitter.bql`` except that the tweets are emitted from the ``file`` source
 rather than the ``twitter_public_stream`` source.
 
 ::
@@ -826,7 +851,7 @@ training.
     INSERT INTO age_model_trainer FROM age_labeled_tweets;
     INSERT INTO gender_model_trainer FROM gender_labeled_tweets;
 
-Then, those filtered tuples are written into models (UDSs) via ``uds`` sinks
+Then, those filtered tuples are written into models (UDSs) via the ``uds`` sinks
 created earlier.
 
 ::

@@ -89,7 +89,7 @@ In terms of BQL syntax, the emit operator keyword is given after the ``SELECT`` 
 The following subsections describe how each operator works.
 To illustrate the effects of each operator, a visual example is provided afterwards.
 
-``RSTREAM`` operator
+``RSTREAM`` Operator
 ^^^^^^^^^^^^^^^^^^^^
 
 When ``RSTREAM`` is specified, all tuples in the relation are emitted.
@@ -104,7 +104,7 @@ In contrast,
 emits (at most) 100 tuples for every tuple in ``src``.
 
 
-``ISTREAM`` operator
+``ISTREAM`` Operator
 ^^^^^^^^^^^^^^^^^^^^
 
 When ``ISTREAM`` is specified, all tuples in the relation *that have not been in the previous relation* are emitted.
@@ -133,7 +133,7 @@ To illustrate the multiplicity counting,
 will emit three times :math:`1` and then nothing (because after the first three tuples processed, both the previous and the current relation always look like :math:`\{1, 1, 1\}`.)
 
 
-``DSTREAM`` operator
+``DSTREAM`` Operator
 ^^^^^^^^^^^^^^^^^^^^
 
 The ``DSTREAM`` operator is very similar to ``ISTREAM``, except that it emits all tuples in the *previous* relation that are not also contained in the current relation.
