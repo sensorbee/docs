@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'SensorBee'
-copyright = u'2015, Preferred Networks, Inc.'
+copyright = u'2015–2016, Preferred Networks, Inc.'
 author = u'Preferred Networks, Inc.'
 
 # The version info for the project you're documenting, acts as replacement for
