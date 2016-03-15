@@ -340,7 +340,7 @@ seconds elapsed since January 1, 1970 UTC::
 
     ("1970-01-01T00:00:00Z"::timestamp)::int        -- => 0
     ("1970-01-01T00:00:00.123456Z"::timestamp)::int -- => 0
-    ("1970-01-01T00:00:01Z"::timestamp)::int         -- => 0
+    ("1970-01-01T00:00:01Z"::timestamp)::int         -- => 1
     ("1970-01-02T00:00:00Z"::timestamp)::int        -- => 86400
     ("2016-01-18T09:22:40.123456Z"::timestamp)::int -- => 1453108960
 
@@ -365,7 +365,7 @@ From ``int``
 ``int`` values are converted to the nearest ``float`` values::
 
     1::float -- => 1.0
-    (9000000000000012345::float)::int)::string -- => "9000000000000012288"
+    ((9000000000000012345::float)::int)::string -- => "9000000000000012288"
 
 From ``string``
 ^^^^^^^^^^^^^^^
