@@ -62,7 +62,7 @@ the use of arguments depend on each UDFSs. For example, a UDFS might take an
 even need to be located at the beginning of arguments:
 ``my_udfs2(1, "another_stream")``.
 
-Usgin UDSFs is a very powerful way to extend BQL since they can potentially do
+Using UDSFs is a very powerful way to extend BQL since they can potentially do
 anything that the ``SELECT`` cannot do.
 
 User-Defined States
