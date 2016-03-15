@@ -7,7 +7,7 @@ the processing results have to be exported from it. This chapter introduces
 input and output components in BQL.
 
 This chapter also describes how BQL supports stateful data processing using
-user-defined staets (UDSs).
+user-defined states (UDSs).
 
 .. _bql_io_data_input:
 
