@@ -253,7 +253,7 @@ has a topology named ``my_topology``. The topology has three nodes: ``fluentd``,
 .. note::
 
     This is the only way to persist the configuration of topologies at the
-    moment. Any updates applied at runtime will be reflected into the bql file.
+    moment. Any updates applied at runtime will not be reflected into the bql file.
     For example, if the server restarts after creating a new stream in
     ``my_topology``, the new stream will be lost unless it's explicitly added
     to ``my_topology.bql`` manually.
