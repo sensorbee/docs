@@ -41,9 +41,9 @@ Therefore field selectors are case-sensitive (in order to be able to deal with i
 
 .. note::
 
-   At the moment, there is no restriction on the set of words that can be used as identifiers.
-   However, it is strongly recommended not to use identifiers that are also keywords in order to avoid confusion.
-   Also, such restrictions on identifiers are likely to be introduced in future versions.
+   There is a list of reserved words that cannot be used as identifiers to avoid confusion.
+   This list can be found at `<https://github.com/sensorbee/sensorbee/blob/master/core/reservedwords.go>`_.
+   However, this restriction does not apply to field selectors.
 
 
 Constants
