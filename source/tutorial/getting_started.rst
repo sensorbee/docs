@@ -69,16 +69,16 @@ Everything necessary to try this tutorial is ready now except SensorBee. The
 next step is to build a custom ``sensorbee`` command that includes the plugins
 needed for this tutorial.
 
-Building a ``sensorbee`` Command
---------------------------------
+Building a ``sensorbee`` Executable
+-----------------------------------
 
-To build a ``sensorbee`` command, the ``build_sensorbee`` command needs to be
-installed::
+To build a ``sensorbee`` executable, the ``build_sensorbee`` program needs to
+be installed. To do so, issue the following command::
 
-    $ go get gopkg.in/sensorbee/sensorbee.v0/cmd/build_sensorbee
+    $ go get gopkg.in/sensorbee/sensorbee.v0/...
 
-This command is used to build a custom ``sensorbee`` executable with plugins
-provided by developers.
+The ``build_sensorbee`` program is used to build a custom ``sensorbee``
+executable with plugins provided by developers.
 
 Then, move to the directory that has configuration files previously copied from
 the tutorial package and execute ``build_sensorbee``::
