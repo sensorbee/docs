@@ -394,7 +394,7 @@ Table Prefixes
 """"""""""""""
 
 Where SQL uses the dot in ``SELECT left.a, right.b`` to specify the table from which to use a column, JSON Path uses the dot to describe a child relation in a single JSON element as shown above.
-Therefore to avoid ambiguity, BQL uses the colon (``:``) character to separate table and JSON path::
+Therefore to avoid ambiguity, BQL uses the colon (``:``) character to separate table and JSON Path::
 
     SELECT RSTREAM left:foo.bar, right:hoge FROM ...
 
