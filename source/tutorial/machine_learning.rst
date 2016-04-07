@@ -284,7 +284,7 @@ All requirements for this tutorial have been installed and set up. The next
 step is to install ``build_sensorbee``, then build and run the ``sensorbee``
 executable::
 
-    /path/to/sbml$ go get gopkg.in/sensorbee/sensorbee.v0/cmd/build_sensorbee
+    /path/to/sbml$ go get gopkg.in/sensorbee/sensorbee.v0/...
     /path/to/sbml$ build_sensorbee
     sensorbee_main.go
     /path/to/sbml$ ./sensorbee run -c sensorbee.yaml
