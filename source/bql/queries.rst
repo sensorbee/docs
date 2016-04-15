@@ -251,7 +251,7 @@ This section is about how this relational data can be selected and transformed.
 This functionality is exactly what SQL's ``SELECT`` statement was designed to do, and so in BQL the ``SELECT`` syntax is mimicked as much as possible.
 (Some basic knowledge of what the SQL ``SELECT`` statement does is assumed.)
 However, as opposed to the SQL data model, BQL's input data is assumed to be JSON-like, i.e., with varying shapes, nesting levels, and data types;
-therefore the BQL ``SELECT`` statement has a number of small difference to SQL ``SELECT``.
+therefore the BQL ``SELECT`` statement has a number of small differences to SQL's ``SELECT``.
 
 
 Overview
@@ -261,7 +261,7 @@ The general syntax of the ``SELECT`` command is
 
 ::
 
-    SELECT emit_operator select_list FROM table_expression
+    SELECT emit_operator select_list FROM table_expression;
 
 The ``emit_operator`` is one of the operators described in `Relation-to-Stream Operators`_.
 The following subsections describe the details of ``select_list`` and ``table_expression``.
@@ -351,7 +351,7 @@ After the processing of the ``FROM`` clause is done, each row of the derived vir
 If the result of the condition is true, the row is kept in the output table, otherwise (i.e., if the result is false or null) it is discarded.
 The search condition typically references at least one column of the table generated in the ``FROM`` clause; this is not required, but otherwise the ``WHERE`` clause will be fairly useless.
 
-As BQL does not support the ``table1 JOIN table2 ON (condition)`` syntax, the join condition must always be given in the ``WHERE`` clause.
+As BQL does not support the ``table1 JOIN table2 ON (condition)`` syntax, any join condition must always be given in the ``WHERE`` clause.
 
 
 The ``GROUP BY`` and ``HAVING`` Clauses
@@ -407,6 +407,7 @@ Therefore to avoid ambiguity, BQL uses the colon (``:``) character to separate t
     SELECT RSTREAM left:foo.bar, right:hoge FROM ...
 
 If there is just one table to select from, the table prefix can be omitted, but then it must be omitted in *all* expressions of the statement.
+If there are multiple tables in the ``FROM`` clause, then table prefixes must be used.
 
 
 Column Labels
