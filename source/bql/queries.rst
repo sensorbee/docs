@@ -344,8 +344,8 @@ The syntax of the ``WHERE`` clause is
 
     WHERE filter_expression
 
-where ``filter_expression`` is any value expression that can be converted to boolean.
-(That is, ``WHERE 6`` is also a valid filter.)
+where ``filter_expression`` is any expression with a boolean value.
+(That is, ``WHERE 6`` is not a valid filter, but ``WHERE 6::bool`` is.)
 
 After the processing of the ``FROM`` clause is done, each row of the derived virtual table is checked against the search condition.
 If the result of the condition is true, the row is kept in the output table, otherwise (i.e., if the result is false or null) it is discarded.
