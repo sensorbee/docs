@@ -20,6 +20,9 @@ In order to execute SQL-like queries, a finite set of tuples from the possibly u
 In the processing step at time :math:`t^*`, a *stream-to-relation* operator :math:`R` that converts a certain set of tuples in the stream to a relation :math:`R(t^*)` is used.
 This relation is then processed with a *relation-to-relation* operator :math:`O` that is expressed in a form very closely related to an SQL ``SELECT`` statement.
 Finally, a *relation-to-stream* operator :math:`S` will emit certain rows from the output relation :math:`O(R(t^*))` into the output stream, possibly taking into account the results of the previous execution step :math:`O(R(t^*_{\text{prev}}))`.
+This process is illustrated in the following figure:
+
+.. image:: /bql/processing-model.png
 
 This three-step pipeline is executed for each tuple, but only for one tuple at a time.
 Therefore, during execution there is a well-defined "current tuple".
