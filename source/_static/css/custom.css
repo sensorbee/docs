@@ -11,3 +11,8 @@
 #function-reference h4 tt {
   font-size: 100%;
 }
+
+#internal-transformations td > tt,
+#emitted-tuple-data td > tt {
+  display: block;
+}

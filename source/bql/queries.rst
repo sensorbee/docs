@@ -5,7 +5,7 @@ Queries
 *******
 
 The previous chapters described how to define data sources and sinks to communicate with the outside world.
-Now it is discussed how to transform the data stream from those sources and write it to the defined sinks.
+Now it is discussed how to transform the data stream from those sources and write it to the defined sinks - that is, how to actually process data.
 
 Processing Model
 ================
@@ -20,6 +20,9 @@ In order to execute SQL-like queries, a finite set of tuples from the possibly u
 In the processing step at time :math:`t^*`, a *stream-to-relation* operator :math:`R` that converts a certain set of tuples in the stream to a relation :math:`R(t^*)` is used.
 This relation is then processed with a *relation-to-relation* operator :math:`O` that is expressed in a form very closely related to an SQL ``SELECT`` statement.
 Finally, a *relation-to-stream* operator :math:`S` will emit certain rows from the output relation :math:`O(R(t^*))` into the output stream, possibly taking into account the results of the previous execution step :math:`O(R(t^*_{\text{prev}}))`.
+This process is illustrated in the following figure:
+
+.. image:: /bql/processing-model.png
 
 This three-step pipeline is executed for each tuple, but only for one tuple at a time.
 Therefore, during execution there is a well-defined "current tuple".
@@ -59,6 +62,7 @@ The maximal allowed values are 86,400 for ``SECONDS`` and 86,400,000 for ``MILLI
 
 
 The **tuple-based operator** is used with a number :math:`k` and uses the last :math:`k` tuples that have arrived (or *all* tuples that have arrived when this number is less than :math:`k`) to create the relation :math:`R(t^*)`.
+The example figure above shows a tuple-based window with :math:`k=3`.
 
 Valid ranges are positive integral values, followed by the ``TUPLES`` keyword, for example ``[RANGE 10 TUPLES]`` is a valid specification.
 The maximal allowed value is 1,048,575.
@@ -80,8 +84,8 @@ Relation-to-Stream Operators
 ----------------------------
 
 Once a resulting relation :math:`O(R(t^*))` is computed, tuples in the relation need to be output as a stream again.
-In BQL, there are three different relation-to-stream operators, ``RSTREAM``, ``ISTREAM`` and ``DSTREAM``.
-They are also called "emit operators", since they control how tuples are emitted as output.
+In BQL, there are three relation-to-stream operators, ``RSTREAM``, ``ISTREAM`` and ``DSTREAM``.
+They are also called "emit operators", since they control how tuples are emitted into the output stream.
 In terms of BQL syntax, the emit operator keyword is given after the ``SELECT`` keyword, for example::
 
     SELECT ISTREAM uid, msg FROM ...
@@ -164,23 +168,25 @@ Examples
 To illustrate the difference between the three emit operators, a concrete example shall be presented.
 Consider the following statement (where ``*STREAM`` is a placeholder for one of the emit operators)::
 
-    SELECT *STREAM id, price FROM stream [RANGE 3 TUPLES] WHERE cat = "toy";
+    SELECT *STREAM id, price FROM stream [RANGE 3 TUPLES] WHERE price < 8;
 
 This statement just takes the ``id`` and ``price`` key-value pairs of every tuple and outputs them untransformed.
 
 In the following table, the leftmost column shows the data of the tuple in the stream, next to that is the contents of the current window :math:`R(t^*)`, then the results of the relation-to-relation operator :math:`O(R(t^*))`.
 In the table below, there is the list of items that would be output by the respective emit operator.
 
-.. |br| raw:: html
-
-   <br />
-
 .. |br| raw:: latex
 
    \newline
 
+.. |hr| raw:: latex
+
+   \hline
+
 Internal Transformations
 """"""""""""""""""""""""
+
+.. tabularcolumns:: |>{\small}p{.3\linewidth}|>{\small}p{.3\linewidth}|>{\small}p{.3\linewidth}|
 
 +------------------------------+-----------------------------------+-----------------------------------+
 | Current Tuple's Data         | Current Window :math:`R(t^*)`     | Output Relation :math:`O(R(t^*))` |
@@ -189,42 +195,44 @@ Internal Transformations
 +==============================+===================================+===================================+
 | ``{"id": 1, "price": 3.5}``  | ``{"id": 1, "price": 3.5}``       | ``{"id": 1, "price": 3.5}``       |
 +------------------------------+-----------------------------------+-----------------------------------+
-| ``{"id": 2, "price": 4.5}``  | ``{"id": 1, "price": 3.5}`` |br|  | ``{"id": 1, "price": 3.5}`` |br|  |
-|                              | ``{"id": 2, "price": 4.5}``       | ``{"id": 2, "price": 4.5}``       |
+| |hr|                         | ``{"id": 1, "price": 3.5}`` |br|  | ``{"id": 1, "price": 3.5}`` |br|  |
+| ``{"id": 2, "price": 4.5}``  | ``{"id": 2, "price": 4.5}``       | ``{"id": 2, "price": 4.5}``       |
 +------------------------------+-----------------------------------+-----------------------------------+
-| ``{"id": 3, "price": 10.5}`` | ``{"id": 1, "price": 3.5}`` |br|  | ``{"id": 1, "price": 3.5}`` |br|  |
-|                              | ``{"id": 2, "price": 4.5}`` |br|  | ``{"id": 2, "price": 4.5}``       |
+| |hr|                         | ``{"id": 1, "price": 3.5}`` |br|  | ``{"id": 1, "price": 3.5}`` |br|  |
+| ``{"id": 3, "price": 10.5}`` | ``{"id": 2, "price": 4.5}`` |br|  | ``{"id": 2, "price": 4.5}``       |
 |                              | ``{"id": 3, "price": 10.5}``      |                                   |
 +------------------------------+-----------------------------------+-----------------------------------+
-| ``{"id": 4, "price": 8.5}``  | ``{"id": 2, "price": 4.5}`` |br|  | ``{"id": 2, "price": 4.5}``       |
-|                              | ``{"id": 3, "price": 10.5}`` |br| |                                   |
+| |hr|                         | ``{"id": 2, "price": 4.5}`` |br|  | ``{"id": 2, "price": 4.5}``       |
+| ``{"id": 4, "price": 8.5}``  | ``{"id": 3, "price": 10.5}`` |br| |                                   |
 |                              | ``{"id": 4, "price": 8.5}``       |                                   |
 +------------------------------+-----------------------------------+-----------------------------------+
-| ``{"id": 5, "price": 6.5}``  | ``{"id": 3, "price": 10.5}`` |br| |                                   |
-|                              | ``{"id": 4, "price": 8.5}`` |br|  |                                   |
+| |hr|                         | ``{"id": 3, "price": 10.5}`` |br| |                                   |
+| ``{"id": 5, "price": 6.5}``  | ``{"id": 4, "price": 8.5}`` |br|  |                                   |
 |                              | ``{"id": 5, "price": 6.5}``       | ``{"id": 5, "price": 6.5}``       |
 +------------------------------+-----------------------------------+-----------------------------------+
 
 Emitted Tuple Data
 """"""""""""""""""
 
+.. tabularcolumns:: |>{\small}p{.3\linewidth}|>{\small}p{.3\linewidth}|>{\small}p{.3\linewidth}|
+
 +----------------------------------+-----------------------------+-----------------------------+
 | RSTREAM                          | ISTREAM                     | DSTREAM                     |
 +==================================+=============================+=============================+
 | ``{"id": 1, "price": 3.5}``      | ``{"id": 1, "price": 3.5}`` |                             |
 +----------------------------------+-----------------------------+-----------------------------+
-| ``{"id": 1, "price": 3.5}`` |br| |                             |                             |
-| ``{"id": 2, "price": 4.5}``      | ``{"id": 2, "price": 4.5}`` |                             |
+| |hr| ``{"id": 1, "price": 3.5}`` |                             |                             |
+| |br| ``{"id": 2, "price": 4.5}`` | ``{"id": 2, "price": 4.5}`` |                             |
 +----------------------------------+-----------------------------+-----------------------------+
-| ``{"id": 1, "price": 3.5}`` |br| |                             |                             |
-| ``{"id": 2, "price": 4.5}``      |                             |                             |
+| |hr| ``{"id": 1, "price": 3.5}`` |                             |                             |
+| |br| ``{"id": 2, "price": 4.5}`` |                             |                             |
 |                                  |                             |                             |
 +----------------------------------+-----------------------------+-----------------------------+
-| ``{"id": 2, "price": 4.5}``      |                             | ``{"id": 1, "price": 3.5}`` |
+| |hr| ``{"id": 2, "price": 4.5}`` |                             | ``{"id": 1, "price": 3.5}`` |
 |                                  |                             |                             |
 |                                  |                             |                             |
 +----------------------------------+-----------------------------+-----------------------------+
-|                                  |                             | ``{"id": 2, "price": 4.5}`` |
+| |hr|                             |                             | ``{"id": 2, "price": 4.5}`` |
 |                                  |                             |                             |
 | ``{"id": 5, "price": 6.5}``      | ``{"id": 5, "price": 6.5}`` |                             |
 +----------------------------------+-----------------------------+-----------------------------+
@@ -243,7 +251,7 @@ This section is about how this relational data can be selected and transformed.
 This functionality is exactly what SQL's ``SELECT`` statement was designed to do, and so in BQL the ``SELECT`` syntax is mimicked as much as possible.
 (Some basic knowledge of what the SQL ``SELECT`` statement does is assumed.)
 However, as opposed to the SQL data model, BQL's input data is assumed to be JSON-like, i.e., with varying shapes, nesting levels, and data types;
-therefore the BQL ``SELECT`` statement has a number of small difference to SQL ``SELECT``.
+therefore the BQL ``SELECT`` statement has a number of small differences to SQL's ``SELECT``.
 
 
 Overview
@@ -253,7 +261,7 @@ The general syntax of the ``SELECT`` command is
 
 ::
 
-    SELECT emit_operator select_list FROM table_expression
+    SELECT emit_operator select_list FROM table_expression;
 
 The ``emit_operator`` is one of the operators described in `Relation-to-Stream Operators`_.
 The following subsections describe the details of ``select_list`` and ``table_expression``.
@@ -336,14 +344,14 @@ The syntax of the ``WHERE`` clause is
 
     WHERE filter_expression
 
-where ``filter_expression`` is any value expression that can be converted to boolean.
-(That is, ``WHERE 6`` is also a valid filter.)
+where ``filter_expression`` is any expression with a boolean value.
+(That is, ``WHERE 6`` is not a valid filter, but ``WHERE 6::bool`` is.)
 
 After the processing of the ``FROM`` clause is done, each row of the derived virtual table is checked against the search condition.
 If the result of the condition is true, the row is kept in the output table, otherwise (i.e., if the result is false or null) it is discarded.
 The search condition typically references at least one column of the table generated in the ``FROM`` clause; this is not required, but otherwise the ``WHERE`` clause will be fairly useless.
 
-As BQL does not support the ``table1 JOIN table2 ON (condition)`` syntax, the join condition must always be given in the ``WHERE`` clause.
+As BQL does not support the ``table1 JOIN table2 ON (condition)`` syntax, any join condition must always be given in the ``WHERE`` clause.
 
 
 The ``GROUP BY`` and ``HAVING`` Clauses
@@ -394,11 +402,12 @@ Table Prefixes
 """"""""""""""
 
 Where SQL uses the dot in ``SELECT left.a, right.b`` to specify the table from which to use a column, JSON Path uses the dot to describe a child relation in a single JSON element as shown above.
-Therefore to avoid ambiguity, BQL uses the colon (``:``) character to separate table and JSON path::
+Therefore to avoid ambiguity, BQL uses the colon (``:``) character to separate table and JSON Path::
 
     SELECT RSTREAM left:foo.bar, right:hoge FROM ...
 
 If there is just one table to select from, the table prefix can be omitted, but then it must be omitted in *all* expressions of the statement.
+If there are multiple tables in the ``FROM`` clause, then table prefixes must be used.
 
 
 Column Labels

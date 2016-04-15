@@ -6,7 +6,7 @@ Lexical Structure
 =================
 
 BQL has been designed to be easy to learn for people who have used SQL before.
-While key words and commands differ in many cases, the basic structure, set of tokens, operators etc. is the same.
+While keywords and commands differ in many cases, the basic structure, set of tokens, operators etc. is the same.
 For example, the following is (syntactically) valid BQL input::
 
     SELECT RSTREAM given_name, last_name FROM persons [RANGE 1 TUPLES] WHERE age > 20;
@@ -15,25 +15,25 @@ For example, the following is (syntactically) valid BQL input::
 
     INSERT INTO file FROM data;
 
-This is a sequence of three commands, one per line (although this is not required; more than one command can be on a line, and commands can usefully be split across lines).
+This is a sequence of three commands, one per line (although this is not required; more than one command can be on a line, and commands can span multiple lines where required).
 Additionally, comments can occur in BQL input.
 They are effectively equivalent to whitespace.
 
 The type of commands that can be used in BQL is described in `Input/Output/State Definition`_ and `Queries`_.
 
 
-Identifiers and Key Words
--------------------------
+Identifiers and Keywords
+------------------------
 
-Tokens such as ``SELECT``, ``CREATE``, or ``INTO`` in the example above are examples of *key words*, that is, words that have a fixed meaning in the BQL language.
+Tokens such as ``SELECT``, ``CREATE``, or ``INTO`` in the example above are examples of *keywords*, that is, words that have a fixed meaning in the BQL language.
 The tokens ``persons`` and ``file`` are examples of identifiers.
 They identify names of streams, sources, or other objects, depending on the command they are used in.
 Therefore they are sometimes simply called "names".
-Key words and identifiers have the same lexical structure, meaning that one cannot know whether a token is an identifier or a key word without knowing the language.
+Keywords and identifiers have the same lexical structure, meaning that one cannot know whether a token is an identifier or a keyword without knowing the language.
 
-BQL identifiers and key words must begin with a letter (``a-z``).
+BQL identifiers and keywords must begin with a letter (``a-z``).
 Subsequent characters can be letters, underscores, or digits (``0-9``).
-Key words and unquoted identifiers are in general case insensitive.
+Keywords and unquoted identifiers are in general case insensitive.
 
 However, there is one important difference between SQL and BQL when it comes to "column identifiers".
 In BQL, there are no "columns" with names that the user can pick herself, but "field selectors" that describe the path to a value in a JSON-like document imported from outside the system.
@@ -41,9 +41,9 @@ Therefore field selectors are case-sensitive (in order to be able to deal with i
 
 .. note::
 
-   At the moment, there is no restriction on the set of words that can be used as identifiers.
-   However, it is strongly recommended not to use identifiers that are also key words in order to avoid confusion.
-   Also, such restrictions on identifiers are likely to be introduced in future versions.
+   There is a list of reserved words that cannot be used as identifiers to avoid confusion.
+   This list can be found at `<https://github.com/sensorbee/sensorbee/blob/master/core/reservedwords.go>`_.
+   However, this restriction does not apply to field selectors.
 
 
 Constants
@@ -92,7 +92,7 @@ See the type references for :ref:`type_int` and :ref:`type_float` for details.
 
 .. note::
 
-   For a number of operations/functions it makes a difference whether ``int`` or ``float`` is used (e.g., ``2/3`` is ``0``, but ``2.0/3`` is ``0.666666``).
+   For some operations/functions it makes a difference whether ``int`` or ``float`` is used (e.g., ``2/3`` is ``0``, but ``2.0/3`` is ``0.666666``).
    Be aware of that when writing constants in BQL statements.
 
 
@@ -131,7 +131,7 @@ Details on the usage can be found at the location where the respective syntax el
 This section only exists to advise the existence and summarize the purposes of these characters.
 
 - Parentheses (``()``) have their usual meaning to group expressions and enforce precedence.
-  In some cases parentheses are required as part of the fixed syntax of a particular SQL command.
+  In some cases parentheses are required as part of the fixed syntax of a particular BQL command.
 - Brackets (``[]``) are used in `Array Constructors`_ and in `Field Selectors`_, as well as in `Stream-to-Relation Operators`_.
 - Curly brackets (``{}``) are used in `Map Constructors`_
 - Commas (``,``) are used in some syntactical constructs to separate the elements of a list.
@@ -150,7 +150,7 @@ A comment is a sequence of characters beginning with double dashes and extending
 
     -- This is a standard BQL comment
 
-C-style comments cannot be used.
+C-style (multi-line) comments cannot be used.
 
 
 Operator Precedence
@@ -219,7 +219,8 @@ To deal with such nested data structures, BQL uses a subset of `JSON Path <http:
 Basic Descend Operators
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-In general, a JSON path describes a path to descend in a JSON structure, starting from the top.
+In general, a JSON Path describes a path to a certain element of a JSON document.
+Such a document is looked at as a rooted tree and each element of the JSON Path describes how to descend from the current node to a node one level deeper, with the start node being the root.
 The basic rules are:
 
 - If the current node is a map, then
@@ -245,7 +246,7 @@ The basic rules are:
       [k]
 
   means "descend to the (zero-based) :math:`k`-th element in the array".
-  Negative indices count from end end of the array (as in Python).
+  Negative indices count from the end end of the array (as in Python).
   It is an error if the current node is not an array.
   It is an error if the given index is out of bounds.
 
@@ -265,7 +266,7 @@ There is limited support for array slicing and recursive descend:
       ..child_key
 
   returns an array of all values below the current node that have the key ``child_key``.
-  However, if a node with key ``child_key`` has been found, it will be returned as is, even if it may possibly itself contain that key again.
+  However, once a node with key ``child_key`` has been found, it will be returned as is, even if it may possibly itself contain that key again.
 
   This selector cannot be used as the first component of a JSON Path.
   It is an error if the current node is not a map or an array.
@@ -339,6 +340,10 @@ Row Metadata References
 -----------------------
 
 Metadata is the data that is attached to a tuple but which cannot be accessed as part of the normal row data.
+
+Tuple Timestamp
+^^^^^^^^^^^^^^^
+
 At the moment, the only metadata that can be accessed from within BQL is a tuple's system timestamp (the time that was set by the source that created it).
 This timestamp can be accessed using the ``ts()`` function.
 If multiple streams are joined, a stream prefix is required to identify the input tuple that is referred to, i.e.,
@@ -450,7 +455,7 @@ For example::
     SELECT RSTREAM [7, 2 * stream:a, true, "blue"] FROM ...
 
 Each element of the array can have a different type.
-In particular, the wildcard is also allowed as an expression and will include the whole current row as an array element.
+In particular, the wildcard is also allowed as an expression and will include the whole current row (i.e., a map) as an array element.
 
 .. note::
 
