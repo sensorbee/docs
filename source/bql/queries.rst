@@ -5,7 +5,7 @@ Queries
 *******
 
 The previous chapters described how to define data sources and sinks to communicate with the outside world.
-Now it is discussed how to transform the data stream from those sources and write it to the defined sinks.
+Now it is discussed how to transform the data stream from those sources and write it to the defined sinks - that is, how to actually process data.
 
 Processing Model
 ================
@@ -62,6 +62,7 @@ The maximal allowed values are 86,400 for ``SECONDS`` and 86,400,000 for ``MILLI
 
 
 The **tuple-based operator** is used with a number :math:`k` and uses the last :math:`k` tuples that have arrived (or *all* tuples that have arrived when this number is less than :math:`k`) to create the relation :math:`R(t^*)`.
+The example figure above shows a tuple-based window with :math:`k=3`.
 
 Valid ranges are positive integral values, followed by the ``TUPLES`` keyword, for example ``[RANGE 10 TUPLES]`` is a valid specification.
 The maximal allowed value is 1,048,575.
@@ -83,8 +84,8 @@ Relation-to-Stream Operators
 ----------------------------
 
 Once a resulting relation :math:`O(R(t^*))` is computed, tuples in the relation need to be output as a stream again.
-In BQL, there are three different relation-to-stream operators, ``RSTREAM``, ``ISTREAM`` and ``DSTREAM``.
-They are also called "emit operators", since they control how tuples are emitted as output.
+In BQL, there are three relation-to-stream operators, ``RSTREAM``, ``ISTREAM`` and ``DSTREAM``.
+They are also called "emit operators", since they control how tuples are emitted into the output stream.
 In terms of BQL syntax, the emit operator keyword is given after the ``SELECT`` keyword, for example::
 
     SELECT ISTREAM uid, msg FROM ...
@@ -167,23 +168,25 @@ Examples
 To illustrate the difference between the three emit operators, a concrete example shall be presented.
 Consider the following statement (where ``*STREAM`` is a placeholder for one of the emit operators)::
 
-    SELECT *STREAM id, price FROM stream [RANGE 3 TUPLES] WHERE cat = "toy";
+    SELECT *STREAM id, price FROM stream [RANGE 3 TUPLES] WHERE price < 8;
 
 This statement just takes the ``id`` and ``price`` key-value pairs of every tuple and outputs them untransformed.
 
 In the following table, the leftmost column shows the data of the tuple in the stream, next to that is the contents of the current window :math:`R(t^*)`, then the results of the relation-to-relation operator :math:`O(R(t^*))`.
 In the table below, there is the list of items that would be output by the respective emit operator.
 
-.. |br| raw:: html
-
-   <br />
-
 .. |br| raw:: latex
 
    \newline
 
+.. |hr| raw:: latex
+
+   \hline
+
 Internal Transformations
 """"""""""""""""""""""""
+
+.. tabularcolumns:: |>{\small}p{.3\linewidth}|>{\small}p{.3\linewidth}|>{\small}p{.3\linewidth}|
 
 +------------------------------+-----------------------------------+-----------------------------------+
 | Current Tuple's Data         | Current Window :math:`R(t^*)`     | Output Relation :math:`O(R(t^*))` |
@@ -192,42 +195,44 @@ Internal Transformations
 +==============================+===================================+===================================+
 | ``{"id": 1, "price": 3.5}``  | ``{"id": 1, "price": 3.5}``       | ``{"id": 1, "price": 3.5}``       |
 +------------------------------+-----------------------------------+-----------------------------------+
-| ``{"id": 2, "price": 4.5}``  | ``{"id": 1, "price": 3.5}`` |br|  | ``{"id": 1, "price": 3.5}`` |br|  |
-|                              | ``{"id": 2, "price": 4.5}``       | ``{"id": 2, "price": 4.5}``       |
+| |hr|                         | ``{"id": 1, "price": 3.5}`` |br|  | ``{"id": 1, "price": 3.5}`` |br|  |
+| ``{"id": 2, "price": 4.5}``  | ``{"id": 2, "price": 4.5}``       | ``{"id": 2, "price": 4.5}``       |
 +------------------------------+-----------------------------------+-----------------------------------+
-| ``{"id": 3, "price": 10.5}`` | ``{"id": 1, "price": 3.5}`` |br|  | ``{"id": 1, "price": 3.5}`` |br|  |
-|                              | ``{"id": 2, "price": 4.5}`` |br|  | ``{"id": 2, "price": 4.5}``       |
+| |hr|                         | ``{"id": 1, "price": 3.5}`` |br|  | ``{"id": 1, "price": 3.5}`` |br|  |
+| ``{"id": 3, "price": 10.5}`` | ``{"id": 2, "price": 4.5}`` |br|  | ``{"id": 2, "price": 4.5}``       |
 |                              | ``{"id": 3, "price": 10.5}``      |                                   |
 +------------------------------+-----------------------------------+-----------------------------------+
-| ``{"id": 4, "price": 8.5}``  | ``{"id": 2, "price": 4.5}`` |br|  | ``{"id": 2, "price": 4.5}``       |
-|                              | ``{"id": 3, "price": 10.5}`` |br| |                                   |
+| |hr|                         | ``{"id": 2, "price": 4.5}`` |br|  | ``{"id": 2, "price": 4.5}``       |
+| ``{"id": 4, "price": 8.5}``  | ``{"id": 3, "price": 10.5}`` |br| |                                   |
 |                              | ``{"id": 4, "price": 8.5}``       |                                   |
 +------------------------------+-----------------------------------+-----------------------------------+
-| ``{"id": 5, "price": 6.5}``  | ``{"id": 3, "price": 10.5}`` |br| |                                   |
-|                              | ``{"id": 4, "price": 8.5}`` |br|  |                                   |
+| |hr|                         | ``{"id": 3, "price": 10.5}`` |br| |                                   |
+| ``{"id": 5, "price": 6.5}``  | ``{"id": 4, "price": 8.5}`` |br|  |                                   |
 |                              | ``{"id": 5, "price": 6.5}``       | ``{"id": 5, "price": 6.5}``       |
 +------------------------------+-----------------------------------+-----------------------------------+
 
 Emitted Tuple Data
 """"""""""""""""""
 
+.. tabularcolumns:: |>{\small}p{.3\linewidth}|>{\small}p{.3\linewidth}|>{\small}p{.3\linewidth}|
+
 +----------------------------------+-----------------------------+-----------------------------+
 | RSTREAM                          | ISTREAM                     | DSTREAM                     |
 +==================================+=============================+=============================+
 | ``{"id": 1, "price": 3.5}``      | ``{"id": 1, "price": 3.5}`` |                             |
 +----------------------------------+-----------------------------+-----------------------------+
-| ``{"id": 1, "price": 3.5}`` |br| |                             |                             |
-| ``{"id": 2, "price": 4.5}``      | ``{"id": 2, "price": 4.5}`` |                             |
+| |hr| ``{"id": 1, "price": 3.5}`` |                             |                             |
+| |br| ``{"id": 2, "price": 4.5}`` | ``{"id": 2, "price": 4.5}`` |                             |
 +----------------------------------+-----------------------------+-----------------------------+
-| ``{"id": 1, "price": 3.5}`` |br| |                             |                             |
-| ``{"id": 2, "price": 4.5}``      |                             |                             |
+| |hr| ``{"id": 1, "price": 3.5}`` |                             |                             |
+| |br| ``{"id": 2, "price": 4.5}`` |                             |                             |
 |                                  |                             |                             |
 +----------------------------------+-----------------------------+-----------------------------+
-| ``{"id": 2, "price": 4.5}``      |                             | ``{"id": 1, "price": 3.5}`` |
+| |hr| ``{"id": 2, "price": 4.5}`` |                             | ``{"id": 1, "price": 3.5}`` |
 |                                  |                             |                             |
 |                                  |                             |                             |
 +----------------------------------+-----------------------------+-----------------------------+
-|                                  |                             | ``{"id": 2, "price": 4.5}`` |
+| |hr|                             |                             | ``{"id": 2, "price": 4.5}`` |
 |                                  |                             |                             |
 | ``{"id": 5, "price": 6.5}``      | ``{"id": 5, "price": 6.5}`` |                             |
 +----------------------------------+-----------------------------+-----------------------------+
