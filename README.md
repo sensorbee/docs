@@ -21,5 +21,5 @@ When the SensorBee version increases on the minor or major level, then a new tag
 
 Where necessary, fixes on the ``master`` branch of the documentation (e.g., spelling mistakes) are backported to the branches.
 
-![versioning scheme](https://raw.githubusercontent.com/sensorbee/sensorbee/master/docs-versioning.png)
+![versioning scheme](https://raw.githubusercontent.com/sensorbee/docs/master/docs-versioning.png)
 
