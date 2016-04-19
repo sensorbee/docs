@@ -15,7 +15,7 @@ BQL has following data types:
 .. csv-table::
     :header: "Type name", "Description", "Example"
 
-    ``null``, Null type, ``null``
+    ``null``, Null type, ``NULL``
     ``bool``, Boolean, ``true``
     ``int``, 64-bit integer, ``12``
     ``float``, 64-bit floating point number, ``3.14``
@@ -82,12 +82,18 @@ The type ``int`` is a 64-bit integer type. Its minimum value is
 ``-9223372036854775808`` and its maximum value is ``+9223372036854775807``.
 Using an integer value out of this range result in an error.
 
+.. note::
+
+    Due to bug `#56 <https://github.com/sensorbee/sensorbee/issues/56>`_
+    the current minimum value that can be parsed is actually
+    ``-9223372036854775807``.
+
 An ``int`` value is converted to a number in JSON.
 
 .. note::
 
     Some implementations of JSON use 64-bit floating point number for all
-    numerical values. Therefore, they might not be able to handline integers
+    numerical values. Therefore, they might not be able to handle integers
     greater than or equal to 9007199254740992 (i.e. ``2^53``) accurately.
 
 
@@ -105,7 +111,7 @@ A ``float`` value is converted to a number in JSON.
 
     Some expressions and functions may result in an infinity or a NaN.
     Because JSON doesn't have an infinity or a NaN notation, they will become
-    ``null`` when they're converted to JSON.
+    ``null`` when they are converted to JSON.
 
 
 .. _type_string:
@@ -114,7 +120,7 @@ A ``float`` value is converted to a number in JSON.
 ----------
 
 The type ``string`` is similar to SQL's type ``text``. It may contain an
-arbitrary length of characters. It may contain any valid UTF character including a
+arbitrary length of characters. It may contain any valid UTF-8 character including a
 null character.
 
 A ``string`` value is converted to a string in JSON.
@@ -122,8 +128,8 @@ A ``string`` value is converted to a string in JSON.
 ``blob``
 --------
 
-The type ``blob`` is a data type for any variable length binary data. There's no
-way to write a value directly in BQL yet, but there're some ways to use ``blob``
+The type ``blob`` is a data type for any variable length binary data. There is no
+way to write a value directly in BQL yet, but there are some ways to use ``blob``
 in BQL:
 
 * Emitting a tuple containing a ``blob`` value from a source
@@ -136,8 +142,8 @@ A ``blob`` value is converted to a base64-encoded string in JSON.
 -------------
 
 The type ``timestamp`` has date and time information in UTC. ``timestamp`` only
-guarantees precision in microseconds. There's no way to write a value directly
-in BQL yet, but there're some ways to use ``blob`` in BQL:
+guarantees precision in microseconds. There is no way to write a value directly
+in BQL yet, but there are some ways to use ``blob`` in BQL:
 
 * Emitting a tuple containing a ``timestamp`` value from a source
 * Casting a value of a type that is convertible to ``timestamp``
@@ -151,11 +157,11 @@ precision as described above.
 ``array``
 ---------
 
-The type ``array`` provides a ordered sequence of values of any type, for example::
+The type ``array`` provides an ordered sequence of values of any type, for example::
 
     [1, "2", 3.4]
 
-An ``array`` value can also contain another ``array`` or ``map`` as its value::
+An ``array`` value can also contain another ``array`` or ``map`` as a value::
 
     [
         [1, "2", 3.4],
@@ -207,12 +213,12 @@ A ``map`` is converted to an object in JSON.
 Conversions
 ===========
 
-BQL provides ``CAST(value AS type)`` operator, or ``value::type`` as a syntactic
+BQL provides a ``CAST(value AS type)`` operator, or ``value::type`` as syntactic
 sugar, that converts the given value to a corresponding value in the given type,
 if those types are convertible. For example, ``CAST(1 AS string)``, or
 ``1::string``, converts an ``int`` value ``1`` to a ``string`` value and
 results in ``"1"``. Converting to the same type as the value's type is valid.
-For instance, ``"str"::string`` doesn't do anything and results in ``"str"``.
+For instance, ``"str"::string`` does not do anything and results in ``"str"``.
 
 The following types are valid for the target type of ``CAST`` operator:
 
@@ -230,7 +236,7 @@ This section describes how type conversions work in BQL.
 
 .. note::
 
-    Converting a ``NULL`` value into any type results in ``NULL`` and it isn't
+    Converting a ``NULL`` value into any type results in ``NULL`` and it is not
     explicitly described in the subsections.
 
 To ``bool``
@@ -254,8 +260,8 @@ From ``int``
 From ``float``
 ^^^^^^^^^^^^^^
 
-``0.0``, ``-0.0``, and NaN are converted to ``false``. Other values including
-infinity result in ``true``.
+``0.0``, ``-0.0``, and NaN are converted to ``false``. Other values *including
+infinity* result in ``true``.
 
 From ``string``
 ^^^^^^^^^^^^^^^
@@ -303,13 +309,19 @@ From ``bool``
 From ``float``
 ^^^^^^^^^^^^^^
 
-Converting a ``float`` value into a ``int`` value results in the greatest
-``int`` value less than or equal to the ``float`` value::
+Converting a ``float`` value into a ``int`` value truncates the decimal part.
+That is, for positive numbers it results in the greatest ``int`` value less than
+or equal to the ``float`` value, for negative numbers it results in the smallest
+``int`` value greater than or equal to the ``float`` value::
 
     1.0::int  -- => 1
     1.4::int  -- => 1
     1.5::int  -- => 1
     2.01::int -- => 2
+    (-1.0)::int  -- => -1
+    (-1.4)::int  -- => -1
+    (-1.5)::int  -- => -1
+    (-2.01)::int -- => -2
 
 The conversion results in an error when the ``float`` value is out of the valid
 range of ``int`` values.
@@ -318,16 +330,14 @@ From ``string``
 ^^^^^^^^^^^^^^^
 
 When converting a ``string`` value into an ``int`` value, ``CAST`` operator
-first tries to parse it as an integer to guarantee better precision. If the
-parsing fails, it tries to parse the ``string`` value as a ``float`` value and
-then converts the result to an ``int`` value.
+tries to parse it as an integer value. If the string contains a ``float``-shaped
+value (even if it is ``"1.0"``), conversion fails.
 
 ::
 
     "1"::int   -- => 1
-    "2.5"::int -- => 2
 
-The conversion results in an error when the ``string`` value contains the
+The conversion results in an error when the ``string`` value contains a
 number that is out of the valid range of ``int`` values, or the value isn't a
 number. For example, ``"1a"::string`` results in an error even though the value
 starts with a number.
@@ -336,7 +346,7 @@ From ``timestamp``
 ^^^^^^^^^^^^^^^^^^
 
 A ``timestamp`` value is converted to an ``int`` value as the number of
-seconds elapsed since January 1, 1970 UTC::
+full seconds elapsed since January 1, 1970 UTC::
 
     ("1970-01-01T00:00:00Z"::timestamp)::int        -- => 0
     ("1970-01-01T00:00:00.123456Z"::timestamp)::int -- => 0
@@ -380,8 +390,8 @@ From ``timestamp``
 ^^^^^^^^^^^^^^^^^^
 
 A ``timestamp`` value is converted to a ``float`` value as the number of
-microseconds elapsed since January 1, 1970 UTC. The integral part of the result
-contains seconds and the decimal part contains microseconds::
+seconds (including a decimal part) elapsed since January 1, 1970 UTC. The integral
+part of the result contains seconds and the decimal part contains microseconds::
 
     ("1970-01-01T00:00:00Z"::timestamp)::float        -- => 0.0
     ("1970-01-01T00:00:00.000001Z"::timestamp)::float -- => 0.000001
@@ -405,6 +415,11 @@ From ``bool``
 
 ``true::string`` results in ``"true"``, ``false::string`` results in ``"false"``.
 
+.. note::
+
+    Keep in mind that casting the string ``"false"`` back to boolean
+    results in the ``true`` value as described above.
+
 From ``int``
 ^^^^^^^^^^^^
 
@@ -427,11 +442,20 @@ From ``blob``
 
 A ``blob`` value is converted to a ``string`` value encoded in base64.
 
+.. note::
+
+    Keep in mind that the ``blob``/``string`` conversion using ``CAST`` *always*
+    involves base64 encoding/decoding. It is not possible to see the single
+    bytes of a ``blob`` using only the ``CAST`` operator. If there is a
+    source that emits ``blob`` data where it is *known* that this is actually
+    a valid UTF-8 string (for example, JSON or XML data), the interpretation
+    "as a string" (as opposed to "to string") must be performed by a UDF.
+
 From ``timestamp``
 ^^^^^^^^^^^^^^^^^^
 
 A ``timestamp`` value is formatted in RFC3339 format with nanosecond precision:
-"2006-01-02T15:04:05.999999999Z07:00".
+``"2006-01-02T15:04:05.999999999Z07:00"``.
 
 From ``array``
 ^^^^^^^^^^^^^^
@@ -470,7 +494,7 @@ From ``float``
 ^^^^^^^^^^^^^^
 
 An ``float`` value to be converted to a ``timestamp`` value is assumed to have
-the number of microseconds elapsed since January 1, 1970 UTC. Its integral
+the number of seconds elapsed since January 1, 1970 UTC. Its integral
 part should have seconds and decimal part should have microseconds::
 
     0.0::timestamp -- => 1970-01-01T00:00:00Z

@@ -917,7 +917,10 @@ String Functions
 Description
 ^^^^^^^^^^^
 
-``bit_length`` computes the number of bits in a string.
+``bit_length`` computes the number of bits in a string ``s``.
+Note that due to UTF-8 encoding, this is equal to ``octet_length(s) * 8``,
+not necessarily ``char_length(s) * 8``.
+
 
 Parameter Types
 ^^^^^^^^^^^^^^^
