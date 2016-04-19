@@ -9,7 +9,7 @@ This chapter introduces operators used in BQL.
 Arithmetic Operators
 ====================
 
-BQL provides following arithmetic operators:
+BQL provides the following arithmetic operators:
 
 .. csv-table::
    :header: "Operator", "Description", "Example", "Result"
@@ -36,7 +36,7 @@ example, ``3 + 5 * 2.5`` is valid.
 String Operators
 ================
 
-BQL provides following string operators:
+BQL provides the following string operators:
 
 .. csv-table::
    :header: "Operator", "Description", "Example", "Result"
@@ -51,7 +51,7 @@ in ``NULL``.
 Comparison Operators
 ====================
 
-BQL provides following comparison operators:
+BQL provides the following comparison operators:
 
 .. csv-table::
    :header: "Operator", "Description", "Example", "Result"
@@ -67,9 +67,12 @@ BQL provides following comparison operators:
 
 All comparison operators return a boolean value.
 
-``<``, ``>``, ``<=``, and ``>=`` are only valid when both operands are numeric
-values (i.e. integers or floating point numbers) or have the same type that is
-comparable. Following types are comparable:
+``<``, ``>``, ``<=``, and ``>=`` are only valid when
+
+1. either both operands are numeric values (i.e. integers or floating point numbers)
+2. or have the same type *and* that type is comparable.
+
+The following types are comparable:
 
 * ``null``
 * ``int``
@@ -91,14 +94,17 @@ Valid examples are as follows:
 
 ``=``, ``<>``, and ``!=`` are valid for any type even if both operands have
 different types. When the types of operands are different, ``=`` results in
-``false`` and others return ``true``. However, integers and floating point
-numbers can be compared. For example ``1 = 1.0`` returns ``true``. When
+``false``; ``<>`` and ``!=`` return ``true``. (However, integers and floating point
+numbers can be compared, for example ``1 = 1.0`` returns ``true``.) When
 operands have the same type, ``=`` results in ``true`` if both values are
 equivalent and others return ``false``.
 
-There's one exception. When one operand of comparison operators except
-``IS NULL`` is a floating point value and its value is infinite, they return
-``false``.
+.. note::
+
+    Floating point values with the value ``NaN`` are treated specially
+    as per the underlying floating point implementation. In particular,
+    ``=`` comparison will always be false if one or both of the operands
+    is ``NaN``.
 
 .. _bql_operators_null_comparison:
 
@@ -128,13 +134,32 @@ expression is ``NULL``.
     that there's no value for a specific key but the key actually exists. In
     other words, ``{"a": NULL, "b": 1}`` and ``{"b": 1}`` are different.
     Therefore, ``NULL`` in arrays and maps are compared as if it's a regular
-    value. Unlike ``NULL``, comparing infinite floating point values
-    always result in ``false``.
+    value. Unlike ``NULL``, comparing ``NaN`` floating point values
+    always results in ``false``.
+
+Presence/Absence Check
+======================
+
+In BQL, the JSON object ``{"a": 6, "b": NULL}`` is different from ``{"a": 6}``.
+Therefore, when accessing ``b`` in the latter object, the result is not
+``NULL`` but an error. To check whether a key is present in a map, the following
+operators can be used:
+
+.. csv-table::
+   :header: "Operator", "Description", "Example", "Example Input", "Result"
+
+   "``IS MISSING``", "Absence Check", "``b IS MISSING``", "``{""a"": 6}``", "``true``"
+   "``IS NOT MISSING``", "Presence Check", "``b IS NOT MISSING``", "``{""a"": 6}``", "``false``"
+
+Since the presence/absence check is done before the value is actually
+extracted from the map, only JSON Path expressions can be used with
+``IS [NOT] MISSING``, not arbitrary expressions. For example,
+``a + 2 IS MISSING`` is not a valid expression.
 
 Logical Operators
 =================
 
-BQL provides following logical operators:
+BQL provides the following logical operators:
 
 .. csv-table::
    :header: "Operator", "Description", "Example", "Result"
@@ -145,9 +170,3 @@ BQL provides following logical operators:
 
 Logical operators also follow the three-valued logic. For example,
 ``true AND NULL`` and ``NULL OR false`` result in ``NULL``.
-
-JSON Operators
-==============
-
-Operator Precedence
-===================
