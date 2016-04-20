@@ -8,13 +8,13 @@ This section describes how to write a UDSF in Go.
 Implementing a UDSF
 -------------------
 
-To provide a UDSF, two interfaces need to be provided: ``UDSF`` and
+To provide a UDSF, two interfaces need to be implemented: ``UDSF`` and
 ``UDSFCreator``.
 
-The interface ``UDSF`` is defined as follows in
+The interface ``UDSF`` is defined as follows in the
 ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
 
-::
+.. code-block:: go
 
     type UDSF interface {
         Process(ctx *core.Context, t *core.Tuple, w core.Writer) error
@@ -29,11 +29,15 @@ becomes unnecessary. The method has to release all the resources the UDSF has.
 
 How the ``Process`` method is called depends on the type of a UDSF. When a UDFS
 is a stream-like UDSF (i.e. it has input from other streams), the ``Process``
-method is called everytime a new tuple arrives. The argument ``t`` contains the
+method is called every time a new tuple arrives. The argument ``t`` contains the
 tuple emitted from another stream. Stream-like UDSFs have to return from
-``Process`` immediately after it finished processing tuples. They must not
-block in the method. A stream-like UDSF is used mostly when multiple tuples
-need to be computed and emitted based on one input tuple::
+``Process`` immediately after processing the input tuple. They must not
+block in the method.
+
+A stream-like UDSF is used mostly when multiple tuples
+need to be computed and emitted based on one input tuple:
+
+.. code-block:: go
 
     type WordSplitter struct {
         field string
@@ -69,11 +73,11 @@ following three tuples will be emitted: ``{"word": "a"}``, ``{"word": "b"}``,
 and ``{"word": "c"}``.
 
 When a UDSF is a source-like UDSF, the ``Process`` method is only called once
-with a tuple that doesn't mean anything. Unlike a stream-like UDSF, the
-``Process`` method of a source-like UDSF doesn't have to return until it emits
-all tuples, the ``Terminate`` method is called, or a fatal error occurs.
+with a tuple that does not mean anything. Unlike a stream-like UDSF, the
+``Process`` method of a source-like UDSF does not have to return until it has
+emitted all tuples, the ``Terminate`` method is called, or a fatal error occurs.
 
-::
+.. code-block:: go
 
     type Ticker struct {
         interval time.Duration
@@ -102,24 +106,27 @@ a counter until the ``Terminate`` method is called.
 
 Whether a UDSF is stream-like or source-like can be configured when it is
 created by ``UDSFCreator``. The interface ``UDSFCreator`` is defined as follows
-in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package::
+in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package:
+
+.. code-block:: go
 
     type UDSFCreator interface {
         CreateUDSF(ctx *core.Context, decl UDSFDeclarer, args ...data.Value) (UDSF, error)
         Accept(arity int) bool
     }
 
-``UDSFCreator`` interface creates a new instance of a UDSF. The ``CreateUDSF``
-method creates a new instance of a UDSF. The method is called when evaluating
-a UDSF in the ``FROM`` clause of the ``SELECT`` statement. ``ctx`` contains
-the processing context information. ``decl`` is used to customize the behavior
-of the UDSF, which is explained later. ``args`` has arguments passed in the
+The ``CreateUDSF`` method creates a new instance of a UDSF. The method is called
+when evaluating a UDSF in the ``FROM`` clause of a ``SELECT`` statement. ``ctx``
+contains the processing context information. ``decl`` is used to customize the
+behavior of the UDSF, which is explained later. ``args`` has arguments passed in the
 ``SELECT`` statement. The ``Accept`` method verifies if the UDSF accept the
-specific number of arguments. This is same as ``UDF.Arity`` method (see
+specific number of arguments. This is the same as ``UDF.Arity`` method (see
 :ref:`server_programming_go_udfs`).
 
-``UDSFDeclarer`` is used in the ``CreateUDSF`` method to customized the
-behavior of a UDSF::
+``UDSFDeclarer`` is used in the ``CreateUDSF`` method to customize the
+behavior of a UDSF:
+
+.. code-block:: go
 
     type UDSFDeclarer interface {
         Input(name string, config *UDSFInputConfig) error
@@ -127,19 +134,23 @@ behavior of a UDSF::
     }
 
 By calling its ``Input`` method, a UDSF will be able to receive tuples from
-another stream having the ``name``. Because the ``name`` is given outside the
-UDSF, it's uncontrollable from the UDSF. However, there're cases that a UDSF
+another stream with the name ``name``. Because the ``name`` is given outside the
+UDSF, it's uncontrollable from the UDSF. However, there are cases that a UDSF
 wants to know from which stream a tuple has come. For example, when providing
 a UDSF performing a JOIN or two streams, a UDSF needs to distinguish which
 stream emitted the tuple. If the UDSF was defined as
 ``my_join(left_stream, right_stream)``, ``decl`` can be used as follows in
-``UDSFCreator.CreateUDSF``::
+``UDSFCreator.CreateUDSF``:
+
+.. code-block:: go
 
     decl.Input(args[0], &UDSFInputConfig{InputName: "left"})
     decl.Input(args[1], &UDSFInputConfig{InputName: "right"})
 
-By configuring input stream in this way, a tuple passed to ``UDSF.Process`` has
-the given name in its ``Tuple.InputName`` field::
+By configuring the input stream in this way, a tuple passed to ``UDSF.Process`` has
+the given name in its ``Tuple.InputName`` field:
+
+.. code-block:: go
 
     func (m *MyJoin) Process(ctx *core.Context, t *core.Tuple, w core.Writer) error {
         switch t.InputName {
@@ -156,7 +167,9 @@ the ``UDSFCreator.CreateUDSF`` method, the UDSF is processed as a stream-like
 UDSF. Otherwise, if a UDSF doesn't have any input (i.e. ``decl.Input`` is not
 called), the UDSF becomes a source-like UDSF.
 
-As an example, the ``UDSFCreator`` of ``WordSpliter`` is shown below::
+As an example, the ``UDSFCreator`` of ``WordSplitter`` is shown below:
+
+.. code-block:: go
 
     type WordSplitterCreator struct {
     }
@@ -184,11 +197,13 @@ As an example, the ``UDSFCreator`` of ``WordSpliter`` is shown below::
         return arity == 2
     }
 
-Although the UDSF hasn't been registered to the SensorBee server yet, it could
-appear like ``word_splitter(input_stream_name, target_field_name)`` if it's
+Although the UDSF has not been registered to the SensorBee server yet, it could
+appear like ``word_splitter(input_stream_name, target_field_name)`` if it was
 registered with the name ``word_splitter``.
 
-For another example, the ``UDSFCreator`` of ``Ticker`` is shown below::
+For another example, the ``UDSFCreator`` of ``Ticker`` is shown below:
+
+.. code-block:: go
 
     type TickerCreator struct {
     }
@@ -212,18 +227,20 @@ For another example, the ``UDSFCreator`` of ``Ticker`` is shown below::
 Like ``word_splitter``, its signature could be ``ticker(interval)`` if the UDSF
 is registered as ``ticker``.
 
-The implementation of a UDSF is completed and the next step is to register it
+The implementation of this UDSF is completed and the next step is to register it
 to the SensorBee server.
 
 Registering a UDSF
 ------------------
 
 A UDSF can be used in BQL by registering its ``UDSFCreator`` interface to
-the SensorBee server by ``RegisterGlobalUDSFCreator`` or
-``MustRegisterGlobalUDSFCreator`` function, which is defined in
+the SensorBee server using the ``RegisterGlobalUDSFCreator`` or
+``MustRegisterGlobalUDSFCreator`` functions, which are defined in
 ``gopkg.in/sensorbee/sensorbee.v0/bql/udf``.
 
-The following example registers ``WordSplitter`` and ``Ticker``::
+The following example registers ``WordSplitter`` and ``Ticker``:
+
+.. code-block:: go
 
     func init() {
         udf.RegisterGlobalUDSFCreator("word_splitter", &WordSplitterCreator{})
@@ -233,11 +250,11 @@ The following example registers ``WordSplitter`` and ``Ticker``::
 Generic UDSFs
 -------------
 
-Like UDFs have ``ConvertGeneric`` function, UDSFs also have
+Just like UDFs have a ``ConvertGeneric`` function, UDSFs also have
 ``ConvertToUDSFCreator`` and ``MustConvertToUDSFCreator`` function. They convert
 a regular function satisfying some restrictions to the ``UDSFCreator`` interface.
 
-The restrictions are the same as
+The restrictions are the same as for
 :ref:`generic UDFs <server_programming_go_udfs_generic_udfs>` except that a
 function converted to the ``UDSFCreator`` interface has an additional argument
 ``UDSFDeclarer``. ``UDSFDeclarer`` is located after ``*core.Context`` and before
@@ -256,7 +273,9 @@ types can be used for arguments as types that ``ConvertGeneric`` function
 accepts.
 
 ``WordSplitterCreator`` can be rewritten with the ``ConvertToUDSFCreator``
-function as follows::
+function as follows:
+
+.. code-block:: go
 
     func CreateWordSplitter(decl udf.UDSFDeclarer,
         inputStream, field string) (udf.UDSF, error) {
@@ -302,10 +321,10 @@ Assume that the import path of the example repository is
 ``github.com/sensorbee/examples/udsfs``, which doesn't actually exist. The
 repository has four files:
 
-* lorem.go
-* splitter.go
-* ticker.go
-* plugin/plugin.go
+* ``lorem.go``
+* ``splitter.go``
+* ``ticker.go``
+* ``plugin/plugin.go``
 
 lorem.go
 ^^^^^^^^
@@ -313,7 +332,7 @@ lorem.go
 To learn how to implement a source plugin, see
 :ref:`server_programming_go_sources`.
 
-::
+.. code-block:: go
 
     package udsfs
 
@@ -381,7 +400,7 @@ To learn how to implement a source plugin, see
 splitter.go
 ^^^^^^^^^^^
 
-::
+.. code-block:: go
 
     package udsfs
 
@@ -436,7 +455,7 @@ splitter.go
 ticker.go
 ^^^^^^^^^
 
-::
+.. code-block:: go
 
     package udsfs
 
@@ -484,7 +503,7 @@ ticker.go
 plugin/plugin.go
 ^^^^^^^^^^^^^^^^
 
-::
+.. code-block:: go
 
     package plugin
 
