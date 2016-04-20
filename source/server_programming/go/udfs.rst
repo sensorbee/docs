@@ -4,18 +4,20 @@ User-Defined Functions
 ======================
 
 This section describes how to write a UDF in Go. It first shows the basic
-interface of defining UDFs, and then describes utilities among it, how to
-develop a UDF in a Go manner, and an complete example.
+interface of defining UDFs, and then describes utilities around it, how to
+develop a UDF in a Go-ish manner, and a complete example.
 
 Implementing a UDF
 ------------------
 
 .. note::
 
-    This is a strict way to implement a UDF in Go. To know a easier way, see
-    :ref:`server_programming_go_udfs_generic_udfs`.
+    This is a very low-level way to implement a UDF in Go. To learn about an
+    easier way, see :ref:`server_programming_go_udfs_generic_udfs`.
 
-A struct implementing the following interface can be a UDF::
+Any struct implementing the following interface can be used as a UDF:
+
+.. code-block:: go
 
     type UDF interface {
         // Call calls the UDF.
@@ -32,13 +34,15 @@ A struct implementing the following interface can be a UDF::
         IsAggregationParameter(k int) bool
     }
 
-This interface is defined in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
+This interface is defined in the ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
 
-A UDF can be registered by ``RegisterGlobalUDF`` or ``MustRegisterGlobalUDF``
-function also defined in ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
-``MustRegisterGlobalUDF`` is same as ``RegisterGlobalUDF`` but panics on failure
-instead of returning an error. These functions are usually called from ``init``
-function. A typical implementation of a UDF looks as follows::
+A UDF can be *registered* via the ``RegisterGlobalUDF`` or ``MustRegisterGlobalUDF``
+functions from the same package. ``MustRegisterGlobalUDF`` is the same as
+``RegisterGlobalUDF`` but panics on failure instead of returning an error. These
+functions are usually called from the ``init`` function in the UDF package's
+``plugin`` subpackage. A typical implementation of a UDF looks as follows:
+
+.. code-block:: go
 
     type MyUDF struct {
         ...
@@ -57,21 +61,21 @@ function. A typical implementation of a UDF looks as follows::
     }
 
     func init() {
-        // MyUDF can be referred as my_udf in BQL statements.
+        // MyUDF can be used as my_udf in BQL statements.
         udf.MustRegisterGlobalUDF("my_udf", &MyUDF{})
     }
 
 As it can be inferred from this example, a UDF itself should be stateless since
-it only registers one instance of a struct as a UDF and it'll globally be shared.
+it only registers one instance of a struct as a UDF and it will be shared globally.
 Stateful data processing can be achieved by the combination of UDFs and UDSs,
 which is described in :ref:`server_programming_go_states`.
 
 A UDF needs to implement three methods to satisfy ``udf.UDF`` interface:
 ``Call``, ``Accept``, and ``IsAggregationParameter``.
 
-``Call`` method receives ``*core.Context`` and multiple ``data.Value`` as its
+The ``Call`` method receives a ``*core.Context`` and multiple ``data.Value`` as its
 arguments. ``*core.Context`` contains the information of the current processing
-context. ``Call``'s ``...data.Value`` argument has values passed to the UDF.
+context. ``Call``'s ``...data.Value`` argument holds the values passed to the UDF.
 ``data.Value`` represents a value used in BQL and can be any of :ref:`built-in
 types <bql_types_types>`.
 
@@ -79,7 +83,9 @@ types <bql_types_types>`.
 
     SELECT RSTREAM my_udf(arg1, arg2) FROM stream [RANGE 1 TUPLES];
 
-In this example, ``arg1`` and ``arg2`` are passed to ``Call`` method::
+In this example, ``arg1`` and ``arg2`` are passed to the ``Call`` method:
+
+.. code-block:: go
 
     func (m *MyUDF) Call(ctx *core.Context, args ...data.Value) (data.Value, error) {
         // When my_udf(arg1, arg2) is called, len(args) is 2.
@@ -87,29 +93,33 @@ In this example, ``arg1`` and ``arg2`` are passed to ``Call`` method::
         // It is guaranteed that m.Accept(len(args)) is always true.
     }
 
-Because ``data.Value`` is a semi-variant type, ``Call`` method needs to check
+Because ``data.Value`` is a semi-variant type, the ``Call`` method needs to check
 the type of each ``data.Value`` and convert it to a desired type.
 
-``Accept`` method verifies if the UDF accept the specific number of arguments.
+The ``Accept`` method verifies if the UDF accepts the specific number of arguments.
 It can return true for multiple arities as long as it can receive the given
-number of arguments. If a UDF only accept 2 arguments, the method is implemented
-as follows::
+number of arguments. If a UDF only accepts two arguments, the method is implemented
+as follows:
+
+.. code-block:: go
 
     func (m *MyUDF) Accept(arity int) bool {
         return arity == 2
     }
 
-When a UDF wants to support variadic parameters (a.k.a. variable-length
-arguments) with 2 required arguments (e.g.
-``my_udf(arg1, arg2, optional1, optional2, ...)``), the implementation would be::
+When a UDF aims to support variadic parameters (a.k.a. variable-length
+arguments) with two required arguments (e.g.
+``my_udf(arg1, arg2, optional1, optional2, ...)``), the implementation would be:
+
+.. code-block:: go
 
     func (m *MyUDF) Accept(arity int) bool {
         return arity >= 2
     }
 
-``IsAggregationParameter`` checks if k-th, starting from 0, argument is an
-aggregation parameter. Aggregation parameters are passed as ``data.Array``
-containing all values of a field in each group.
+Finally, ``IsAggregationParameter`` returns whether the *k*-th argument (starting
+from 0) is an aggregation parameter. Aggregation parameters are passed as a
+``data.Array`` containing all values of a field in each group.
 
 All of these methods can be called concurrently from multiple goroutines and
 they must be thread-safe.
@@ -125,12 +135,12 @@ In this ``SELECT``, a UDF having the name ``my_udf`` is looked up first. After
 that, its ``Accept`` method  is called with 2 and ``my_udf`` is actually selected
 if ``Accept(2)`` returned true. ``IsAggregationParameter`` method is
 additionally called on each argument to see if the argument needs to be an
-aggregation parameter. Then, if there's no mismatch, ``my_udf`` is finally
+aggregation parameter. Then, if there is no mismatch, ``my_udf`` is finally
 called.
 
 .. note::
 
-    A UDF doesn't have a schema at the moment, so any error regarding types of
+    A UDF does not have a schema at the moment, so any error regarding types of
     arguments will not be reported until the statement calling the UDF actually
     processes a tuple.
 
@@ -140,24 +150,28 @@ Generic UDFs
 ------------
 
 SensorBee provides a helper function to register a regular Go function as a UDF
-without implementing ``UDF`` interface explicitly.
+without implementing the ``UDF`` interface explicitly.
 
-::
+.. code-block:: go
 
     func Inc(v int) int {
         return v + 1
     }
 
 This function ``Inc`` can be transformed into a UDF by ``ConvertGeneric``
-or ``MustConvertGeneric`` function defined in
+or ``MustConvertGeneric`` function defined in the
 ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package. By combining it with
-``RegisterGlobalUDF``, ``Inc`` function can be registered as a UDF::
+``RegisterGlobalUDF``, the ``Inc`` function can easily be registered as a UDF:
+
+.. code-block:: go
 
     func init() {
         udf.MustRegisterGlobalUDF("inc", udf.MustConvertGeneric(Inc))
     }
 
-So, a complete example of the UDF implementation and registration is as follows::
+So, a complete example of the UDF implementation and registration is as follows:
+
+.. code-block:: go
 
     package inc
 
@@ -179,7 +193,7 @@ So, a complete example of the UDF implementation and registration is as follows:
     different packages. See :ref:`server_programming_go_development_flow`
     for details.
 
-Although this approach is handy, there could be some overhead compared to a UDF
+Although this approach is handy, there is some small overhead compared to a UDF
 implemented in the regular way. Most of such overhead comes from type checking
 and conversions.
 
@@ -190,13 +204,13 @@ in the following subsections.
 Form of Arguments
 ^^^^^^^^^^^^^^^^^
 
-In terms of valid argument forms, there're some rules to follow:
+In terms of valid argument forms, there are some rules to follow:
 
 #. A Go function can receive ``*core.Context`` as the first argument, or can omit it.
-#. A function can have any number of arguments including 0 argument as long as Go accepts them.
+#. A function can have any number of arguments including 0 arguments as long as Go accepts them.
 #. A function can be variadic with or without non-variadic parameters.
 
-There're basically eight (four times two, whether a function has
+There are basically eight (four times two, whether a function has
 ``*core.Context`` or not) forms of arguments (return values are
 intentionally omitted for clarity):
 
@@ -220,18 +234,18 @@ intentionally omitted for clarity):
     7. ``func(*core.Context, T1, T2, ..., Tn, ...Tn+1)``
     8. ``func(T1, T2, ..., Tn, ...Tn+1)``
 
-Followings are examples of invalid function signatures:
+Here are some examples of invalid function signatures:
 
 * ``func(T, *core.Context)``: ``*core.Context`` must be the first argument.
 * ``func(NonSupportedType)``: Only supported types, which will be explained later, can be used.
 
-Although return values are omitted from all the examples above, they're actually
+Although return values are omitted from all the examples above, they are actually
 required. The next subsection explains how to define valid return values.
 
 Form of Return Values
 ^^^^^^^^^^^^^^^^^^^^^
 
-All functions need to have return values. There're two forms of return values:
+All functions need to have return values. There are two forms of return values:
 
 * ``func(...) R``
 * ``func(...) (R, error)``
@@ -243,7 +257,7 @@ All other forms are invalid:
 * ``func(...) NonSupportedType``
 
 Valid types of return values are same as the valid types of arguments, and
-they'll be listed in the following subsection.
+they are listed in the following subsection.
 
 Valid Value Types
 ^^^^^^^^^^^^^^^^^
@@ -267,15 +281,15 @@ above.
 When the argument type and the actual value type are different, weak type
 conversion are applied to values. Conversions are basically done by
 ``data.ToXXX`` functions (see godoc comments of each function in
-data/type_conversions.go). For example, ``func inc(i int) int`` can be called by
-``inc("3")`` in a BQL statement and it'll return 4. If a strict type checking
+``data/type_conversions.go``). For example, ``func inc(i int) int`` can be called by
+``inc("3")`` in a BQL statement and it will return 4. If a strict type checking
 or custom type conversion is required, receive values as ``data.Value`` and
 manually check or convert types, or define the UDF in the regular way.
 
 Examples of Valid Go Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Following functions can be converted to UDFs by ``ConvertGeneric`` or
+The following functions can be converted to UDFs by ``ConvertGeneric`` or
 ``MustConvertGeneric`` function:
 
 * ``func rand() int``
@@ -293,20 +307,20 @@ This subsection shows three example UDFs:
 * ``my_join``
 * ``my_join2``
 
-Assume that these are in the repository ``github.com/sensorbee/examples/udfs``,
-which doesn't actually exist. The repository has three files:
+Assume that these are in the repository ``github.com/sensorbee/examples/udfs``
+(which actually does not exist). The repository has three files:
 
-* inc.go
-* join.go
-* plugin/plugin.go
+* ``inc.go``
+* ``join.go``
+* ``plugin/plugin.go``
 
 inc.go
 ^^^^^^
 
-In inc.go, the ``Inc`` function is defined as a pure Go function with a standard
-value type.
+In ``inc.go``, the ``Inc`` function is defined as a pure Go function with a standard
+value type:
 
-::
+.. code-block:: go
 
     package udfs
 
@@ -317,13 +331,13 @@ value type.
 join.go
 ^^^^^^^
 
-In join.go, the ``Join`` UDF is defined in a strict way. It also performs
-strict type checking. It's designed to be called with two types of forms:
+In ``join.go``, the ``Join`` UDF is defined in a strict way. It also performs
+strict type checking. It is designed to be called in one of two forms:
 ``my_join("a", "b", "c", "separator")`` or
-``my_join(["a", "b", "c"], "separator")``. Each argument and values in the array
-must be strings. The UDF receives arbitrary number of arguments.
+``my_join(["a", "b", "c"], "separator")``. Each argument and value in the array
+must be a string. The UDF receives an arbitrary number of arguments.
 
-::
+.. code-block:: go
 
     package udfs
 
@@ -395,10 +409,10 @@ plugin/plugin.go
 In addition to ``Inc`` and ``Join``, this file registers the standard Go
 function ``strings.Join`` as ``my_join2``. Because it's converted to a UDF by
 ``udf.MustConvertGeneric``, arguments are weakly converted to given types.
-For example, ``my_join([1, 2.3, "4"], "-")`` is valid although ``strings.Join``
+For example, ``my_join2([1, 2.3, "4"], "-")`` is valid although ``strings.Join``
 itself is ``func([]string, string) string``.
 
-::
+.. code-block:: go
 
     package plugin
 
@@ -437,5 +451,5 @@ created on the server, the ``EVAL`` statement can be used to test them::
 Dynamic Loading
 ---------------
 
-Dynamic loading of UDFs written in Go isn't supported at the moment because
-Go doesn't officially support loading packages dynamically.
+Dynamic loading of UDFs written in Go is not supported at the moment because
+Go does not support loading packages dynamically.

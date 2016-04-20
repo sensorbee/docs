@@ -8,7 +8,9 @@ This section describes how to write a UDS in Go.
 Implementing a UDS
 ------------------
 
-A struct implementing the following interface can be a UDS::
+A struct implementing the following interface can be used as a UDS:
+
+.. code-block:: go
 
     type SharedState interface {
         Terminate(ctx *Context) error
@@ -22,7 +24,9 @@ This interface is defined in ``gopkg.in/sensorbee/sensorbee.v0/core`` package.
 release any resource that the UDS has allocated so far.
 
 As an example, a UDS having a monotonically increasing counter can be
-implemented as follows::
+implemented as follows:
+
+.. code-block:: go
 
     type Counter struct {
         c int64
@@ -47,7 +51,9 @@ Registering a UDS
 
 To register a UDS to the SensorBee server , the UDS needs to provide its
 ``UDSCreator``. ``UDSCreator`` is an interface defined in
-``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package as follows::
+``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package as follows:
+
+.. code-block:: go
 
     type UDSCreator interface {
         CreateState(ctx *core.Context, params data.Map) (core.SharedState, error)
@@ -64,7 +70,9 @@ The creator can be registered by ``RegisterGlobalUDSCreator`` or
 ``gopkg.in/sensorbee/sensorbee.v0/bql/udf`` package.
 
 The following is the implementation and the registration of the creator for
-``Counter`` UDS above::
+``Counter`` UDS above:
+
+.. code-block:: go
 
     type CounterCreator struct {
     }
@@ -108,12 +116,16 @@ them and manipulate their state.
 ^^^^^^^^^^^^^^^^^^^^^^
 
 A function having the same signature as ``UDSCreator.CreateState`` can be
-converted into ``UDSCreator`` by by ``udf.UDSCreatorFunc`` utility function::
+converted into ``UDSCreator`` by by ``udf.UDSCreatorFunc`` utility function:
+
+.. code-block:: go
 
     func UDSCreatorFunc(f func(*core.Context, data.Map) (core.SharedState, error)) UDSCreator
 
 For example, ``CounterCreator`` can be defined as a function and registered as
-follows with this utility::
+follows with this utility:
+
+.. code-block:: go
 
     func CreateCounter(ctx *core.Context,
         params data.Map) (core.SharedState, error) {
@@ -143,7 +155,9 @@ Manipulating a UDS via a UDF
 ----------------------------
 
 To manipulate a UDS from BQL statements, a set of UDFs that read or update the
-UDS has to be provided with it::
+UDS has to be provided with it:
+
+.. code-block:: go
 
     func Next(ctx *core.Context, uds string) (int64, error) {
         s, err := ctx.SharedStates.Get(uds)
@@ -210,7 +224,9 @@ Supporting ``SAVE STATE``
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 By adding ``Save`` method having the following signature to a UDS, the UDS can
-be saved by the ``SAVE STATE`` statement::
+be saved by the ``SAVE STATE`` statement:
+
+.. code-block:: go
 
     Save(ctx *core.Context, w io.Writer, params data.Map) error
 
@@ -237,7 +253,9 @@ SensorBee server or program running BQL statements. However, it is guaranteed
 that the saved data can be loaded by the same program via the ``LOAD STATE``
 statement, which is described later.
 
-``Save`` method of previously implemented ``Counter`` can be as follows::
+``Save`` method of previously implemented ``Counter`` can be as follows:
+
+.. code-block:: go
 
     func (c *Counter) Save(ctx *core.Context, w io.Writer, params data.Map) error {
         return binary.Write(w, binary.LittleEndian, atomic.LoadInt64(&c.c))
@@ -253,7 +271,9 @@ Supporting ``LOAD STATE``
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To support the ``LOAD STATE`` statement, a ``UDSCreator`` needs to have
-``LoadState`` method having the following signature::
+``LoadState`` method having the following signature:
+
+.. code-block:: go
 
     LoadState(ctx *core.Context, r io.Reader, params data.Map) (core.SharedState, error)
 
@@ -280,7 +300,9 @@ Once ``LoadState`` method is added to the ``UDSCreator``, the saved state can be
 loaded by ``LOAD STATE`` statement.
 
 ``LoadState`` method of previously implemented ``CounterCreator`` can be as
-follows::
+follows:
+
+.. code-block:: go
 
     func (c *CounterCreator) LoadState(ctx *core.Context, r io.Reader,
         params data.Map) (core.SharedState, error) {
@@ -306,11 +328,15 @@ for a long time.
 
 The signature of ``Load`` method is almost the same as ``LoadState`` method
 except that ``Load`` method doesn't return a new ``core.SharedState`` but
-updates the UDS itself instead::
+updates the UDS itself instead:
+
+.. code-block:: go
 
     Load(ctx *Context, r io.Reader, params data.Map) error
 
-``Load`` method of previously implemented ``Counter`` can be as follows::
+``Load`` method of previously implemented ``Counter`` can be as follows:
+
+.. code-block:: go
 
     func (c *Counter) Load(ctx *core.Context, r io.Reader, params data.Map) error {
         var cnt int64
@@ -380,7 +406,7 @@ repository has two files:
 counter.go
 ^^^^^^^^^^
 
-::
+.. code-block:: go
 
     package counter
 
@@ -460,7 +486,7 @@ counter.go
 plugin/plugin.go
 ^^^^^^^^^^^^^^^^
 
-::
+.. code-block:: go
 
     package plugin
 
@@ -482,7 +508,9 @@ Writing Tuples to a UDS
 -----------------------
 
 When a UDS implements ``core.Writer``, the ``INSERT INTO`` statement can
-insert tuples into the UDS via the ``uds`` sink::
+insert tuples into the UDS via the ``uds`` sink:
+
+.. code-block:: go
 
     type Writer interface {
         Write(*Context, *Tuple) error
