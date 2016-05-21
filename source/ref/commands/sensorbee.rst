@@ -11,6 +11,10 @@ consists of a set of following subcommands:
 * :ref:`ref_commands_sensorbee_shell`
 * :ref:`ref_commands_sensorbee_topology`
 
+``sensorbee`` command can needs to be created by `build_sensorbee` command and
+all the example commands are written as ``./sensorbee`` to emphasize that
+there's no default ``sensorbee`` command.
+
 See each command's reference for details.
 
 Flags and Options
@@ -37,7 +41,7 @@ Basic Usage
 
 ::
 
-    $ sensorbee run -c sensorbee.yaml
+    $ ./sensorbee run -c sensorbee.yaml
 
 .. _ref_commands_sensorbee_run_config:
 
@@ -244,7 +248,7 @@ Example::
     topologies:
       my_topology:
         bql_file: my_topology.bql
-    $ sensorbee run -c sensorbee.yaml
+    $ ./sensorbee run -c sensorbee.yaml
 
 As a result of these commands above, the server started with ``sensorbee.yaml``
 has a topology named ``my_topology``. The topology has three nodes: ``fluentd``,
@@ -345,11 +349,11 @@ Basic Usage
 
 ::
 
-    $ sensorbee runfile my_topology.bql
+    $ ./sensorbee runfile my_topology.bql
 
 With options::
 
-    $ sensorbee runfile -c sensorbee.yaml -s '' my_topology.bql
+    $ ./sensorbee runfile -c sensorbee.yaml -s '' my_topology.bql
 
 Configuration
 -------------
@@ -394,18 +398,31 @@ Flags and Options
 
 .. _ref_commands_sensorbee_shell:
 
-sensorbee shell
-===============
+sensorbee shell or bql
+======================
 
-``sensorbee shell`` starts a new shell to manipulate the SensorBee server. The
-shell can be terminated by writing ``exit`` or typing ``C-d``.
+``sensorbee shell`` or ``bql`` starts a new shell to manipulate the SensorBee
+server. The shell can be terminated by writing ``exit`` or typing ``C-d``.
+
+Both ``sensorbee shell`` and ``bql`` have the same interface, but ``bql`` is
+installed by default while the ``sensorbee`` command needs to be built manually
+to run ``sensorbee shell``.
 
 Basic Usage
 -----------
 
+To run ``sensorbee shell``,
+
 ::
 
-    $ sensorbee shell -t my_topology
+    $ ./sensorbee shell -t my_topology
+    my_topology>
+
+To run ``bql``,
+
+::
+
+    $ bql -t my_topology
     my_topology>
 
 Flags and options
@@ -432,6 +449,15 @@ Flags and options
     or using non-default port number (15601). The value should have a format
     like ``http://host:port/``. The default value of this option is
     ``http://localhost:15601/``.
+
+``--output-format``
+
+    This option control the format of results of statements printed in the
+    shell. Valid values are ``bql`` or ``json``. The default value of this
+    option is ``bql``. The only difference between them is the escape of
+    double quotes (``"``). If ``bql`` is chosen, ``["a"]::string`` is printed as
+    ``"[""a""]"``. On the other hand, the ``json`` format prints ``"[\"a\"]"``.
+
 
 .. _ref_commands_sensorbee_topology:
 
@@ -470,7 +496,7 @@ The command consists of following subcommands:
 All commands share the same flags and options. Flags and options need to be
 given after the subcommand name::
 
-    $ sensorbee topology create --flag --option value my_topology
+    $ ./sensorbee topology create --flag --option value my_topology
 
 In this example, a flag ``--flag`` and an option ``--option value`` are
 provided. The argument of the command, i.e. the name of topology, is
