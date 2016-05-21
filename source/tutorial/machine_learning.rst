@@ -323,7 +323,7 @@ Troubleshooting
 If Kibana doesn't show the "Create" button, something may not be working
 properly. First, enter ``sensorbee shell`` to see SensorBee is working::
 
-    /path/to/sbml$ sensorbee shell -t twitter
+    /path/to/sbml$ ./sensorbee shell -t twitter
     twitter>
 
 Then, issue the following ``SELECT`` statement::
