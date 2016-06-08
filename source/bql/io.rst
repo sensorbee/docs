@@ -188,7 +188,7 @@ The :ref:`ref_stmts_drop_sink` statement drops a sink from a topology::
 
     DROP SINK filtered_logs;
 
-The statement taks the name of the sink to be dropped. The sink cannot be
+The statement takes the name of the sink to be dropped. The sink cannot be
 accessed once it gets dropped. All ``INSERT INTO`` statements writing to the
 dropped sink are also stopped.
 
