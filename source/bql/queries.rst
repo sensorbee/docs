@@ -151,7 +151,7 @@ As an example for a typical use case,
 
      SELECT DSTREAM * FROM src [RANGE 1 TUPLES];
 
-will emit only the last occurence of a series of tuples with identical values.
+will emit only the last occurrence of a series of tuples with identical values.
 
 To illustrate the multiplicity counting,
 

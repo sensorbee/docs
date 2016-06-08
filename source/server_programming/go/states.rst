@@ -237,7 +237,7 @@ and so on.
 
 .. warning::
 
-    Providing forward/backword compatibility or version controlling of the saved
+    Providing forward/backward compatibility or version controlling of the saved
     data is the responsibility of the author of the UDS.
 
 ``*core.Context`` has the processing context information. ``params`` argument

@@ -1471,7 +1471,7 @@ Examples
 Description
 ^^^^^^^^^^^
 
-``strpos`` returns the index of the first occurence of ``t`` in ``s`` (index counting starts at 0) or -1 if it is not found.
+``strpos`` returns the index of the first occurrence of ``t`` in ``s`` (index counting starts at 0) or -1 if it is not found.
 
 Parameter Types
 ^^^^^^^^^^^^^^^
