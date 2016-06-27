@@ -450,15 +450,6 @@ Flags and options
     like ``http://host:port/``. The default value of this option is
     ``http://localhost:15601/``.
 
-``--output-format``
-
-    This option control the format of results of statements printed in the
-    shell. Valid values are ``bql`` or ``json``. The default value of this
-    option is ``bql``. The only difference between them is the escape of
-    double quotes (``"``). If ``bql`` is chosen, ``["a"]::string`` is printed as
-    ``"[""a""]"``. On the other hand, the ``json`` format prints ``"[\"a\"]"``.
-
-
 .. _ref_commands_sensorbee_topology:
 
 sensorbee topology
