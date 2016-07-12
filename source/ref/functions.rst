@@ -1694,6 +1694,48 @@ Return Type
 
 
 
+Array Functions
+===============
+
+
+.. _ref_func_array_length:
+
+``array_length``
+----------------
+
+::
+
+    array_length(a)
+
+Description
+^^^^^^^^^^^
+
+``array_length`` computes the number of elements in an array ``a``.
+Elements with a NULL value are also counted.
+
+
+Parameter Types
+^^^^^^^^^^^^^^^
+
+``a``
+    ``array``
+
+Return Type
+^^^^^^^^^^^
+
+``int``
+
+Examples
+^^^^^^^^
+
++------------------------------------+----------+
+| Function Call                      | Result   |
++====================================+==========+
+| ``array_length([3, NULL, "foo"])`` | ``3``    |
++------------------------------------+----------+
+
+
+
 
 Other Scalar Functions
 ======================
