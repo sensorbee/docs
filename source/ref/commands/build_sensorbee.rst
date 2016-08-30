@@ -73,7 +73,7 @@ Flags and Options
 
         $ build_sensorbee -c /path/to/dir/special_build.yaml
 
-``--download-plugins {true | false}``
+``--download-plugins={true|false}``
 
     This option have to be ``true`` or ``false``. When the value is ``true``,
     ``build_sensorbee`` downloads (i.e. ``go get``) all plugins listed in
