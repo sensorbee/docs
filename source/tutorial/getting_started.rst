@@ -173,7 +173,7 @@ the executable from your current directory, which has the correct plugins baked 
     Almost everything in SensorBee is volatile at the moment and is reset
     every time the server restarts. A topology is dropped when the server shuts
     down, too. Therefore, ``sensorbee topology create wordcount`` needs to be
-    run on each startup of the server until we specify a config file to
+    run on each startup of the server until it is specified in a config file for
     ``sensorbee run`` later.
 
 In the next step, start ``sensorbee shell``::
