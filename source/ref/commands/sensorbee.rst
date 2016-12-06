@@ -91,6 +91,15 @@ optional parameters:
     writes log messages reporting dropped tuples. When it's ``false``, the
     server doesn't. The default value of this option is ``false``.
 
+``log_destinationless_tuples``
+
+    A destinationless tuple is one kind of dropped tuples that is caused when
+    a source or a stream doesn't have any destination and it drops a tuple.
+    By setting ``true`` to this option, the server reports all destinationless
+    tuples. The default value of this option is ``false``. Note that, to log
+    replication tuples, the ``log_dropped_tuples`` option also needs to be
+    ``true``.
+
 ``summarize_dropped_tuples``
 
     This option turns on or off summarization of dropped tuple logging. Valid
