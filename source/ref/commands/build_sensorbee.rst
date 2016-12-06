@@ -94,6 +94,38 @@ Names of commands must be unique and cannot be any of:
 
 Prohibited names might be added in the future version.
 
+Custom Subcommand Development
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A custom subcommand for the ``sensorbee`` command can be developed as a Go
+package. Only thing the package has to do is to provide a function
+``func SetUp() cli.Command``. ``cli`` is ``gopkg.in/urfave/cli.v1``.
+A minimum example is provided in
+`the SensorBee tutorial repository <https://github.com/sensorbee/tutorial/tree/master/custom_command>`_::
+
+    package hello
+
+    import (
+        "fmt"
+
+        cli "gopkg.in/urfave/cli.v1"
+    )
+
+    func SetUp() cli.Command {
+        return cli.Command{
+            Name:  "hello",
+            Usage: "say hello",
+            Action: func(c *cli.Context) error {
+                fmt.Println("hello")
+                return nil
+            },
+        }
+    }
+
+This command prints "hello" when `sensorbee hello` is executed. See
+https://github.com/urfave/cli to learn how to create a command using the
+``cli`` library.
+
 A Complete Example
 ^^^^^^^^^^^^^^^^^^
 
@@ -111,8 +143,8 @@ A Complete Example
       runfile:
       shell:
       topology:
-      custom:
-        path: "path/to/custom-package"
+      hello:
+        path: "github.com/sensorbee/tutorial/custom_command/hello"
 
 Flags and Options
 -----------------
