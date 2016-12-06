@@ -34,6 +34,7 @@ Configuration
 is written in `YAML <http://yaml.org/>`_ and has following optional sections:
 
 * ``plugins``
+* ``commands``
 
 ``plugins``
 ^^^^^^^^^^^
@@ -50,6 +51,81 @@ The ``plugins`` section is optional and may have a list of plugins as follows::
 A plugin must be provided as a valid import path of Go. A path depends on each
 plugin.
 
+``commands``
+^^^^^^^^^^^^
+
+The ``commands`` section is optional and is used to customize subcommands that
+the ``sensorbee`` command will have. By default, or when the section is empty,
+subcommands include all standard commands:
+
+* ``run``
+* ``runfile``
+* ``shell``
+* ``topology``
+
+``commands`` section is a map whose key is the name of subcommand. Standard
+subcommands like ``run`` can be added by providing empty entries::
+
+    commands:
+      run:
+      shell:
+
+With this configuration, the ``sensorbee`` command will only have ``run`` and
+``shell`` commands.
+
+To add a custom command, an entry must have ``path`` parameter that is a Go
+import path of the command::
+
+    commands:
+      run:
+      shell:
+      mytest:
+        path: "path/to/sb-mytest"
+
+With this configuration, the ``sensorbee`` command will also have the ``mytest``
+subcommand. The subcommand is implemented at ``path/to/sb-mytest``.
+
+Names of commands must be unique and cannot be any of:
+
+* ``cli``
+* ``os``
+* ``version``
+* ``time``
+
+Prohibited names might be added in the future version.
+
+Custom Subcommand Development
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A custom subcommand for the ``sensorbee`` command can be developed as a Go
+package. Only thing the package has to do is to provide a function
+``func SetUp() cli.Command``. ``cli`` is ``gopkg.in/urfave/cli.v1``.
+A minimum example is provided in
+`the SensorBee tutorial repository <https://github.com/sensorbee/tutorial/tree/master/custom_command>`_::
+
+    package hello
+
+    import (
+        "fmt"
+
+        cli "gopkg.in/urfave/cli.v1"
+    )
+
+    func SetUp() cli.Command {
+        return cli.Command{
+            Name:  "hello",
+            Usage: "say hello",
+            Action: func(c *cli.Context) error {
+                fmt.Println("hello")
+                return nil
+            },
+        }
+    }
+
+This command prints "hello" when `sensorbee hello` is executed. See
+https://github.com/urfave/cli to learn how to create a command using the
+``cli`` library.
+
 A Complete Example
 ^^^^^^^^^^^^^^^^^^
 
@@ -61,6 +137,14 @@ A Complete Example
       - github.com/sensorbee/nlp/plugin
       - github.com/sensorbee/tutorial/ml/plugin
       - github.com/sensorbee/jubatus/classifier/plugin
+
+    commands:
+      run:
+      runfile:
+      shell:
+      topology:
+      hello:
+        path: "github.com/sensorbee/tutorial/custom_command/hello"
 
 Flags and Options
 -----------------
