@@ -470,7 +470,7 @@ To create a stream like this from tuples emitted from ``sentences``, BQL
 has the concept of a **user-defined stream-generating function (UDSF)**. A UDSF is able
 to emit multiple tuples from one input tuple, something that cannot be done with the
 ``SELECT`` statement itself. The ``wordcount`` package from this tutorial provides
-a UDSF ``wc_tokenizer(stream, field)``, where ``name`` is the name of the input
+a UDSF ``wc_tokenizer(stream, field)``, where ``stream`` is the name of the input
 stream and ``field`` is the name of the field containing a sentence to be
 tokenized. Both arguments need to be string values.
 
