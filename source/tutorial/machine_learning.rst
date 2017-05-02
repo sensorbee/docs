@@ -829,7 +829,7 @@ obtain labels from the ``age`` field and the ``gender`` field, respectively.
 This statement creates a source which inputs tuples from a file.
 ``training_tweets.json`` is the file prepared previously and contains training
 data. The source is created with the ``PAUSED`` flag, so it doesn't emit any
-tuple untile all other components in the topology are set up and the
+tuple until all other components in the topology are set up and the
 ``RESUME SOURCE`` statement is issued.
 
 ``en_tweets``, ``preprocessed_tweets``, and ``fv_tweets`` streams are same as
