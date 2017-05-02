@@ -266,8 +266,27 @@ infinity* result in ``true``.
 From ``string``
 ^^^^^^^^^^^^^^^
 
-An empty ``string`` value (i.e. ``""``) is converted to ``false``. Other values
-are evaluated as ``true``.
+Following values are converted to ``true``:
+
+* ``"t"``
+* ``"true"``
+* ``"y"``
+* ``"yes"``
+* ``"on"``
+* ``"1"``
+
+Following values are converted to ``false``:
+
+* ``"f"``
+* ``"false"``
+* ``"n"``
+* ``"no"``
+* ``"off"``
+* ``"0"``
+
+Comparison is case-insensitive and leading and trailing whitespaces in a value
+are ignored. For example, ``" tRuE "::bool`` is ``true``. Converting a value
+that is not mentioned above results in an error.
 
 From ``blob``
 ^^^^^^^^^^^^^
