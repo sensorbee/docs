@@ -20,8 +20,8 @@ machine learning to tweets using SensorBee.
     and its machine learning library are doing mini-batch processing, but they
     actually do not.
 
-Prerequisities
-==============
+Prerequisites
+=============
 
 This tutorial requires following software to be installed:
 
@@ -300,7 +300,7 @@ Because SensorBee loads pre-trained machine learning models on its startup,
 it may take a while to set up a topology. After the server shows the
 message ``Starting the server on :15601``, access Kibana at
 `<http://localhost:5601/>`_. If the setup operations performed so far have been
-sucessful, it returns the page as shown below with a green "Create" button:
+successful, it returns the page as shown below with a green "Create" button:
 
 .. image:: /tutorial/kibana_create_index.png
 
@@ -348,7 +348,7 @@ changed since the time of this writing. If so, modify BQL statements in
 describes what each statement does.
 
 When the statement above prints tweets, fluentd or Elasticsearch may have not
-been staretd yet. Check they're running correctly.
+been started yet. Check they're running correctly.
 
 For other errors, report them to `<https://github.com/sensorbee/tutorial>`_.
 

@@ -107,7 +107,7 @@ range_number
     window. **range_number** is followed by one of interval types:
     ``TUPLES``, ``SECONDS``, or ``MILLISECONDS``.
 
-    When ``TUPLES`` is given, **range_number** must be an positive integer
+    When ``TUPLES`` is given, **range_number** must be a positive integer
     and the window can contain at most **range_number** tuples. If a new
     tuple is inserted into the window having **range_number** tuples, the
     oldest tuple is removed. "The oldest tuple" is the tuple that was
@@ -232,7 +232,7 @@ group.
 ^^^^^^^^^^^^^^^^^
 
 The ``HAVING`` clause is an optional clause and placed after the ``GROUP BY``
-clause. The ``HAVING`` clause has an condition and evaluate it for each group,
+clause. The ``HAVING`` clause has a condition and evaluate it for each group,
 instead of each tuple. When ungrouped fields are used in the condition, they
 need to be in aggregate functions::
 

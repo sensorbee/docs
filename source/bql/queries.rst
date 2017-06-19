@@ -465,7 +465,7 @@ does *not* guarantee a particular output. Also, statements such as
 
     SELECT RSTREAM 1 AS x.y, 2 AS x[1] ...
 
-will lead to errors because `x` can not be a map and an array at the same time.
+will lead to errors because `x` cannot be a map and an array at the same time.
 
 
 Notes on Wildcards

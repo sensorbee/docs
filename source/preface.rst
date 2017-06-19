@@ -12,7 +12,7 @@ This document is structured as follows:
   tutorials.
 * :ref:`Part II <bql>` documents the syntax and specification of the BQL
   language.
-* :ref:`Part III <server_programming>` describes information for advancedusers
+* :ref:`Part III <server_programming>` describes information for advanced users
   about extensibility capabilities of the server.
 * :ref:`Reference <ref>` contains reference information about BQL statements,
   built-in components, and client programs.

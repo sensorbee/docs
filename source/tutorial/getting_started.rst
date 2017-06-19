@@ -242,7 +242,7 @@ BQL's ``SELECT`` statement has two components related to stream data processing:
     Skip the description of stream-to-relations and relation-to-stream operators
     if these aren't clear enough at the moment.
 
-A stream-to-relation operator is a operator that literally converts a stream of
+A stream-to-relation operator is an operator that literally converts a stream of
 tuples to relations (i.e., records in a table of the database). What it
 actually does is to define a window having a finite set of tuples on a stream.
 The operator is written as ``[RANGE n TUPLES]`` or ``[RANGE n SECONDS]``.
