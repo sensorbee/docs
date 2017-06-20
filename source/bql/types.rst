@@ -328,7 +328,7 @@ From ``bool``
 From ``float``
 ^^^^^^^^^^^^^^
 
-Converting a ``float`` value into a ``int`` value truncates the decimal part.
+Converting a ``float`` value into an ``int`` value truncates the decimal part.
 That is, for positive numbers it results in the greatest ``int`` value less than
 or equal to the ``float`` value, for negative numbers it results in the smallest
 ``int`` value greater than or equal to the ``float`` value::

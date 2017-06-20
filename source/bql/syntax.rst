@@ -471,7 +471,7 @@ For example::
 
     SELECT RSTREAM {"a_const": 7, "prod": 2 * stream:a} FROM ...
 
-The keys must be string literals (i.e., they can not be computed expressions); in particular they must be written using double quotes.
+The keys must be string literals (i.e., they cannot be computed expressions); in particular they must be written using double quotes.
 The values can be arbitrary expressions, including a wildcard.
 
 
