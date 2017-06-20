@@ -175,7 +175,7 @@ Description
 ^^^^^^^^^^^
 
 ``div`` computes the integer quotient ``y``/``x`` of two numbers ``y`` and ``x``.
-If ``x`` is ``0.0`` (float) then ``NaN`` will be returned; it is ``0`` (integer) then a runtime error will occur.
+If ``x`` is ``0.0`` (float) then ``NaN`` will be returned; if it is ``0`` (integer) then a runtime error will occur.
 
 Parameter Types
 ^^^^^^^^^^^^^^^
@@ -375,7 +375,7 @@ Description
 ^^^^^^^^^^^
 
 ``mod`` computes the remainder of integer division ``y``/``x`` of two numbers ``y`` and ``x``.
-If ``x`` is ``0.0`` (float) then ``NaN`` will be returned; it is ``0`` (integer) then a runtime error will occur.
+If ``x`` is ``0.0`` (float) then ``NaN`` will be returned; if it is ``0`` (integer) then a runtime error will occur.
 
 Parameter Types
 ^^^^^^^^^^^^^^^
